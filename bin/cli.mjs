@@ -133,7 +133,28 @@ async function init() {
   const skillsTarget = join(targetDir, '.claude', 'skills');
   installSkills(skillsTarget);
 
-  // Step 5: Commit
+  // Step 5: Create root CLAUDE.md
+  const claudeMd = `# ${company.trim()} — Company Brain
+
+## Getting Started
+- \`/ingest <path>\` — Import files and directories into the brain
+- \`/push\` — Save changes (commits locally, pushes if remote exists)
+- \`/refresh\` — Pull latest changes from remote
+- Say **"I'm new here"** to get walked through everything
+
+## How It Works
+Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departments by creating directories with CLAUDE.md files. The brain grows as you use it.
+
+## Departments
+
+| Directory | What's In It |
+|---|---|
+| _Run /ingest to populate_ | |
+`;
+  writeFileSync(join(targetDir, 'CLAUDE.md'), claudeMd);
+  console.log('  Created CLAUDE.md');
+
+  // Step 6: Commit
   try {
     execSync('git add -A && git commit -m "Initial brain — antidrift"', {
       cwd: targetDir, stdio: 'pipe'
