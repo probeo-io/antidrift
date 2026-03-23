@@ -1,9 +1,9 @@
 ---
 name: push
-description: Commit and push all brain changes to remote repo. Sets up GitHub remote on first push if needed.
+description: Commit brain changes. Pushes to remote if one exists, commits locally if not.
 ---
 
-Commits all current changes and pushes to the remote repo.
+Saves all current changes. Pushes to remote if configured, otherwise just commits locally.
 
 ## Instructions
 
@@ -13,32 +13,19 @@ git add -A
 git status
 ```
 
-If nothing to commit, report "Brain is clean, nothing to push." and stop.
+If nothing to commit, report "Brain is clean, nothing to save." and stop.
 
 ### Step 2 — Commit
 ```bash
 git commit -m "<describe what changed>"
 ```
 
-### Step 3 — Check for remote
+### Step 3 — Push if remote exists
 ```bash
-git remote get-url origin
+git remote get-url origin 2>/dev/null
 ```
 
-If no remote exists, help them set one up:
-1. Ask: "No remote repo set up yet. What's your GitHub org or username?"
-2. Use the brain directory name as the repo name
-3. Check if `gh` CLI is available — if yes, create the repo:
-   ```bash
-   gh repo create <org>/<name> --private --source=. --push --description "Company brain"
-   ```
-4. If `gh` is not available, tell them to create a repo on GitHub and then run:
-   ```bash
-   git remote add origin https://github.com/<org>/<name>.git
-   git push -u origin main
-   ```
-
-### Step 4 — Push
+If a remote exists, push:
 ```bash
 git push origin main
 ```
@@ -48,7 +35,9 @@ If push fails (remote has new commits), pull first:
 git pull --rebase origin main && git push origin main
 ```
 
-### Step 5 — Report
+If no remote exists, just report "Committed locally." That's fine — they can set up a remote later when they're ready to share.
+
+### Step 4 — Report
 ```bash
 git log --oneline -3
 ```
