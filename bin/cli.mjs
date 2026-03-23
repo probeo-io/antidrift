@@ -58,7 +58,7 @@ async function main() {
 
 function checkPrereqs(command) {
   const missing = [];
-  const platform = process.platform; // darwin, win32, linux
+  const platform = process.platform;
 
   try { execSync('git --version', { stdio: 'ignore' }); }
   catch { missing.push({ name: 'git', install: gitInstall(platform) }); }
@@ -91,66 +91,117 @@ function claudeInstall(platform) {
 
 function showHelp() {
   console.log(`
-antidrift — Company brain skills for Claude Code
+antidrift — Company brain for Claude
 
 Usage:
-  npx antidrift init     Start a new brain (first person)
-  npx antidrift join     Join an existing brain (everyone else)
-  npx antidrift help     Show this message
+  npx antidrift init            Start a new brain (first person)
+  npx antidrift join <repo>     Join an existing brain (everyone else)
+  npx antidrift help            Show this message
+
+Examples:
+  npx antidrift init
+  npx antidrift join mycompany/brain
+  npx antidrift join https://github.com/mycompany/brain.git
 `);
 }
 
 async function init() {
   console.log(banner);
 
-  const targetDir = process.cwd();
-  const skillsTarget = join(targetDir, '.claude', 'skills');
+  // Step 1: Name the brain
+  const brainName = await ask('  What should the brain be called? (e.g. company-brain): ');
+  const name = brainName.trim() || 'company-brain';
+  const targetDir = join(process.cwd(), name);
 
-  // Install skills
-  if (existsSync(skillsTarget)) {
-    const existing = readdirSync(skillsTarget);
-    if (existing.length > 0) {
-      const overwrite = await ask(`  Skills already exist (${existing.join(', ')})\n  Overwrite core skills? (y/n) `);
-      if (overwrite.toLowerCase() !== 'y') {
-        console.log('  Skipping skill install.\n');
-      } else {
-        installSkills(skillsTarget);
+  if (existsSync(targetDir)) {
+    console.log(`\n  ${name}/ already exists. Run from inside it or pick a different name.`);
+    return;
+  }
+
+  // Step 2: Create directory
+  mkdirSync(targetDir, { recursive: true });
+  console.log(`\n  Created ${name}/`);
+
+  // Step 3: Git init
+  execSync('git init && git branch -m main', { cwd: targetDir, stdio: 'pipe' });
+  console.log('  Initialized git repo');
+
+  // Step 4: Gitignore
+  writeFileSync(join(targetDir, '.gitignore'), 'scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n');
+  console.log('  Created .gitignore');
+
+  // Step 5: Install skills
+  const skillsTarget = join(targetDir, '.claude', 'skills');
+  installSkills(skillsTarget);
+
+  // Step 6: GitHub repo?
+  console.log('');
+  const createRemote = await ask('  Create a private GitHub repo? (y/n) ');
+
+  if (createRemote.toLowerCase() === 'y') {
+    let hasGh = false;
+    try { execSync('gh --version', { stdio: 'ignore' }); hasGh = true; } catch {}
+
+    if (hasGh) {
+      const orgOrUser = await ask('  GitHub org or username: ');
+      const repoPath = `${orgOrUser.trim()}/${name}`;
+      try {
+        execSync(`gh repo create ${repoPath} --private --source=. --description "Company brain"`, {
+          cwd: targetDir,
+          stdio: 'inherit'
+        });
+        console.log(`\n  Created https://github.com/${repoPath} (private)`);
+      } catch {
+        console.log('\n  Could not create repo. You can do it manually later.');
       }
     } else {
-      installSkills(skillsTarget);
-    }
-  } else {
-    installSkills(skillsTarget);
-  }
-
-  // Init git if needed
-  if (!existsSync(join(targetDir, '.git'))) {
-    console.log('');
-    const initGit = await ask('  Initialize git repo? (y/n) ');
-    if (initGit.toLowerCase() === 'y') {
-      execSync('git init && git branch -m main', { cwd: targetDir, stdio: 'inherit' });
+      console.log('  gh CLI not found. Install it: https://cli.github.com');
+      console.log('  Then run: gh repo create <org>/' + name + ' --private --source=. --push');
     }
   }
 
-  // Add gitignore if missing
-  if (!existsSync(join(targetDir, '.gitignore'))) {
-    writeFileSync(join(targetDir, '.gitignore'), 'scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n');
-    console.log('  Created .gitignore');
+  // Step 7: Initial commit
+  try {
+    execSync('git add -A && git commit -m "Initial brain — antidrift"', {
+      cwd: targetDir,
+      stdio: 'pipe'
+    });
+    console.log('  Created initial commit');
+
+    // Push if remote exists
+    try {
+      execSync('git remote get-url origin', { cwd: targetDir, stdio: 'pipe' });
+      execSync('git push -u origin main', { cwd: targetDir, stdio: 'pipe' });
+      console.log('  Pushed to remote');
+    } catch {
+      // No remote, that's fine
+    }
+  } catch {
+    // Commit failed, that's ok
   }
 
-  // Build brain?
+  // Step 8: Launch Claude
   console.log('');
-  const buildBrain = await ask('  Build a brain now? Claude will walk you through it. (y/n) ');
+  const launch = await ask('  Launch Claude Code to build the brain? (y/n) ');
 
-  if (buildBrain.toLowerCase() === 'y') {
-    console.log('\n  Launching Claude Code...\n');
+  if (launch.toLowerCase() === 'y') {
+    console.log(`\n  Launching Claude Code in ${name}/...`);
+    console.log('  Type /init to build your brain, or just start talking.\n');
     try {
       execSync('claude', { cwd: targetDir, stdio: 'inherit' });
     } catch {
-      console.log('\n  Open Claude Code in this directory and type /init');
+      console.log(`\n  cd ${name} && claude`);
     }
   } else {
-    showNextSteps(targetDir);
+    console.log(`
+  Ready. Next steps:
+
+    cd ${name}
+    claude
+
+  Then type /init to build your brain, or just start talking.
+  Share with your team: npx antidrift join <org>/${name}
+`);
   }
 }
 
@@ -213,7 +264,7 @@ async function join_brain() {
     try {
       execSync('claude', { cwd: targetDir, stdio: 'inherit' });
     } catch {
-      console.log(`\n  cd ${targetDir} && claude`);
+      console.log(`\n  cd ${repoName} && claude`);
       console.log('  Then say "I\'m new here"');
     }
   } else {
@@ -237,24 +288,6 @@ function installSkills(targetDir) {
     cpSync(src, dest, { recursive: true });
   }
   console.log(`  Installed ${skills.length} skills: ${skills.join(', ')}`);
-}
-
-function showNextSteps(targetDir) {
-  console.log(`
-  Skills installed. To get started:
-
-    cd ${targetDir}
-    claude
-
-  Then type /init to build your brain, or just start adding CLAUDE.md files.
-
-  Available commands:
-    /init      — Build a brain from scratch or migrate existing knowledge
-    /refresh   — Pull latest changes
-    /push      — Commit and push changes
-
-  Say "I'm new here" to get a walkthrough.
-`);
 }
 
 main().catch(console.error);
