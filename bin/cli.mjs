@@ -112,17 +112,15 @@ async function init() {
   if (here.trim().toLowerCase().startsWith('y')) {
     targetDir = process.cwd();
   } else {
-    const dirName = await ask('  Directory name (e.g. company-brain): ');
-    const name = dirName.trim() || 'company-brain';
-    targetDir = join(process.cwd(), name);
+    targetDir = join(process.cwd(), 'company-brain');
 
     if (existsSync(targetDir)) {
-      console.log(`\n  ${name}/ already exists.`);
+      console.log(`\n  company-brain/ already exists.`);
       return;
     }
 
     mkdirSync(targetDir, { recursive: true });
-    console.log(`\n  Created ${name}/`);
+    console.log(`\n  Created company-brain/`);
   }
 
   // Step 2: Git
