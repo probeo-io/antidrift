@@ -36,7 +36,8 @@ async function main() {
     console.log(banner);
     console.log('  Missing prerequisites:\n');
     for (const m of missing) {
-      console.log(`    ✗ ${m.name} — ${m.help}`);
+      console.log(`    ✗ ${m.name}`);
+      console.log(`      ${m.install}\n`);
     }
     console.log('');
     rl.close();
@@ -57,22 +58,35 @@ async function main() {
 
 function checkPrereqs(command) {
   const missing = [];
+  const platform = process.platform; // darwin, win32, linux
 
-  // git is required for both init and join
   try { execSync('git --version', { stdio: 'ignore' }); }
-  catch { missing.push({ name: 'git', help: 'https://git-scm.com/downloads' }); }
+  catch { missing.push({ name: 'git', install: gitInstall(platform) }); }
 
-  // claude is required for both
   try { execSync('which claude', { stdio: 'ignore' }); }
-  catch { missing.push({ name: 'Claude Code', help: 'https://docs.anthropic.com/en/docs/claude-code' }); }
-
-  // gh is nice to have for join but not required
-  if (command === 'join') {
-    try { execSync('gh --version', { stdio: 'ignore' }); }
-    catch { /* git clone still works without gh */ }
-  }
+  catch { missing.push({ name: 'Claude Code', install: claudeInstall(platform) }); }
 
   return missing;
+}
+
+function gitInstall(platform) {
+  if (platform === 'darwin') {
+    return 'Run: xcode-select --install\n             Or: brew install git';
+  } else if (platform === 'win32') {
+    return 'Download: https://git-scm.com/download/win\n             Or: winget install Git.Git';
+  } else {
+    return 'Run: sudo apt install git\n             Or: sudo dnf install git';
+  }
+}
+
+function claudeInstall(platform) {
+  if (platform === 'darwin') {
+    return 'Run: brew install claude-code\n             Or: npm install -g @anthropic-ai/claude-code';
+  } else if (platform === 'win32') {
+    return 'Run: npm install -g @anthropic-ai/claude-code';
+  } else {
+    return 'Run: npm install -g @anthropic-ai/claude-code';
+  }
 }
 
 function showHelp() {
