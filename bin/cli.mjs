@@ -105,7 +105,17 @@ Examples:
 async function init() {
   console.log(banner);
 
-  const targetDir = process.cwd();
+  const company = await ask('  Company name: ');
+  const dirName = company.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/,'') || 'company-brain';
+  const targetDir = join(process.cwd(), dirName);
+
+  if (existsSync(targetDir)) {
+    console.log(`\n  ${dirName}/ already exists.`);
+    return;
+  }
+
+  mkdirSync(targetDir, { recursive: true });
+  console.log(`  Created ${dirName}/`);
 
   // Step 2: Git
   if (!existsSync(join(targetDir, '.git'))) {
