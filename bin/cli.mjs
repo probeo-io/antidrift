@@ -26,7 +26,24 @@ async function main() {
 
   if (!command || command === 'help') {
     showHelp();
-  } else if (command === 'init') {
+    rl.close();
+    return;
+  }
+
+  // Check prerequisites
+  const missing = checkPrereqs(command);
+  if (missing.length > 0) {
+    console.log(banner);
+    console.log('  Missing prerequisites:\n');
+    for (const m of missing) {
+      console.log(`    ✗ ${m.name} — ${m.help}`);
+    }
+    console.log('');
+    rl.close();
+    process.exit(1);
+  }
+
+  if (command === 'init') {
     await init();
   } else if (command === 'join') {
     await join_brain();
@@ -36,6 +53,26 @@ async function main() {
   }
 
   rl.close();
+}
+
+function checkPrereqs(command) {
+  const missing = [];
+
+  // git is required for both init and join
+  try { execSync('git --version', { stdio: 'ignore' }); }
+  catch { missing.push({ name: 'git', help: 'https://git-scm.com/downloads' }); }
+
+  // claude is required for both
+  try { execSync('which claude', { stdio: 'ignore' }); }
+  catch { missing.push({ name: 'Claude Code', help: 'https://docs.anthropic.com/en/docs/claude-code' }); }
+
+  // gh is nice to have for join but not required
+  if (command === 'join') {
+    try { execSync('gh --version', { stdio: 'ignore' }); }
+    catch { /* git clone still works without gh */ }
+  }
+
+  return missing;
 }
 
 function showHelp() {
