@@ -146,7 +146,7 @@ async function init() {
   const launch = await ask('  Launch Claude Code? (y/n) ');
 
   if (launch.trim().toLowerCase().startsWith('y')) {
-    console.log('\n  Type /init to build your brain, or just start talking.\n');
+    console.log('\n  Type /ingest to build your brain, or just start talking.\n');
     try {
       execSync('claude', { cwd: targetDir, stdio: 'inherit' });
     } catch {
@@ -159,7 +159,7 @@ async function init() {
     cd ${targetDir}
     claude
 
-  Type /init to build your brain, or just start talking.
+  Type /ingest to build your brain, or just start talking.
 `);
   }
 }
