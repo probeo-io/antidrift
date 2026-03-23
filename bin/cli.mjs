@@ -112,7 +112,7 @@ async function init() {
   const here = await ask('  Install in current directory? (y/n) ');
   let targetDir;
 
-  if (here.toLowerCase() === 'y') {
+  if (here.trim().toLowerCase().startsWith('y')) {
     targetDir = process.cwd();
     console.log('');
   } else {
