@@ -105,23 +105,7 @@ Examples:
 async function init() {
   console.log(banner);
 
-  // Step 1: Where?
-  const here = await ask('  Install in current directory? (y/n) ');
-  let targetDir;
-
-  if (here.trim().toLowerCase().startsWith('y')) {
-    targetDir = process.cwd();
-  } else {
-    targetDir = join(process.cwd(), 'company-brain');
-
-    if (existsSync(targetDir)) {
-      console.log(`\n  company-brain/ already exists.`);
-      return;
-    }
-
-    mkdirSync(targetDir, { recursive: true });
-    console.log(`\n  Created company-brain/`);
-  }
+  const targetDir = process.cwd();
 
   // Step 2: Git
   if (!existsSync(join(targetDir, '.git'))) {
