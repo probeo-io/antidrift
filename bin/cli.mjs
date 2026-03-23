@@ -53,6 +53,8 @@ async function main() {
     await init();
   } else if (command === 'join') {
     await joinBrain();
+  } else if (command === 'update') {
+    await update();
   } else {
     console.log(`  Unknown command: ${command}\n`);
     showHelp();
@@ -93,12 +95,13 @@ antidrift — Company brain for Claude
 Usage:
   npx antidrift init            Start a new brain (first person)
   npx antidrift join <repo>     Join an existing brain (everyone else)
+  npx antidrift update          Update skills to latest version
   npx antidrift help            Show this message
 
 Examples:
   npx antidrift init
   npx antidrift join mycompany/brain
-  npx antidrift join https://github.com/mycompany/brain.git
+  npx antidrift update
 `);
 }
 
@@ -184,6 +187,20 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
   Type /ingest to build your brain, or just start talking.
 `);
   }
+}
+
+async function update() {
+  console.log(banner);
+
+  const skillsTarget = join(process.cwd(), '.claude', 'skills');
+
+  if (!existsSync(skillsTarget)) {
+    console.log('  No .claude/skills/ found. Run `npx antidrift init` first.');
+    return;
+  }
+
+  installSkills(skillsTarget);
+  console.log('\n  Skills updated to latest version.');
 }
 
 async function joinBrain() {
