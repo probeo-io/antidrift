@@ -140,6 +140,7 @@ async function init() {
 - \`/ingest <path>\` — Import files and directories into the brain
 - \`/push\` — Save changes (commits locally, pushes if remote exists)
 - \`/refresh\` — Pull latest changes from remote
+- \`/remote\` — Set up GitHub so the team can share the brain
 - Say **"I'm new here"** to get walked through everything
 
 ## How It Works
