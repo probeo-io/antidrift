@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, cpSync, readdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, cpSync, readdirSync, writeFileSync, readFileSync } from 'fs';
 import { join, basename } from 'path';
 import { createInterface } from 'readline';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { homedir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -55,6 +56,8 @@ async function main() {
     await joinBrain();
   } else if (command === 'update') {
     await update();
+  } else if (command === 'mcp') {
+    await mcp();
   } else {
     console.log(`  Unknown command: ${command}\n`);
     showHelp();
@@ -93,15 +96,18 @@ function showHelp() {
 antidrift — Company brain for Claude
 
 Usage:
-  npx antidrift init            Start a new brain (first person)
-  npx antidrift join <repo>     Join an existing brain (everyone else)
-  npx antidrift update          Update skills to latest version
-  npx antidrift help            Show this message
+  npx antidrift init                Start a new brain (first person)
+  npx antidrift join <repo>         Join an existing brain (everyone else)
+  npx antidrift update              Update skills to latest version
+  npx antidrift mcp add <service>   Connect a service (google-sheets, stripe)
+  npx antidrift mcp list            Show connected services
+  npx antidrift help                Show this message
 
 Examples:
   npx antidrift init
   npx antidrift join mycompany/brain
-  npx antidrift update
+  npx antidrift mcp add google-sheets
+  npx antidrift mcp add stripe
 `);
 }
 
@@ -201,6 +207,109 @@ async function update() {
 
   installSkills(skillsTarget);
   console.log('\n  Skills updated to latest version.');
+}
+
+async function mcp() {
+  console.log(banner);
+
+  const subcommand = process.argv[3];
+  const service = process.argv[4];
+
+  if (subcommand === 'add') {
+    await mcpAdd(service);
+  } else if (subcommand === 'list') {
+    mcpList();
+  } else {
+    console.log('  Usage:');
+    console.log('    npx antidrift mcp add google-sheets');
+    console.log('    npx antidrift mcp add stripe');
+    console.log('    npx antidrift mcp list');
+  }
+}
+
+async function mcpAdd(service) {
+  const configDir = join(homedir(), '.antidrift');
+  mkdirSync(configDir, { recursive: true });
+
+  if (service === 'google-sheets') {
+    // Check for credentials
+    const credsPath = join(configDir, 'google-credentials.json');
+    if (!existsSync(credsPath)) {
+      console.log('  Google OAuth credentials not found.\n');
+      console.log('  1. Go to https://console.cloud.google.com');
+      console.log('  2. APIs & Services → Credentials → Create OAuth Client ID');
+      console.log('  3. Application type: Desktop app');
+      console.log('  4. Download the JSON file');
+      console.log(`  5. Save it to: ${credsPath}\n`);
+      console.log('  Then run this command again.');
+      return;
+    }
+
+    // Run OAuth flow
+    const { runAuthFlow } = await import('../mcp/auth-google.mjs');
+    await runAuthFlow();
+
+    // Write MCP config
+    writeMcpConfig();
+    console.log('  Google Sheets connected. Restart Claude Code to use it.');
+
+  } else if (service === 'stripe') {
+    const stripeConfigPath = join(configDir, 'stripe.json');
+    const apiKey = await ask('  Stripe API key (sk_...): ');
+
+    if (!apiKey.trim().startsWith('sk_')) {
+      console.log('  Invalid key. Should start with sk_live_ or sk_test_');
+      return;
+    }
+
+    writeFileSync(stripeConfigPath, JSON.stringify({ apiKey: apiKey.trim() }, null, 2));
+    console.log(`  Saved to ${stripeConfigPath}`);
+
+    writeMcpConfig();
+    console.log('  Stripe connected. Restart Claude Code to use it.');
+
+  } else {
+    console.log('  Available services: google-sheets, stripe');
+  }
+}
+
+function mcpList() {
+  const configDir = join(homedir(), '.antidrift');
+  const services = [];
+
+  if (existsSync(join(configDir, 'google-token.json'))) {
+    services.push('google-sheets');
+  }
+  if (existsSync(join(configDir, 'stripe.json'))) {
+    services.push('stripe');
+  }
+
+  if (services.length === 0) {
+    console.log('  No services connected. Run: npx antidrift mcp add <service>');
+  } else {
+    console.log('  Connected services:\n');
+    for (const s of services) {
+      console.log(`    ✓ ${s}`);
+    }
+  }
+}
+
+function writeMcpConfig() {
+  const mcpPath = join(process.cwd(), '.mcp.json');
+  let config = {};
+
+  if (existsSync(mcpPath)) {
+    try { config = JSON.parse(readFileSync(mcpPath, 'utf8')); } catch {}
+  }
+
+  if (!config.mcpServers) config.mcpServers = {};
+
+  config.mcpServers.antidrift = {
+    command: 'node',
+    args: [join(__dirname, '..', 'mcp', 'server.mjs')]
+  };
+
+  writeFileSync(mcpPath, JSON.stringify(config, null, 2));
 }
 
 async function joinBrain() {

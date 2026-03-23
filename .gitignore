@@ -4,3 +4,4 @@ scratch/
 .env.*
 *.local
 .DS_Store
+client_secret*
