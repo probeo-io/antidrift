@@ -108,23 +108,32 @@ Examples:
 async function init() {
   console.log(banner);
 
-  // Step 1: Name the brain
-  const brainName = await ask('  What should the brain be called? (e.g. company-brain): ');
-  const name = brainName.trim() || 'company-brain';
-  const targetDir = join(process.cwd(), name);
+  // Step 1: Here or new directory?
+  const here = await ask('  Install in current directory? (y/n) ');
+  let targetDir;
 
-  if (existsSync(targetDir)) {
-    console.log(`\n  ${name}/ already exists. Run from inside it or pick a different name.`);
-    return;
+  if (here.toLowerCase() === 'y') {
+    targetDir = process.cwd();
+    console.log('');
+  } else {
+    const brainName = await ask('  Directory name (e.g. company-brain): ');
+    const name = brainName.trim() || 'company-brain';
+    targetDir = join(process.cwd(), name);
+
+    if (existsSync(targetDir)) {
+      console.log(`\n  ${name}/ already exists. Run from inside it or pick a different name.`);
+      return;
+    }
+
+    mkdirSync(targetDir, { recursive: true });
+    console.log(`\n  Created ${name}/`);
   }
 
-  // Step 2: Create directory
-  mkdirSync(targetDir, { recursive: true });
-  console.log(`\n  Created ${name}/`);
-
-  // Step 3: Git init
-  execSync('git init && git branch -m main', { cwd: targetDir, stdio: 'pipe' });
-  console.log('  Initialized git repo');
+  // Step 2: Git init if needed
+  if (!existsSync(join(targetDir, '.git'))) {
+    execSync('git init && git branch -m main', { cwd: targetDir, stdio: 'pipe' });
+    console.log('  Initialized git repo');
+  }
 
   // Step 4: Gitignore
   writeFileSync(join(targetDir, '.gitignore'), 'scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n');
@@ -150,22 +159,21 @@ async function init() {
   const launch = await ask('  Launch Claude Code to build the brain? (y/n) ');
 
   if (launch.toLowerCase() === 'y') {
-    console.log(`\n  Launching Claude Code in ${name}/...`);
+    console.log(`\n  Launching Claude Code...`);
     console.log('  Type /init to build your brain, or just start talking.\n');
     try {
       execSync('claude', { cwd: targetDir, stdio: 'inherit' });
     } catch {
-      console.log(`\n  cd ${name} && claude`);
+      console.log(`\n  cd ${targetDir} && claude`);
     }
   } else {
     console.log(`
   Ready. Next steps:
 
-    cd ${name}
+    cd ${targetDir}
     claude
 
   Then type /init to build your brain, or just start talking.
-  Share with your team: npx antidrift join <org>/${name}
 `);
   }
 }
