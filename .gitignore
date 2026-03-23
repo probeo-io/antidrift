@@ -5,3 +5,5 @@ scratch/
 *.local
 .DS_Store
 client_secret*
+node_modules/
+package-lock.json
