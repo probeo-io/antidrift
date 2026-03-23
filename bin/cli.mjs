@@ -134,48 +134,13 @@ async function init() {
   const skillsTarget = join(targetDir, '.claude', 'skills');
   installSkills(skillsTarget);
 
-  // Step 6: GitHub repo?
-  console.log('');
-  const createRemote = await ask('  Create a private GitHub repo? (y/n) ');
-
-  if (createRemote.toLowerCase() === 'y') {
-    let hasGh = false;
-    try { execSync('gh --version', { stdio: 'ignore' }); hasGh = true; } catch {}
-
-    if (hasGh) {
-      const orgOrUser = await ask('  GitHub org or username: ');
-      const repoPath = `${orgOrUser.trim()}/${name}`;
-      try {
-        execSync(`gh repo create ${repoPath} --private --source=. --description "Company brain"`, {
-          cwd: targetDir,
-          stdio: 'inherit'
-        });
-        console.log(`\n  Created https://github.com/${repoPath} (private)`);
-      } catch {
-        console.log('\n  Could not create repo. You can do it manually later.');
-      }
-    } else {
-      console.log('  gh CLI not found. Install it: https://cli.github.com');
-      console.log('  Then run: gh repo create <org>/' + name + ' --private --source=. --push');
-    }
-  }
-
-  // Step 7: Initial commit
+  // Step 6: Initial commit
   try {
     execSync('git add -A && git commit -m "Initial brain — antidrift"', {
       cwd: targetDir,
       stdio: 'pipe'
     });
     console.log('  Created initial commit');
-
-    // Push if remote exists
-    try {
-      execSync('git remote get-url origin', { cwd: targetDir, stdio: 'pipe' });
-      execSync('git push -u origin main', { cwd: targetDir, stdio: 'pipe' });
-      console.log('  Pushed to remote');
-    } catch {
-      // No remote, that's fine
-    }
   } catch {
     // Commit failed, that's ok
   }
