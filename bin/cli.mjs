@@ -12,7 +12,14 @@ const __dirname = dirname(__filename);
 const skillsSource = join(__dirname, '..', 'skills');
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
-const ask = (q) => new Promise((r) => rl.question(q, r));
+
+function ask(q) {
+  return new Promise((resolve) => {
+    rl.question(q, (answer) => {
+      resolve(answer);
+    });
+  });
+}
 
 const banner = `
   ┌─────────────────────────────┐
@@ -30,8 +37,7 @@ async function main() {
     return;
   }
 
-  // Check prerequisites
-  const missing = checkPrereqs(command);
+  const missing = checkPrereqs();
   if (missing.length > 0) {
     console.log(banner);
     console.log('  Missing prerequisites:\n');
@@ -39,7 +45,6 @@ async function main() {
       console.log(`    ✗ ${m.name}`);
       console.log(`      ${m.install}\n`);
     }
-    console.log('');
     rl.close();
     process.exit(1);
   }
@@ -47,7 +52,7 @@ async function main() {
   if (command === 'init') {
     await init();
   } else if (command === 'join') {
-    await join_brain();
+    await joinBrain();
   } else {
     console.log(`  Unknown command: ${command}\n`);
     showHelp();
@@ -56,37 +61,29 @@ async function main() {
   rl.close();
 }
 
-function checkPrereqs(command) {
+function checkPrereqs() {
   const missing = [];
-  const platform = process.platform;
+  const p = process.platform;
 
   try { execSync('git --version', { stdio: 'ignore' }); }
-  catch { missing.push({ name: 'git', install: gitInstall(platform) }); }
+  catch {
+    const install = p === 'darwin'
+      ? 'Run: xcode-select --install\n             Or: brew install git'
+      : p === 'win32'
+        ? 'Download: https://git-scm.com/download/win\n             Or: winget install Git.Git'
+        : 'Run: sudo apt install git\n             Or: sudo dnf install git';
+    missing.push({ name: 'git', install });
+  }
 
   try { execSync('which claude', { stdio: 'ignore' }); }
-  catch { missing.push({ name: 'Claude Code', install: claudeInstall(platform) }); }
+  catch {
+    const install = p === 'darwin'
+      ? 'Run: brew install claude-code\n             Or: npm install -g @anthropic-ai/claude-code'
+      : 'Run: npm install -g @anthropic-ai/claude-code';
+    missing.push({ name: 'Claude Code', install });
+  }
 
   return missing;
-}
-
-function gitInstall(platform) {
-  if (platform === 'darwin') {
-    return 'Run: xcode-select --install\n             Or: brew install git';
-  } else if (platform === 'win32') {
-    return 'Download: https://git-scm.com/download/win\n             Or: winget install Git.Git';
-  } else {
-    return 'Run: sudo apt install git\n             Or: sudo dnf install git';
-  }
-}
-
-function claudeInstall(platform) {
-  if (platform === 'darwin') {
-    return 'Run: brew install claude-code\n             Or: npm install -g @anthropic-ai/claude-code';
-  } else if (platform === 'win32') {
-    return 'Run: npm install -g @anthropic-ai/claude-code';
-  } else {
-    return 'Run: npm install -g @anthropic-ai/claude-code';
-  }
 }
 
 function showHelp() {
@@ -108,20 +105,19 @@ Examples:
 async function init() {
   console.log(banner);
 
-  // Step 1: Here or new directory?
+  // Step 1: Where?
   const here = await ask('  Install in current directory? (y/n) ');
   let targetDir;
 
   if (here.trim().toLowerCase().startsWith('y')) {
     targetDir = process.cwd();
-    console.log('');
   } else {
-    const brainName = await ask('  Directory name (e.g. company-brain): ');
-    const name = brainName.trim() || 'company-brain';
+    const dirName = await ask('  Directory name (e.g. company-brain): ');
+    const name = dirName.trim() || 'company-brain';
     targetDir = join(process.cwd(), name);
 
     if (existsSync(targetDir)) {
-      console.log(`\n  ${name}/ already exists. Run from inside it or pick a different name.`);
+      console.log(`\n  ${name}/ already exists.`);
       return;
     }
 
@@ -129,38 +125,36 @@ async function init() {
     console.log(`\n  Created ${name}/`);
   }
 
-  // Step 2: Git init if needed
+  // Step 2: Git
   if (!existsSync(join(targetDir, '.git'))) {
     execSync('git init && git branch -m main', { cwd: targetDir, stdio: 'pipe' });
     console.log('  Initialized git repo');
   }
 
-  // Step 4: Gitignore
-  writeFileSync(join(targetDir, '.gitignore'), 'scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n');
-  console.log('  Created .gitignore');
+  // Step 3: Gitignore
+  if (!existsSync(join(targetDir, '.gitignore'))) {
+    writeFileSync(join(targetDir, '.gitignore'), 'scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n');
+    console.log('  Created .gitignore');
+  }
 
-  // Step 5: Install skills
+  // Step 4: Skills
   const skillsTarget = join(targetDir, '.claude', 'skills');
   installSkills(skillsTarget);
 
-  // Step 6: Initial commit
+  // Step 5: Commit
   try {
     execSync('git add -A && git commit -m "Initial brain — antidrift"', {
-      cwd: targetDir,
-      stdio: 'pipe'
+      cwd: targetDir, stdio: 'pipe'
     });
     console.log('  Created initial commit');
-  } catch {
-    // Commit failed, that's ok
-  }
+  } catch { /* empty dir or already committed */ }
 
-  // Step 8: Launch Claude
+  // Step 6: Launch
   console.log('');
-  const launch = await ask('  Launch Claude Code to build the brain? (y/n) ');
+  const launch = await ask('  Launch Claude Code? (y/n) ');
 
-  if (launch.toLowerCase() === 'y') {
-    console.log(`\n  Launching Claude Code...`);
-    console.log('  Type /init to build your brain, or just start talking.\n');
+  if (launch.trim().toLowerCase().startsWith('y')) {
+    console.log('\n  Type /init to build your brain, or just start talking.\n');
     try {
       execSync('claude', { cwd: targetDir, stdio: 'inherit' });
     } catch {
@@ -173,81 +167,74 @@ async function init() {
     cd ${targetDir}
     claude
 
-  Then type /init to build your brain, or just start talking.
+  Type /init to build your brain, or just start talking.
 `);
   }
 }
 
-async function join_brain() {
+async function joinBrain() {
   console.log(banner);
 
-  // Get repo URL
   let repo = process.argv[3];
   if (!repo) {
-    repo = await ask('  Brain repo URL or org/name (e.g. mycompany/brain): ');
+    repo = await ask('  Brain repo (org/name or URL): ');
   }
   repo = repo.trim();
 
   if (!repo) {
-    console.log('  No repo provided. Exiting.');
+    console.log('  No repo provided.');
     return;
   }
 
-  // Figure out clone target
   const repoName = basename(repo.replace(/\.git$/, ''));
   const targetDir = join(process.cwd(), repoName);
 
   if (existsSync(targetDir)) {
-    console.log(`  ${repoName}/ already exists. Pulling latest...\n`);
+    console.log(`  ${repoName}/ exists. Pulling latest...\n`);
     try {
       execSync('git pull --ff-only origin main', { cwd: targetDir, stdio: 'inherit' });
     } catch {
-      console.log('  Pull failed — you may need to resolve conflicts.');
+      console.log('  Pull failed — may need to resolve conflicts.');
     }
   } else {
-    // Clone
     console.log(`  Cloning ${repo}...\n`);
     try {
       const url = repo.includes('://') || repo.includes('@')
-        ? repo
-        : `https://github.com/${repo}.git`;
+        ? repo : `https://github.com/${repo}.git`;
       execSync(`git clone ${url}`, { cwd: process.cwd(), stdio: 'inherit' });
     } catch {
-      console.log(`\n  Clone failed. Check the repo URL and your access.`);
+      console.log('\n  Clone failed. Check the URL and your access.');
       return;
     }
   }
 
-  // Check if skills exist
   const skillsDir = join(targetDir, '.claude', 'skills');
   if (!existsSync(skillsDir)) {
-    console.log('\n  No skills found in repo. Installing core skills...');
+    console.log('\n  No skills found. Installing core skills...');
     installSkills(skillsDir);
   } else {
     const skills = readdirSync(skillsDir);
     console.log(`\n  Found ${skills.length} skills: ${skills.join(', ')}`);
   }
 
-  // Launch
   console.log('');
   const launch = await ask('  Open Claude Code? (y/n) ');
 
-  if (launch.toLowerCase() === 'y') {
-    console.log('\n  Launching Claude Code... Say "I\'m new here" to get started.\n');
+  if (launch.trim().toLowerCase().startsWith('y')) {
+    console.log('\n  Say "I\'m new here" to get started.\n');
     try {
       execSync('claude', { cwd: targetDir, stdio: 'inherit' });
     } catch {
       console.log(`\n  cd ${repoName} && claude`);
-      console.log('  Then say "I\'m new here"');
     }
   } else {
     console.log(`
-  Ready. To get started:
+  Ready:
 
     cd ${repoName}
     claude
 
-  Then say "I'm new here" and the brain will walk you through everything.
+  Say "I'm new here" to get walked through everything.
 `);
   }
 }
@@ -256,9 +243,7 @@ function installSkills(targetDir) {
   mkdirSync(targetDir, { recursive: true });
   const skills = readdirSync(skillsSource);
   for (const skill of skills) {
-    const src = join(skillsSource, skill);
-    const dest = join(targetDir, skill);
-    cpSync(src, dest, { recursive: true });
+    cpSync(join(skillsSource, skill), join(targetDir, skill), { recursive: true });
   }
   console.log(`  Installed ${skills.length} skills: ${skills.join(', ')}`);
 }
