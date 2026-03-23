@@ -1,0 +1,24 @@
+{
+  "name": "antidrift",
+  "version": "0.1.0",
+  "description": "Company brain skills for Claude Code",
+  "bin": {
+    "antidrift": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "skills/"
+  ],
+  "keywords": [
+    "claude-code",
+    "mcp",
+    "skills",
+    "company-brain",
+    "knowledge-management"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/probeo-io/antidrift"
+  }
+}
