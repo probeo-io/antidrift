@@ -348,6 +348,7 @@ function mcpList() {
   const available = [
     { name: 'google-sheets', check: 'google-token.json', description: 'Read/write Google Sheets', tools: 'list_spreadsheets, read_sheet, write_sheet, append_sheet, get_sheet_info' },
     { name: 'google-docs', check: 'google-token.json', description: 'Create/read/share Google Docs', tools: 'create_doc, read_doc, append_to_doc, list_docs, share_doc' },
+    { name: 'google-drive', check: 'google-token.json', description: 'Browse, search, download, share files and folders', tools: 'drive_list_files, drive_list_folders, drive_download_text, drive_share, drive_create_folder, drive_move_file, drive_get_file_info' },
     { name: 'stripe', check: 'stripe.json', description: 'Invoicing, customers, products', tools: 'stripe_list_customers, stripe_create_invoice, stripe_add_invoice_line, stripe_finalize_invoice, +3 more' }
   ];
 
