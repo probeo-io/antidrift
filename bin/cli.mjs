@@ -58,6 +58,10 @@ async function main() {
     await update();
   } else if (command === 'mcp') {
     await mcp();
+  } else if (command === 'install-pack') {
+    await installPack();
+  } else if (command === 'list-packs') {
+    listPacks();
   } else {
     console.log(`  Unknown command: ${command}\n`);
     showHelp();
@@ -96,18 +100,14 @@ function showHelp() {
 antidrift — Company brain for Claude
 
 Usage:
-  npx antidrift init                Start a new brain (first person)
-  npx antidrift join <repo>         Join an existing brain (everyone else)
-  npx antidrift update              Update skills to latest version
-  npx antidrift mcp add <service>   Connect a service (google-sheets, stripe)
-  npx antidrift mcp list            Show connected services
-  npx antidrift help                Show this message
-
-Examples:
-  npx antidrift init
-  npx antidrift join mycompany/brain
-  npx antidrift mcp add google-sheets
-  npx antidrift mcp add stripe
+  npx antidrift init                  Start a new brain
+  npx antidrift join <repo>           Join an existing brain
+  npx antidrift update                Update core skills to latest
+  npx antidrift install-pack <pack>   Install a skill pack
+  npx antidrift list-packs            Show available packs
+  npx antidrift mcp add <service>     Connect a service (google-sheets, stripe)
+  npx antidrift mcp list              Show connected services
+  npx antidrift help                  Show this message
 `);
 }
 
@@ -207,6 +207,75 @@ async function update() {
 
   installSkills(skillsTarget);
   console.log('\n  Skills updated to latest version.');
+}
+
+const packsSource = join(__dirname, '..', 'packs');
+
+function listPacks() {
+  console.log(banner);
+
+  if (!existsSync(packsSource)) {
+    console.log('  No packs available.');
+    return;
+  }
+
+  const packs = readdirSync(packsSource).filter(f =>
+    existsSync(join(packsSource, f, 'templates'))
+  );
+
+  console.log('  Available packs:\n');
+  for (const pack of packs) {
+    const templates = readdirSync(join(packsSource, pack, 'templates'));
+    console.log(`    ${pack} (${templates.length} templates)`);
+    for (const t of templates) {
+      console.log(`      - ${t.replace('.md', '')}`);
+    }
+    console.log('');
+  }
+
+  console.log('  Install: npx antidrift install-pack <pack>');
+}
+
+async function installPack() {
+  console.log(banner);
+
+  const packName = process.argv[3];
+  if (!packName) {
+    console.log('  Usage: npx antidrift install-pack <pack>\n');
+    listPacks();
+    return;
+  }
+
+  const packDir = join(packsSource, packName);
+  if (!existsSync(packDir)) {
+    console.log(`  Pack "${packName}" not found.\n`);
+    listPacks();
+    return;
+  }
+
+  const targetDir = process.cwd();
+
+  // Copy templates
+  const templatesSource = join(packDir, packName === 'legal' ? 'templates' : '.');
+  const templatesDest = join(targetDir, 'packs', packName, 'templates');
+  mkdirSync(templatesDest, { recursive: true });
+
+  const templates = readdirSync(join(packDir, 'templates'));
+  for (const t of templates) {
+    cpSync(join(packDir, 'templates', t), join(templatesDest, t));
+  }
+  console.log(`  Installed ${templates.length} templates to packs/${packName}/templates/`);
+
+  // Copy skill if it exists
+  const skillSource = join(__dirname, '..', '.claude', 'skills', packName);
+  if (existsSync(skillSource)) {
+    const skillDest = join(targetDir, '.claude', 'skills', packName);
+    mkdirSync(skillDest, { recursive: true });
+    cpSync(join(skillSource, 'SKILL.md'), join(skillDest, 'SKILL.md'));
+    console.log(`  Installed /${packName} skill`);
+  }
+
+  console.log(`\n  Pack "${packName}" installed. Use /${packName} in Claude Code.`);
 }
 
 async function mcp() {
