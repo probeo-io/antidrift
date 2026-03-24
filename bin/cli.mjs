@@ -344,22 +344,25 @@ async function mcpAdd(service) {
 
 function mcpList() {
   const configDir = join(homedir(), '.antidrift');
-  const services = [];
 
-  if (existsSync(join(configDir, 'google-token.json'))) {
-    services.push('google-sheets');
-  }
-  if (existsSync(join(configDir, 'stripe.json'))) {
-    services.push('stripe');
-  }
+  const available = [
+    { name: 'google-sheets', check: 'google-token.json', description: 'Read/write Google Sheets', tools: 'list_spreadsheets, read_sheet, write_sheet, append_sheet, get_sheet_info' },
+    { name: 'google-docs', check: 'google-token.json', description: 'Create/read/share Google Docs', tools: 'create_doc, read_doc, append_to_doc, list_docs, share_doc' },
+    { name: 'stripe', check: 'stripe.json', description: 'Invoicing, customers, products', tools: 'stripe_list_customers, stripe_create_invoice, stripe_add_invoice_line, stripe_finalize_invoice, +3 more' }
+  ];
 
-  if (services.length === 0) {
-    console.log('  No services connected. Run: npx antidrift mcp add <service>');
-  } else {
-    console.log('  Connected services:\n');
-    for (const s of services) {
-      console.log(`    ✓ ${s}`);
+  console.log('  MCP Services:\n');
+  for (const svc of available) {
+    const installed = existsSync(join(configDir, svc.check));
+    const icon = installed ? '✓' : '○';
+    const status = installed ? 'connected' : 'not connected';
+    console.log(`    ${icon} ${svc.name} — ${svc.description}`);
+    console.log(`      Status: ${status}`);
+    console.log(`      Tools: ${svc.tools}`);
+    if (!installed) {
+      console.log(`      Install: npx antidrift mcp add ${svc.name}`);
     }
+    console.log('');
   }
 }
 
