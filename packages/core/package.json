@@ -1,0 +1,35 @@
+{
+  "name": "@antidrift/core",
+  "version": "0.1.0",
+  "description": "Company brain for Claude — shared knowledge, shared skills, no more passing markdown files around",
+  "bin": {
+    "antidrift": "bin/cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "skills/"
+  ],
+  "keywords": [
+    "claude-code",
+    "claude",
+    "cowork",
+    "skills",
+    "company-brain",
+    "knowledge-management"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/core"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "bugs": {
+    "url": "https://github.com/probeo-io/antidrift/issues"
+  },
+  "homepage": "https://github.com/probeo-io/antidrift#readme"
+}

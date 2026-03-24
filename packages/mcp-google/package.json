@@ -1,0 +1,36 @@
+{
+  "name": "@antidrift/mcp-google",
+  "version": "0.1.0",
+  "description": "Google Workspace connector for antidrift — Sheets, Docs, Drive, Gmail, Calendar",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-google": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "auth-google.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "claude-code",
+    "google-sheets",
+    "google-docs",
+    "google-drive",
+    "gmail",
+    "google-calendar"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-google"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "dependencies": {
+    "googleapis": "^171.4.0"
+  }
+}

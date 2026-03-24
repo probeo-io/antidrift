@@ -1,24 +1,34 @@
 # antidrift
 
-A company brain for Claude Code. Shared knowledge, shared skills, no more passing markdown files around.
+A company brain for Claude. Shared knowledge, shared skills, no more passing markdown files around.
 
 ## What It Is
 
-Antidrift is a git repo that gives Claude Code full context on your company. Clone it on any machine and Claude knows your product, customers, stack, positioning, and how you work.
+Antidrift is a git repo that gives Claude full context on your company. Clone it on any machine and Claude knows your product, customers, stack, positioning, and how you work.
 
 **Two things in the box:**
 1. **The brain** — CLAUDE.md files organized by department. Claude reads them automatically.
-2. **Skills** — slash commands that do real work. `/onboard`, `/push`, `/competitive-intel`, etc.
+2. **Skills** — slash commands that do real work. `/onboard`, `/push`, `/ingest`, etc.
 
 ## Quick Start
 
 ```bash
-git clone <your-brain-repo>
-cd your-brain
-claude
+npx @antidrift/core init
 ```
 
 That's it. Claude loads the root CLAUDE.md and knows where everything is.
+
+## Packages
+
+| Package | What It Does | Dependencies |
+|---|---|---|
+| `@antidrift/core` | Brain + skills + CLI (`init`, `join`, `update`) | None |
+| `@antidrift/mcp-google` | Google Sheets, Docs, Drive, Gmail, Calendar | `googleapis` |
+| `@antidrift/mcp-stripe` | Stripe invoices, customers, products | `stripe` |
+| `@antidrift/mcp-attio` | Attio CRM — people, companies, deals | None (pure HTTP) |
+| `@antidrift/legal` | Legal templates — NDA, subscription, PSA, order form | None |
+
+Core is all you need to start. Everything else is optional — type `/connect` inside Claude to add services.
 
 ## How It Works
 

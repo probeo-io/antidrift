@@ -1,38 +1,22 @@
 {
   "name": "antidrift",
   "version": "0.1.0",
-  "description": "Company brain skills for Claude Code",
-  "bin": {
-    "antidrift": "bin/cli.mjs"
-  },
-  "files": [
-    "bin/",
-    "skills/"
-  ],
-  "keywords": [
-    "claude-code",
-    "mcp",
-    "skills",
-    "company-brain",
-    "knowledge-management"
+  "private": true,
+  "description": "Company brain for Claude — monorepo",
+  "workspaces": [
+    "packages/*"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/probeo-io/antidrift.git"
   },
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No tests yet\" && exit 0"
   },
-  "author": "",
-  "type": "commonjs",
+  "author": "Probeo <hello@probeo.io>",
   "bugs": {
     "url": "https://github.com/probeo-io/antidrift/issues"
   },
-  "homepage": "https://github.com/probeo-io/antidrift#readme",
-  "dependencies": {
-    "googleapis": "^171.4.0",
-    "stripe": "^20.4.1"
-  }
+  "homepage": "https://github.com/probeo-io/antidrift#readme"
 }

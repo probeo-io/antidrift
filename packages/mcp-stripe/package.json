@@ -1,0 +1,31 @@
+{
+  "name": "@antidrift/mcp-stripe",
+  "version": "0.1.0",
+  "description": "Stripe connector for antidrift — invoices, customers, products",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-stripe": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "claude-code",
+    "stripe"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-stripe"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "dependencies": {
+    "stripe": "^20.4.1"
+  }
+}
