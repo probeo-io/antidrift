@@ -9,7 +9,7 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const skillsSource = join(__dirname, '..', 'skills');
+const coreSkillsSource = join(__dirname, '..', 'skills');
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 
@@ -100,6 +100,10 @@ Usage:
   npx @antidrift/core update            Update core skills to latest
   npx @antidrift/core help              Show this message
 
+Community skills:
+  npx @antidrift/skills list            Browse community skills
+  npx @antidrift/skills add <name>      Add a community skill to your brain
+
 Connect services (type /connect inside Claude, or install directly):
   npx @antidrift/mcp-google             Google Sheets, Docs, Drive, Gmail, Calendar
   npx @antidrift/mcp-stripe             Stripe invoices, customers
@@ -134,9 +138,9 @@ async function init() {
     console.log('  Created .gitignore');
   }
 
-  // Step 4: Skills
+  // Step 4: Core skills
   const skillsTarget = join(targetDir, '.claude', 'skills');
-  installSkills(skillsTarget);
+  installCoreSkills(skillsTarget);
 
   // Step 5: Create root CLAUDE.md
   const claudeMd = `# ${company.trim()} — Company Brain
@@ -146,6 +150,7 @@ async function init() {
 - \`/push\` — Save changes (commits locally, pushes if remote exists)
 - \`/refresh\` — Pull latest changes from remote
 - \`/remote\` — Set up GitHub so the team can share the brain
+- \`/publish <skill>\` — Share a skill you built with the community
 - Say **"I'm new here"** to get walked through everything
 
 ## How It Works
@@ -248,8 +253,8 @@ async function update() {
     return;
   }
 
-  installSkills(skillsTarget);
-  console.log('\n  Skills updated to latest version.');
+  installCoreSkills(skillsTarget);
+  console.log('\n  Core skills updated. Browse extras with: npx @antidrift/skills list');
 }
 
 function mcpRedirect() {
@@ -300,7 +305,7 @@ async function joinBrain() {
   const skillsDir = join(targetDir, '.claude', 'skills');
   if (!existsSync(skillsDir)) {
     console.log('\n  No skills found. Installing core skills...');
-    installSkills(skillsDir);
+    installCoreSkills(join(targetDir, '.claude', 'skills'));
   } else {
     const skills = readdirSync(skillsDir);
     console.log(`\n  Found ${skills.length} skills: ${skills.join(', ')}`);
@@ -328,13 +333,13 @@ async function joinBrain() {
   }
 }
 
-function installSkills(targetDir) {
+function installCoreSkills(targetDir) {
   mkdirSync(targetDir, { recursive: true });
-  const skills = readdirSync(skillsSource);
+  const skills = readdirSync(coreSkillsSource);
   for (const skill of skills) {
-    cpSync(join(skillsSource, skill), join(targetDir, skill), { recursive: true });
+    cpSync(join(coreSkillsSource, skill), join(targetDir, skill), { recursive: true });
   }
-  console.log(`  Installed ${skills.length} skills: ${skills.join(', ')}`);
+  console.log(`  Installed ${skills.length} core skills: ${skills.join(', ')}`);
 }
 
 main().catch(console.error);
