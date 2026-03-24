@@ -347,9 +347,12 @@ function mcpList() {
 
   const available = [
     { name: 'google-sheets', check: 'google-token.json', description: 'Read/write Google Sheets', tools: 'list_spreadsheets, read_sheet, write_sheet, append_sheet, get_sheet_info' },
-    { name: 'google-docs', check: 'google-token.json', description: 'Create/read/share Google Docs', tools: 'create_doc, read_doc, append_to_doc, list_docs, share_doc' },
-    { name: 'google-drive', check: 'google-token.json', description: 'Browse, search, download, share files and folders', tools: 'drive_list_files, drive_list_folders, drive_download_text, drive_share, drive_create_folder, drive_move_file, drive_get_file_info' },
-    { name: 'stripe', check: 'stripe.json', description: 'Invoicing, customers, products', tools: 'stripe_list_customers, stripe_create_invoice, stripe_add_invoice_line, stripe_finalize_invoice, +3 more' }
+    { name: 'google-docs', check: 'google-token.json', description: 'Create/read/write/share Google Docs, request e-signatures', tools: 'create_doc, read_doc, write_doc, append_to_doc, list_docs, share_doc, request_signature' },
+    { name: 'google-drive', check: 'google-token.json', description: 'Browse, search, download, share files and folders', tools: 'drive_list_files, drive_list_folders, drive_download, drive_share, drive_create_folder, drive_move_file, drive_get_file_info' },
+    { name: 'google-gmail', check: 'google-token.json', description: 'Search, read, send, and reply to emails', tools: 'gmail_search, gmail_read, gmail_send, gmail_reply' },
+    { name: 'google-calendar', check: 'google-token.json', description: 'View schedule, search events, create meetings', tools: 'calendar_today, calendar_upcoming, calendar_search, calendar_create' },
+    { name: 'stripe', check: 'stripe.json', description: 'Invoicing, customers, products', tools: 'stripe_list_customers, stripe_create_invoice, stripe_add_invoice_line, stripe_finalize_invoice, +3 more' },
+    { name: 'attio', check: 'attio.json', description: 'CRM — people, companies, deals, notes', tools: 'attio_list_people, attio_search_people, attio_get_person, attio_create_person, attio_list_companies, attio_search_companies, attio_create_company, attio_list_deals, attio_add_note' }
   ];
 
   console.log('  MCP Services:\n');

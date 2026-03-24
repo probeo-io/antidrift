@@ -4,7 +4,10 @@ import { createInterface } from 'readline';
 import { tools as sheetsTools } from './connectors/google-sheets.mjs';
 import { tools as docsTools } from './connectors/google-docs.mjs';
 import { tools as driveTools } from './connectors/google-drive.mjs';
+import { tools as gmailTools } from './connectors/google-gmail.mjs';
+import { tools as calendarTools } from './connectors/google-calendar.mjs';
 import { tools as stripeTools } from './connectors/stripe.mjs';
+import { tools as attioTools } from './connectors/attio.mjs';
 import { hasToken } from './auth-google.mjs';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -17,10 +20,16 @@ if (hasToken()) {
   allTools.push(...sheetsTools);
   allTools.push(...docsTools);
   allTools.push(...driveTools);
+  allTools.push(...gmailTools);
+  allTools.push(...calendarTools);
 }
 
 if (existsSync(join(homedir(), '.antidrift', 'stripe.json'))) {
   allTools.push(...stripeTools);
+}
+
+if (existsSync(join(homedir(), '.antidrift', 'attio.json'))) {
+  allTools.push(...attioTools);
 }
 
 // MCP server over stdio (JSON-RPC 2.0)

@@ -32,9 +32,21 @@ export const tools = [
 
       const res = await getDrive().files.list({
         q, pageSize: limit,
-        fields: 'files(id, name, mimeType, size, modifiedTime, webViewLink, parents)'
+        fields: 'files(id, name, mimeType, modifiedTime)'
       });
-      return res.data.files;
+      const iconMap = {
+        'application/vnd.google-apps.document': '📄',
+        'application/vnd.google-apps.spreadsheet': '📊',
+        'application/vnd.google-apps.presentation': '📽️',
+        'application/vnd.google-apps.folder': '📁',
+        'application/pdf': '📕',
+        'image/png': '🖼️', 'image/jpeg': '🖼️', 'image/gif': '🖼️', 'image/svg+xml': '🖼️',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📄',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '📊',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': '📽️',
+        'application/msword': '📄', 'application/vnd.ms-excel': '📊', 'application/vnd.ms-powerpoint': '📽️',
+      };
+      return res.data.files.map(f => `${iconMap[f.mimeType] || '📎'} ${f.name}  [id: ${f.id}]`).join('\n');
     }
   },
   {
@@ -55,9 +67,9 @@ export const tools = [
 
       const res = await getDrive().files.list({
         q: parts.join(' and '), pageSize: limit,
-        fields: 'files(id, name, modifiedTime, webViewLink)'
+        fields: 'files(id, name)'
       });
-      return res.data.files;
+      return res.data.files.map(f => `📁 ${f.name}  [id: ${f.id}]`).join('\n');
     }
   },
   {
@@ -79,31 +91,68 @@ export const tools = [
     }
   },
   {
-    name: 'drive_download_text',
-    description: 'Download a file as plain text. Works for Google Docs, PDFs (if text-extractable), and text files.',
+    name: 'drive_download',
+    description: 'Download a file from Google Drive. For Google-native files (Docs, Sheets, Slides), exports to the requested format. For uploaded files (PDF, DOCX, XLSX, PPTX, etc.), downloads as-is or converts. Saves to a local path.',
     inputSchema: {
       type: 'object',
       properties: {
-        fileId: { type: 'string', description: 'The file ID' }
+        fileId: { type: 'string', description: 'The file ID' },
+        outputPath: { type: 'string', description: 'Local path to save the file (e.g. ./downloads/report.pdf)' },
+        format: { type: 'string', description: 'Export format: pdf, docx, xlsx, pptx, csv, txt, html. Only needed for Google-native files. Uploaded files download in their original format by default.' }
       },
-      required: ['fileId']
+      required: ['fileId', 'outputPath']
     },
-    handler: async ({ fileId }) => {
-      // First get the mime type
+    handler: async ({ fileId, outputPath, format }) => {
+      const { writeFileSync, mkdirSync } = await import('fs');
+      const { dirname } = await import('path');
+
       const meta = await getDrive().files.get({ fileId, fields: 'mimeType, name' });
       const mime = meta.data.mimeType;
 
-      if (mime === 'application/vnd.google-apps.document') {
-        const res = await getDrive().files.export({ fileId, mimeType: 'text/plain' });
-        return { name: meta.data.name, content: res.data };
-      } else if (mime === 'application/vnd.google-apps.spreadsheet') {
-        const res = await getDrive().files.export({ fileId, mimeType: 'text/csv' });
-        return { name: meta.data.name, content: res.data };
-      } else if (mime === 'text/plain' || mime === 'text/csv' || mime === 'text/markdown') {
-        const res = await getDrive().files.get({ fileId, alt: 'media' });
-        return { name: meta.data.name, content: res.data };
+      const googleExportMap = {
+        'application/vnd.google-apps.document': {
+          pdf: 'application/pdf',
+          docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          txt: 'text/plain',
+          html: 'text/html'
+        },
+        'application/vnd.google-apps.spreadsheet': {
+          pdf: 'application/pdf',
+          xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          csv: 'text/csv'
+        },
+        'application/vnd.google-apps.presentation': {
+          pdf: 'application/pdf',
+          pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        }
+      };
+
+      mkdirSync(dirname(outputPath), { recursive: true });
+
+      const isGoogleNative = mime in googleExportMap;
+
+      if (isGoogleNative) {
+        const exportFormats = googleExportMap[mime];
+        const exportFormat = format || Object.keys(exportFormats)[0];
+        const exportMime = exportFormats[exportFormat];
+
+        if (!exportMime) {
+          return { error: `Cannot export ${mime} as ${format}. Supported: ${Object.keys(exportFormats).join(', ')}` };
+        }
+
+        const res = await getDrive().files.export(
+          { fileId, mimeType: exportMime },
+          { responseType: 'arraybuffer' }
+        );
+        writeFileSync(outputPath, Buffer.from(res.data));
+        return { name: meta.data.name, format: exportFormat, savedTo: outputPath };
       } else {
-        return { name: meta.data.name, error: `Cannot extract text from ${mime}. Use drive_get_file_info for metadata.` };
+        const res = await getDrive().files.get(
+          { fileId, alt: 'media' },
+          { responseType: 'arraybuffer' }
+        );
+        writeFileSync(outputPath, Buffer.from(res.data));
+        return { name: meta.data.name, mimeType: mime, savedTo: outputPath };
       }
     }
   },

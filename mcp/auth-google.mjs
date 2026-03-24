@@ -11,7 +11,9 @@ const TOKEN_PATH = join(CONFIG_DIR, 'google-token.json');
 
 const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
-  'https://www.googleapis.com/auth/drive.readonly'
+  'https://www.googleapis.com/auth/drive.readonly',
+  'https://www.googleapis.com/auth/gmail.modify',
+  'https://www.googleapis.com/auth/calendar'
 ];
 
 export function getAuthClient() {

@@ -114,6 +114,102 @@ export const tools = [
     }
   },
   {
+    name: 'write_doc',
+    description: 'Write formatted content to a Google Doc. Replaces all existing content. Supports markdown-style formatting: # Heading 1, ## Heading 2, **bold**, _italic_.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        documentId: { type: 'string', description: 'The Google Doc ID' },
+        content: { type: 'string', description: 'Content with markdown-style formatting (# headings, **bold**, _italic_)' }
+      },
+      required: ['documentId', 'content']
+    },
+    handler: async ({ documentId, content }) => {
+      // Clear existing content
+      const doc = await getDocs().documents.get({ documentId });
+      const endIndex = doc.data.body.content.at(-1).endIndex - 1;
+      const requests = [];
+
+      if (endIndex > 1) {
+        requests.push({ deleteContentRange: { range: { startIndex: 1, endIndex } } });
+      }
+
+      // Parse markdown-style content into Google Docs requests
+      const lines = content.split('\n');
+      let insertIndex = 1;
+
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        const text = (i < lines.length - 1) ? line + '\n' : line;
+        const cleanText = text.replace(/^#{1,3}\s+/, '').replace(/\*\*/g, '').replace(/(?<!\w)_([^_]+)_(?!\w)/g, '$1');
+
+        requests.push({ insertText: { location: { index: insertIndex }, text: cleanText } });
+
+        // Apply heading style
+        if (line.startsWith('### ')) {
+          requests.push({ updateParagraphStyle: { range: { startIndex: insertIndex, endIndex: insertIndex + cleanText.length }, paragraphStyle: { namedStyleType: 'HEADING_3' }, fields: 'namedStyleType' } });
+        } else if (line.startsWith('## ')) {
+          requests.push({ updateParagraphStyle: { range: { startIndex: insertIndex, endIndex: insertIndex + cleanText.length }, paragraphStyle: { namedStyleType: 'HEADING_2' }, fields: 'namedStyleType' } });
+        } else if (line.startsWith('# ')) {
+          requests.push({ updateParagraphStyle: { range: { startIndex: insertIndex, endIndex: insertIndex + cleanText.length }, paragraphStyle: { namedStyleType: 'HEADING_1' }, fields: 'namedStyleType' } });
+        }
+
+        // Apply bold
+        const boldRegex = /\*\*([^*]+)\*\*/g;
+        let boldMatch;
+        let searchLine = text;
+        let offset = 0;
+        while ((boldMatch = boldRegex.exec(lines[i])) !== null) {
+          // Find position in clean text
+          const before = lines[i].substring(0, boldMatch.index).replace(/\*\*/g, '').replace(/^#{1,3}\s+/, '');
+          const boldText = boldMatch[1];
+          const start = insertIndex + before.length - offset;
+          requests.push({ updateTextStyle: { range: { startIndex: start, endIndex: start + boldText.length }, textStyle: { bold: true }, fields: 'bold' } });
+        }
+
+        // Apply italic
+        const italicRegex = /(?<!\w)_([^_]+)_(?!\w)/g;
+        let italicMatch;
+        while ((italicMatch = italicRegex.exec(lines[i])) !== null) {
+          const before = lines[i].substring(0, italicMatch.index).replace(/\*\*/g, '').replace(/(?<!\w)_([^_]+)_(?!\w)/g, '$1').replace(/^#{1,3}\s+/, '');
+          const italicText = italicMatch[1];
+          const start = insertIndex + before.length;
+          requests.push({ updateTextStyle: { range: { startIndex: start, endIndex: start + italicText.length }, textStyle: { italic: true }, fields: 'italic' } });
+        }
+
+        insertIndex += cleanText.length;
+      }
+
+      await getDocs().documents.batchUpdate({ documentId, requestBody: { requests } });
+      return `✅ Document updated — https://docs.google.com/document/d/${documentId}/edit`;
+    }
+  },
+  {
+    name: 'request_signature',
+    description: 'Share a Google Doc with someone for e-signature. Shares the doc as a writer and returns the link. The signer opens the doc and uses File → eSignature to sign.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        documentId: { type: 'string', description: 'The Google Doc ID' },
+        signerEmail: { type: 'string', description: 'Email of the person who needs to sign' },
+        message: { type: 'string', description: 'Optional message to include in the sharing notification' }
+      },
+      required: ['documentId', 'signerEmail']
+    },
+    handler: async ({ documentId, signerEmail, message }) => {
+      await getDrive().permissions.create({
+        fileId: documentId,
+        requestBody: { type: 'user', role: 'writer', emailAddress: signerEmail },
+        emailMessage: message || 'Please review and sign this document using File → eSignature in Google Docs.',
+        sendNotificationEmail: true
+      });
+
+      const doc = await getDocs().documents.get({ documentId });
+      const url = `https://docs.google.com/document/d/${documentId}/edit`;
+      return `✅ Shared "${doc.data.title}" with ${signerEmail}\n📝 They'll receive an email with a link to sign.\n🔗 ${url}`;
+    }
+  },
+  {
     name: 'list_docs',
     description: 'List Google Docs in Drive. Optional query to filter by name.',
     inputSchema: {
