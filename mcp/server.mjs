@@ -2,6 +2,7 @@
 
 import { createInterface } from 'readline';
 import { tools as sheetsTools } from './connectors/google-sheets.mjs';
+import { tools as docsTools } from './connectors/google-docs.mjs';
 import { tools as stripeTools } from './connectors/stripe.mjs';
 import { hasToken } from './auth-google.mjs';
 import { existsSync } from 'fs';
@@ -13,6 +14,7 @@ const allTools = [];
 // Load connectors based on what's configured
 if (hasToken()) {
   allTools.push(...sheetsTools);
+  allTools.push(...docsTools);
 }
 
 if (existsSync(join(homedir(), '.antidrift', 'stripe.json'))) {
