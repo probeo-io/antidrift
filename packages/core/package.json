@@ -7,6 +7,7 @@
   },
   "files": [
     "bin/",
+    "lib/",
     "skills/"
   ],
   "keywords": [
@@ -25,7 +26,7 @@
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "node --test test/*.test.mjs"
   },
   "author": "Probeo <hello@probeo.io>",
   "bugs": {
