@@ -302,6 +302,15 @@ async function joinBrain() {
     }
   }
 
+  // Write brain.json with repo info
+  const repoSlug = repo.includes('://') || repo.includes('@')
+    ? repo.replace(/.*github\.com[:/]/, '').replace(/\.git$/, '')
+    : repo.replace(/\.git$/, '');
+  const claudeDir = join(targetDir, '.claude');
+  mkdirSync(claudeDir, { recursive: true });
+  writeFileSync(join(claudeDir, 'brain.json'), JSON.stringify({ repo: repoSlug }, null, 2) + '\n');
+  console.log('  Saved brain config');
+
   const skillsDir = join(targetDir, '.claude', 'skills');
   if (!existsSync(skillsDir)) {
     console.log('\n  No skills found. Installing core skills...');

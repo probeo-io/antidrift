@@ -1,33 +1,15 @@
 ---
 name: invite
-description: Print the command a coworker can run to clone the brain and start using it
+description: Print the command a coworker can run to join the brain
 ---
-
-Prints a ready-to-copy command that a coworker can paste into their terminal to get set up.
 
 ## Instructions
 
-### Step 1 — Get the repo URL
-```bash
-git remote get-url origin 2>/dev/null
-```
+1. Read `.claude/brain.json` for the `repo` field. If missing, run `git remote get-url origin`, extract the org/repo, and write it to `.claude/brain.json`.
+2. If no repo found at all, say to run `/remote` first and stop.
+3. Check if `antidrift` (pip) or `npx` (npm) is on PATH. Show the matching join command:
 
-If no remote is configured, tell the user to run `/remote` first and stop.
+**pip:** `pip install antidrift && antidrift join <REPO>`
+**npm:** `npx @antidrift/core join <REPO>`
 
-### Step 2 — Print the invite
-
-Output a message like:
-
----
-
-Send this to your coworker:
-
-```
-git clone <REPO_URL> && cd <REPO_NAME> && cat CLAUDE.md
-```
-
-Once they've cloned it, they can run `claude` and say "I'm new here" to get walked through everything.
-
----
-
-Keep it short. That's the whole skill.
+Show whichever is installed. If both, show both.
