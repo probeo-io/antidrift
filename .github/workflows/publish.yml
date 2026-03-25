@@ -54,4 +54,5 @@ jobs:
         with:
           packages-dir: packages/core-py/dist/
           attestations: false
+          verbose: true
 
