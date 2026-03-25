@@ -4,7 +4,7 @@ description: Publish a skill from your brain to the shared registry
 argument-hint: <skill-name>
 ---
 
-Publishes a skill from `.claude/skills/` to the `@antidrift/skills` registry via pull request.
+Publishes a skill from `.claude/skills/` to the community registry via pull request.
 
 ## Instructions
 
@@ -24,29 +24,29 @@ If not installed, tell them to install it (`brew install gh`) and stop.
 ### Step 3 — Fork and clone the registry
 
 ```bash
-gh repo fork probeo-io/antidrift --clone=false 2>/dev/null
+gh repo fork probeo-io/antidrift-skills --clone=false 2>/dev/null
 ```
 
 Then clone their fork into a temp directory:
 ```bash
 TMPDIR=$(mktemp -d)
-gh repo clone probeo-io/antidrift "$TMPDIR/antidrift" -- --depth=1
+gh repo clone probeo-io/antidrift-skills "$TMPDIR/antidrift-skills" -- --depth=1
 ```
 
-### Step 4 — Copy the skill into the registry
+### Step 4 — Copy the skill
 
 ```bash
-cp -r .claude/skills/<skill-name> "$TMPDIR/antidrift/packages/skills/registry/<skill-name>"
+cp -r .claude/skills/<skill-name> "$TMPDIR/antidrift-skills/<skill-name>"
 ```
 
 ### Step 5 — Create a branch, commit, and open a PR
 
 ```bash
-cd "$TMPDIR/antidrift"
+cd "$TMPDIR/antidrift-skills"
 git checkout -b skill/<skill-name>
-git add packages/skills/registry/<skill-name>
+git add <skill-name>
 git commit -m "Add skill: <skill-name>"
-gh pr create --repo probeo-io/antidrift --title "Add skill: <skill-name>" --body "Adds the **<skill-name>** skill to the shared registry.
+gh pr create --repo probeo-io/antidrift-skills --title "Add skill: <skill-name>" --body "Adds the **<skill-name>** skill to the community registry.
 
 ## What it does
 <paste the description from the SKILL.md frontmatter>

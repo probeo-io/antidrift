@@ -9,7 +9,7 @@ Walks a new person through the business interactively. Reads from the brain repo
 - Be conversational. Guide, don't dump.
 - Check for understanding before moving to the next section.
 - Tailor depth to their role — ask upfront if you don't know it.
-- Load each department's CLAUDE.md dynamically as you reach that section.
+- Load each department's CLAUDE.md (or AGENTS.md) dynamically as you reach that section.
 
 ## Flow
 
@@ -19,7 +19,7 @@ Walks a new person through the business interactively. Reads from the brain repo
 4. **Active Priorities** — what's hot right now
 5. **Stack & Tools** — projects.md overview
 6. **Their Department** — deep dive on their area
-7. **How This Repo Works** — CLAUDE.md pattern, how to update things
+7. **How This Repo Works** — CLAUDE.md / AGENTS.md pattern, how to update things
 8. **Open Questions** — anything unclear?
 
 Keep it to 15-20 minutes.

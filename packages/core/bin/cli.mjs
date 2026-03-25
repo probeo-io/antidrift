@@ -311,23 +311,35 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
 
 async function update() {
   console.log(banner);
+  console.log('  Updating brain...\n');
 
-  const skillsTarget = join(process.cwd(), '.claude', 'skills');
+  const cwd = process.cwd();
+  const skillsTarget = join(cwd, '.claude', 'skills');
 
   if (!existsSync(skillsTarget)) {
-    console.log('  No .claude/skills/ found. Run `npx @antidrift/core init` first.');
+    console.log('  No .claude/skills/ found in ' + cwd);
+    console.log('  Run `npx @antidrift/core init` first.\n');
     return;
   }
 
+  // Step 1: Core skills
+  console.log('  Step 1: Core skills');
   installCoreSkills(skillsTarget);
 
-  // Compile any IR-format community skills to native
-  await compileInstalledSkills(skillsTarget);
+  // Step 2: Compile community skills
+  console.log('  Step 2: Community skills');
+  try {
+    await compileInstalledSkills(skillsTarget);
+  } catch (err) {
+    console.log(`  ⚠ Compile error: ${err.message}`);
+  }
 
-  // Sync CLAUDE.md ↔ AGENTS.md across the brain
-  syncBrainFiles(process.cwd());
+  // Step 3: Sync brain files
+  console.log('  Step 3: Sync brain files');
+  syncBrainFiles(cwd);
 
-  console.log('\n  Updated. Browse extras with: npx @antidrift/skills list');
+  console.log('\n  ✓ Brain updated.');
+  console.log('  Browse community skills: npx @antidrift/skills list\n');
 }
 
 async function compileInstalledSkills(skillsDir) {
@@ -370,7 +382,9 @@ async function compileInstalledSkills(skillsDir) {
   }
 
   if (compiled > 0) {
-    console.log(`  Compiled ${compiled} community skill(s) for ${platforms.join(' + ')}`);
+    console.log(`    Compiled ${compiled} community skill(s) for ${platforms.join(' + ')}`);
+  } else {
+    console.log('    No community skills to compile');
   }
 }
 
@@ -411,7 +425,9 @@ function syncBrainFiles(rootDir) {
 
   walk(rootDir);
   if (synced > 0) {
-    console.log(`  Synced ${synced} CLAUDE.md ↔ AGENTS.md file(s)`);
+    console.log(`    Synced ${synced} CLAUDE.md ↔ AGENTS.md file(s)`);
+  } else {
+    console.log('    All brain files in sync');
   }
 }
 

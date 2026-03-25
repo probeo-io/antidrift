@@ -57,6 +57,8 @@ Create or update the root `CLAUDE.md` with:
 - Navigation table (directory → what's in it)
 - Any priorities or context found in the files
 
+For every `CLAUDE.md` created or updated (including the root), also write an identical `AGENTS.md` in the same directory. This ensures the brain works across both Claude Code and Codex.
+
 Create `projects.md` if project/tool information was found.
 
 ### Step 5 — Report
