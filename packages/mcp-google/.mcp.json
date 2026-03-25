@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "antidrift-google": {
+      "command": "node",
+      "args": [
+        "/Users/chriswelker/Projects/antidrift.io/packages/mcp-google/server.mjs"
+      ]
+    }
+  }
+}
