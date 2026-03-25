@@ -147,9 +147,45 @@ marketing/
     └── website-copy/      # (~6,000 lines)
 ```
 
+## Cross-Platform (Claude Code + Codex)
+
+Antidrift works across both Claude Code and OpenAI Codex. The brain creates both `CLAUDE.md` and `AGENTS.md` automatically — same content, both tools read it.
+
+### Skill Compiler
+
+Convert skills between platforms:
+
+```bash
+# Claude Code skill → Codex
+npx @antidrift/core cross-compile .claude/skills/my-skill --to codex
+
+# Codex skill → Claude Code
+npx @antidrift/core cross-compile .agents/skills/my-skill --to claude
+```
+
+### How It Works
+
+- **`init`** creates both `CLAUDE.md` and `AGENTS.md` at root
+- **`/push`** syncs them before every commit
+- **`/ingest`** creates both for every department
+- **`update`** recompiles community skills for all detected platforms
+- Community skills use a universal IR format — compiled to native on install
+
+### Teams Using Both Tools
+
+If your team has some people on Claude Code and some on Codex, everything just works. The brain files are identical, skills compile for both, and `/push` keeps everything in sync.
+
 ## Conventions
 
 - Decisions go in `product/decisions/` as dated markdown files
 - Customer work goes in `customers/[name]/`
 - When something is deprecated, mark it clearly — don't delete context
 - Keep CLAUDE.md files under 250 lines — use them as indexes, not documents
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on sharing skills and developing core.
+
+## License
+
+MIT
