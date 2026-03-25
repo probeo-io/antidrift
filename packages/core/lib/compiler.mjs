@@ -327,10 +327,8 @@ export function compileToCodex(ir, outputDir) {
  */
 export function detectPlatform(skillDir) {
   if (existsSync(join(skillDir, 'agents', 'openai.yaml'))) return 'codex';
+  if (existsSync(join(skillDir, 'skill.ir.yaml'))) return 'ir';
   if (existsSync(join(skillDir, 'SKILL.md'))) {
-    // Check if it's IR format
-    const content = readFileSync(join(skillDir, 'SKILL.md'), 'utf8');
-    if (content.includes('---instructions---')) return 'ir';
     return 'claude'; // Default — Claude Code and Codex both use SKILL.md, but without agents/ dir it's Claude
   }
   throw new Error(`Cannot detect platform for ${skillDir}`);
@@ -377,7 +375,10 @@ export function crossCompile(skillDir, from, to, outputDir) {
   } else if (from === 'codex') {
     ir = decompileCodex(skillDir);
   } else if (from === 'ir') {
-    const content = readFileSync(join(skillDir, 'SKILL.md'), 'utf8');
+    const irFile = existsSync(join(skillDir, 'skill.ir.yaml'))
+      ? join(skillDir, 'skill.ir.yaml')
+      : join(skillDir, 'SKILL.md');
+    const content = readFileSync(irFile, 'utf8');
     ir = parseIR(content);
   } else {
     throw new Error(`Unknown source platform: ${from}`);
