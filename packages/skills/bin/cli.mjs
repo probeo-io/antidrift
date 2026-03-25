@@ -7,6 +7,28 @@ import { execSync } from 'child_process';
 
 const REPO = 'probeo-io/antidrift-skills';
 
+function detectPlatforms() {
+  const platforms = [];
+  try { execSync('which claude', { stdio: 'ignore' }); platforms.push('claude'); } catch {}
+  try { execSync('which codex', { stdio: 'ignore' }); platforms.push('codex'); } catch {}
+  if (platforms.length === 0) platforms.push('claude'); // default
+  return platforms;
+}
+
+function parseIRSimple(content) {
+  const ir = { name: '', description: '', instructions: '' };
+  const instrSplit = content.split('---instructions---');
+  ir.instructions = (instrSplit[1] || '').trim();
+  for (const line of (instrSplit[0] || '').split('\n')) {
+    const m = line.trim().match(/^([\w-]+):\s*"?(.*?)"?\s*$/);
+    if (!m) continue;
+    if (m[1] === 'name') ir.name = m[2];
+    else if (m[1] === 'description') ir.description = m[2];
+    else if (m[1] === 'argument-hint') ir.argumentHint = m[2];
+  }
+  return ir;
+}
+
 const command = process.argv[2];
 const args = process.argv.slice(3);
 
@@ -53,26 +75,30 @@ function fetchRegistry() {
 }
 
 function fetchSkillMeta(name) {
-  try {
-    const content = execSync(
-      `gh api repos/${REPO}/contents/${name}/SKILL.md --jq '.content' | base64 -d`,
-      { stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8' }
-    );
-    const match = content.match(/^---\n([\s\S]*?)\n---/);
-    if (!match) return { name, description: '' };
-    const frontmatter = match[1];
-    const description = frontmatter.match(/^description:\s*(.+)$/m)?.[1]?.trim() || '';
-    return { name, description };
-  } catch {
-    return { name, description: '' };
+  // Try IR format first (skill.ir.yaml), fall back to SKILL.md
+  for (const file of ['skill.ir.yaml', 'SKILL.md']) {
+    try {
+      const content = execSync(
+        `gh api repos/${REPO}/contents/${name}/${file} --jq '.content' | base64 -d`,
+        { stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8' }
+      );
+      // Parse name and description from either format
+      const nameMatch = content.match(/^name:\s*"?(.+?)"?\s*$/m);
+      const descMatch = content.match(/^description:\s*"?(.+?)"?\s*$/m);
+      return {
+        name: nameMatch?.[1] || name,
+        description: descMatch?.[1] || '',
+      };
+    } catch { continue; }
   }
+  return { name, description: '' };
 }
 
 function getInstalledSkills() {
   const skillsDir = join(process.cwd(), '.claude', 'skills');
   if (!existsSync(skillsDir)) return [];
   return readdirSync(skillsDir).filter(d =>
-    existsSync(join(skillsDir, d, 'SKILL.md'))
+    existsSync(join(skillsDir, d, 'SKILL.md')) || existsSync(join(skillsDir, d, 'skill.ir.yaml'))
   );
 }
 
@@ -127,7 +153,33 @@ function add(names) {
     const src = join(registryDir, skill);
     if (existsSync(src)) {
       cpSync(src, join(skillsTarget, skill), { recursive: true });
-      console.log(`  ✓ ${skill}`);
+
+      // If it's an IR skill, compile to native format for detected platform(s)
+      const irPath = join(skillsTarget, skill, 'skill.ir.yaml');
+      if (existsSync(irPath)) {
+        try {
+          const irContent = readFileSync(irPath, 'utf8');
+          const ir = parseIRSimple(irContent);
+          const platforms = detectPlatforms();
+
+          // Compile SKILL.md (works for both Claude Code and Codex)
+          const skillMd = `---\nname: ${ir.name}\ndescription: ${ir.description}\n${ir.argumentHint ? `argument-hint: ${ir.argumentHint}\n` : ''}---\n\n${ir.instructions}\n`;
+          writeFileSync(join(skillsTarget, skill, 'SKILL.md'), skillMd);
+
+          // If Codex is installed, also write to .agents/skills/
+          if (platforms.includes('codex')) {
+            const codexTarget = join(process.cwd(), '.agents', 'skills', skill);
+            mkdirSync(codexTarget, { recursive: true });
+            writeFileSync(join(codexTarget, 'SKILL.md'), skillMd);
+          }
+
+          console.log(`  ✓ ${skill} (compiled for ${platforms.join(' + ')})`);
+        } catch (err) {
+          console.log(`  ✓ ${skill} (IR compile failed: ${err.message})`);
+        }
+      } else {
+        console.log(`  ✓ ${skill}`);
+      }
     } else {
       console.log(`  ✗ ${skill} — not found in clone`);
     }

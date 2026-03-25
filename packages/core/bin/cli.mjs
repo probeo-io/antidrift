@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, cpSync, readdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, cpSync, readdirSync, writeFileSync, readFileSync, statSync } from 'fs';
 import { join, basename } from 'path';
 import { createInterface } from 'readline';
 import { execSync } from 'child_process';
@@ -57,6 +57,8 @@ async function main() {
     await update();
   } else if (command === 'mcp') {
     mcpRedirect();
+  } else if (command === 'cross-compile') {
+    crossCompileCommand();
   } else {
     console.log(`  Unknown command: ${command}\n`);
     showHelp();
@@ -90,6 +92,66 @@ function checkPrereqs() {
   return missing;
 }
 
+async function crossCompileCommand() {
+  const args = process.argv.slice(3);
+
+  // Parse flags
+  let from = 'auto';
+  let to = null;
+  let skillPath = null;
+  let outputPath = null;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--from' && args[i + 1]) { from = args[++i]; }
+    else if (args[i] === '--to' && args[i + 1]) { to = args[++i]; }
+    else if (args[i] === '--output' && args[i + 1]) { outputPath = args[++i]; }
+    else if (!skillPath) { skillPath = args[i]; }
+  }
+
+  if (!skillPath || !to) {
+    console.log(`
+  Usage:
+    antidrift cross-compile <skill-path> --to <claude|codex> [--from <claude|codex|auto>] [--output <dir>]
+
+  Examples:
+    antidrift cross-compile ./my-skill --to codex
+    antidrift cross-compile ./my-skill --from codex --to claude --output ./output/
+    antidrift cross-compile .claude/skills/ingest --to codex --output .agents/skills/
+`);
+    return;
+  }
+
+  if (!outputPath) {
+    outputPath = to === 'claude' ? '.claude/skills' : '.agents/skills';
+  }
+
+  if (!existsSync(skillPath)) {
+    console.log(`  Error: ${skillPath} does not exist.`);
+    process.exit(1);
+  }
+
+  try {
+    const { crossCompile } = await import('../lib/compiler.mjs');
+    const { ir, outputPath: compiled, warnings } = crossCompile(skillPath, from, to, outputPath);
+
+    console.log(`\n  Compiled: ${ir.name}`);
+    console.log(`  From: ${ir.source || from} → To: ${to}`);
+    console.log(`  Output: ${compiled}`);
+
+    if (warnings.length > 0) {
+      console.log(`\n  Warnings:`);
+      for (const w of warnings) {
+        console.log(`    ⚠ ${w}`);
+      }
+    }
+
+    console.log('');
+  } catch (err) {
+    console.log(`  Error: ${err.message}`);
+    process.exit(1);
+  }
+}
+
 function showHelp() {
   console.log(`
 antidrift — Company brain for Claude
@@ -99,6 +161,9 @@ Usage:
   npx @antidrift/core join <repo>       Join an existing brain
   npx @antidrift/core update            Update core skills to latest
   npx @antidrift/core help              Show this message
+
+Cross-compile skills:
+  npx @antidrift/core cross-compile <path> --to <claude|codex>
 
 Community skills:
   npx @antidrift/skills list            Browse community skills
@@ -163,7 +228,8 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
 | _Run /ingest to populate_ | |
 `;
   writeFileSync(join(targetDir, 'CLAUDE.md'), claudeMd);
-  console.log('  Created CLAUDE.md');
+  writeFileSync(join(targetDir, 'AGENTS.md'), claudeMd);
+  console.log('  Created CLAUDE.md + AGENTS.md');
 
   // Step 6: Commit
   try {
@@ -254,7 +320,99 @@ async function update() {
   }
 
   installCoreSkills(skillsTarget);
-  console.log('\n  Core skills updated. Browse extras with: npx @antidrift/skills list');
+
+  // Compile any IR-format community skills to native
+  await compileInstalledSkills(skillsTarget);
+
+  // Sync CLAUDE.md ↔ AGENTS.md across the brain
+  syncBrainFiles(process.cwd());
+
+  console.log('\n  Updated. Browse extras with: npx @antidrift/skills list');
+}
+
+async function compileInstalledSkills(skillsDir) {
+  const { parseIR, compileToClaude, compileToCodex } = await import('../lib/compiler.mjs');
+
+  let entries;
+  try { entries = readdirSync(skillsDir); } catch { return; }
+
+  // Detect all installed platforms
+  const platforms = [];
+  try { execSync('which claude', { stdio: 'ignore' }); platforms.push('claude'); } catch {}
+  try { execSync('which codex', { stdio: 'ignore' }); platforms.push('codex'); } catch {}
+  if (platforms.length === 0) platforms.push('claude'); // default
+
+  let compiled = 0;
+
+  for (const entry of entries) {
+    const skillDir = join(skillsDir, entry);
+    try {
+      if (!statSync(skillDir).isDirectory()) continue;
+    } catch { continue; }
+
+    const irPath = join(skillDir, 'skill.ir.yaml');
+    if (!existsSync(irPath)) continue;
+
+    const irContent = readFileSync(irPath, 'utf8');
+    const ir = parseIR(irContent);
+
+    // Compile for all detected platforms
+    if (platforms.includes('claude')) {
+      compileToClaude(ir, skillsDir);
+    }
+    if (platforms.includes('codex')) {
+      const codexTarget = join(process.cwd(), '.agents', 'skills');
+      mkdirSync(codexTarget, { recursive: true });
+      compileToCodex(ir, codexTarget);
+    }
+
+    compiled++;
+  }
+
+  if (compiled > 0) {
+    console.log(`  Compiled ${compiled} community skill(s) for ${platforms.join(' + ')}`);
+  }
+}
+
+function syncBrainFiles(rootDir) {
+  let synced = 0;
+
+  function walk(dir) {
+    let entries;
+    try { entries = readdirSync(dir); } catch { return; }
+
+    for (const entry of entries) {
+      if (entry === 'node_modules' || entry === '.git' || entry === '.venv') continue;
+      const full = join(dir, entry);
+      try {
+        if (statSync(full).isDirectory()) walk(full);
+      } catch { continue; }
+    }
+
+    const claudePath = join(dir, 'CLAUDE.md');
+    const agentsPath = join(dir, 'AGENTS.md');
+
+    if (existsSync(claudePath) && !existsSync(agentsPath)) {
+      writeFileSync(agentsPath, readFileSync(claudePath, 'utf8'));
+      synced++;
+    } else if (existsSync(agentsPath) && !existsSync(claudePath)) {
+      writeFileSync(claudePath, readFileSync(agentsPath, 'utf8'));
+      synced++;
+    } else if (existsSync(claudePath) && existsSync(agentsPath)) {
+      // CLAUDE.md is source of truth — overwrite AGENTS.md
+      const claudeContent = readFileSync(claudePath, 'utf8');
+      const agentsContent = readFileSync(agentsPath, 'utf8');
+      if (claudeContent !== agentsContent) {
+        writeFileSync(agentsPath, claudeContent);
+        synced++;
+      }
+    }
+  }
+
+  walk(rootDir);
+  if (synced > 0) {
+    console.log(`  Synced ${synced} CLAUDE.md ↔ AGENTS.md file(s)`);
+  }
 }
 
 function mcpRedirect() {
