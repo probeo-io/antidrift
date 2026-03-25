@@ -1,0 +1,1 @@
+"""Company brain for Claude."""
