@@ -106,6 +106,7 @@ function waitForCallback(authUrl) {
   return new Promise((resolve, reject) => {
     let timer;
     let resolved = false;
+    const connections = new Set();
     const server = createServer((req, res) => {
       // Ignore favicon and other noise
       if (!req.url.startsWith('/callback') || resolved) {
@@ -119,15 +120,22 @@ function waitForCallback(authUrl) {
 
       if (code) {
         resolved = true;
-        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.writeHead(200, { 'Content-Type': 'text/html', 'Connection': 'close' });
         res.end('<h2>Authorized! You can close this tab.</h2>');
         console.log('  Step 2: ✓ Authorization code received\n');
         clearTimeout(timer);
+        // Destroy all open connections so server.close() can finish
+        for (const conn of connections) conn.destroy();
         server.close(() => resolve(code));
       } else {
         res.writeHead(400);
         res.end('Missing code');
       }
+    });
+
+    server.on('connection', (conn) => {
+      connections.add(conn);
+      conn.on('close', () => connections.delete(conn));
     });
 
     server.listen(3847, () => {
