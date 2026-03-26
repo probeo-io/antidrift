@@ -96,19 +96,26 @@ export async function runAuthFlow() {
 function waitForCallback(authUrl) {
   return new Promise((resolve, reject) => {
     let timer;
+    let resolved = false;
     const server = createServer((req, res) => {
-      console.log(`  Step 2: Received callback: ${req.url.substring(0, 50)}...`);
+      // Ignore favicon and other noise
+      if (!req.url.startsWith('/callback') || resolved) {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
       const url = new URL(req.url, 'http://localhost:3847');
       const code = url.searchParams.get('code');
 
       if (code) {
+        resolved = true;
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end('<h2>Authorized! You can close this tab.</h2>');
         console.log('  Step 2: ✓ Authorization code received\n');
         clearTimeout(timer);
         server.close(() => resolve(code));
       } else {
-        console.log('  Step 2: Request without code — ignoring');
         res.writeHead(400);
         res.end('Missing code');
       }
