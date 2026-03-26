@@ -90,14 +90,28 @@ function list() {
   const registry = fetchRegistry();
   const installed = new Set(getInstalledSkills());
 
-  console.log('');
+  // Group by pack
+  const packs = {};
   for (const skill of registry) {
-    const status = installed.has(skill.name) ? '✓' : '○';
-    console.log(`  ${status} ${skill.name.padEnd(12)} ${skill.description}`);
+    const pack = skill.pack || 'other';
+    if (!packs[pack]) packs[pack] = [];
+    packs[pack].push(skill);
+  }
+
+  console.log('');
+  for (const [pack, skills] of Object.entries(packs)) {
+    const packInstalled = skills.filter(s => installed.has(s.name)).length;
+    console.log(`  ${pack} (${packInstalled}/${skills.length})`);
+    for (const skill of skills) {
+      const status = installed.has(skill.name) ? '✓' : '○';
+      console.log(`    ${status} ${skill.name.padEnd(12)} ${skill.description}`);
+    }
+    console.log('');
   }
 
   const installedCount = registry.filter(s => installed.has(s.name)).length;
-  console.log(`\n  ${installedCount}/${registry.length} installed\n`);
+  console.log(`  ${installedCount}/${registry.length} installed`);
+  console.log(`  Install a pack: npx @antidrift/skills add essentials\n`);
 }
 
 function cloneRegistry() {
@@ -111,21 +125,38 @@ function cloneRegistry() {
 function add(names) {
   if (names.length === 0) {
     console.log('  Usage: npx @antidrift/skills add <name...>');
-    console.log('         npx @antidrift/skills add --all\n');
+    console.log('         npx @antidrift/skills add essentials    Add the Essentials Starter Pack');
+    console.log('         npx @antidrift/skills add --all         Add all community skills\n');
     return;
   }
 
   const registry = fetchRegistry();
   const available = registry.map(s => s.name);
-  const toInstall = names.includes('--all')
-    ? available
-    : names.filter(n => {
-        if (!available.includes(n)) {
-          console.log(`  ✗ "${n}" not found in registry`);
-          return false;
-        }
-        return true;
-      });
+
+  // Resolve pack names to individual skills
+  const packs = {};
+  for (const skill of registry) {
+    if (skill.pack) {
+      if (!packs[skill.pack]) packs[skill.pack] = [];
+      packs[skill.pack].push(skill.name);
+    }
+  }
+
+  const resolved = [];
+  for (const name of names) {
+    if (name === '--all') {
+      resolved.push(...available);
+    } else if (packs[name]) {
+      console.log(`  Pack "${name}": ${packs[name].join(', ')}`);
+      resolved.push(...packs[name]);
+    } else if (available.includes(name)) {
+      resolved.push(name);
+    } else {
+      console.log(`  ✗ "${name}" not found in registry`);
+    }
+  }
+
+  const toInstall = [...new Set(resolved)];
 
   if (toInstall.length === 0) return;
 
