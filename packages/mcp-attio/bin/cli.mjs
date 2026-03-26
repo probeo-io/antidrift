@@ -26,6 +26,17 @@ async function main() {
     await setup();
   } else if (command === 'status') {
     status();
+  } else if (command === 'reset') {
+    const configPath = join(configDir, 'attio.json');
+    if (existsSync(configPath)) {
+      const { rmSync } = await import('fs');
+      rmSync(configPath);
+      console.log('  Credentials cleared. Run this command again to reconnect.\n');
+    } else {
+      console.log('  No credentials to clear.\n');
+    }
+    rl.close();
+    process.exit(0);
   } else {
     console.log(`
 @antidrift/mcp-attio — Attio CRM for Claude
@@ -40,18 +51,53 @@ Usage:
 }
 
 async function setup() {
-  mkdirSync(configDir, { recursive: true });
+  console.log(`
+  ┌─────────────────────────────┐
+  │  antidrift                  │
+  │  Attio CRM                  │
+  └─────────────────────────────┘
+`);
 
-  const apiKey = await ask('\n  Attio API key: ');
+  const configPath = join(configDir, 'attio.json');
+  if (existsSync(configPath)) {
+    console.log('  Already connected. Use "reset" to reconnect.\n');
+    status();
+    return;
+  }
+
+  console.log('  To get your API key:\n');
+  console.log('  1. Go to https://app.attio.com');
+  console.log('  2. Settings (bottom left) → Developers → API Keys');
+  console.log('  3. Create a new key with read/write access');
+  console.log('  4. Copy the key and paste it below\n');
+
+  const apiKey = await ask('  API key: ');
 
   if (!apiKey.trim()) {
     console.log('  No key provided.\n');
     return;
   }
 
-  writeFileSync(join(configDir, 'attio.json'), JSON.stringify({ apiKey: apiKey.trim() }, null, 2));
+  // Verify the key works
+  console.log('  Verifying...');
+  try {
+    const res = await fetch('https://api.attio.com/v2/self', {
+      headers: { 'Authorization': `Bearer ${apiKey.trim()}` }
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    const data = await res.json();
+    console.log(`  ✓ Connected to workspace: ${data.data?.workspace?.name || 'OK'}\n`);
+  } catch (err) {
+    console.log(`  ✗ Invalid key or connection failed: ${err.message}\n`);
+    return;
+  }
+
+  mkdirSync(configDir, { recursive: true });
+  writeFileSync(configPath, JSON.stringify({ apiKey: apiKey.trim() }, null, 2));
   writeMcpConfig();
-  console.log('  Attio connected. Restart Claude Code to use it.\n');
+  console.log('  ✓ Attio connected (people, companies, deals, tasks, notes)');
+  console.log('  Restart Claude Code to use it.\n');
+  process.exit(0);
 }
 
 function status() {
