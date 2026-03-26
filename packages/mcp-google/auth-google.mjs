@@ -66,7 +66,10 @@ export function hasToken() {
 }
 
 export async function runAuthFlow() {
+  console.log('  Step 1: Fetching OAuth config...');
   const creds = await fetchClientCredentials();
+  console.log('  Step 1: ✓ Config loaded\n');
+
   const oauth2 = new google.auth.OAuth2(creds.client_id, creds.client_secret, REDIRECT_URI);
 
   const authUrl = oauth2.generateAuthUrl({
@@ -75,14 +78,17 @@ export async function runAuthFlow() {
     prompt: 'consent'
   });
 
-  // Start server FIRST, then open browser
+  console.log('  Step 2: Starting local server...');
   const code = await waitForCallback(authUrl);
+
+  console.log('  Step 3: Exchanging code for token...');
   const { tokens } = await oauth2.getToken(code);
   oauth2.setCredentials(tokens);
 
   mkdirSync(CREDS_DIR, { recursive: true });
   writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
-  console.log('  ✓ Authorized. Token saved.\n');
+  console.log('  Step 3: ✓ Token saved\n');
+  console.log('  ✓ Authorized.\n');
 
   return oauth2;
 }
@@ -91,28 +97,31 @@ function waitForCallback(authUrl) {
   return new Promise((resolve, reject) => {
     let timer;
     const server = createServer((req, res) => {
+      console.log(`  Step 2: Received callback: ${req.url.substring(0, 50)}...`);
       const url = new URL(req.url, 'http://localhost:3847');
       const code = url.searchParams.get('code');
 
       if (code) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end('<h2>Authorized! You can close this tab.</h2>');
+        console.log('  Step 2: ✓ Authorization code received\n');
         clearTimeout(timer);
         server.close(() => resolve(code));
       } else {
+        console.log('  Step 2: Request without code — ignoring');
         res.writeHead(400);
         res.end('Missing code');
       }
     });
 
-    // Server listens first, THEN open browser
     server.listen(3847, () => {
-      console.log('  Waiting for authorization...\n');
+      console.log('  Step 2: ✓ Server listening on port 3847');
+      console.log('  Step 2: Opening browser...\n');
 
       const platform = process.platform;
       const openCmd = platform === 'darwin' ? 'open' : platform === 'win32' ? 'start' : 'xdg-open';
       exec(`${openCmd} "${authUrl}"`);
-      console.log('  Browser opened. Authorize in the browser.\n');
+      console.log('  Authorize in the browser. Waiting for callback...\n');
     });
 
     timer = setTimeout(() => {
