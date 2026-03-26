@@ -119,7 +119,7 @@ function serializeIR(ir) {
   return lines.join('\n');
 }
 
-function parseIR(content) {
+export function parseIR(content) {
   const ir = {
     name: '',
     description: '',

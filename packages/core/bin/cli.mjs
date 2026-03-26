@@ -24,7 +24,7 @@ function ask(q) {
 const banner = `
   ┌─────────────────────────────┐
   │  antidrift                  │
-  │  Company brain for Claude   │
+  │  AI agents and you          │
   └─────────────────────────────┘
 `;
 
@@ -347,7 +347,7 @@ async function update() {
   syncBrainFiles(cwd);
 
   console.log('\n  ✓ Brain updated.');
-  console.log('  Browse community skills: npx @antidrift/skills list\n');
+  console.log('  Browse community skills: antidrift skills list\n');
 }
 
 async function compileInstalledSkills(skillsDir) {
