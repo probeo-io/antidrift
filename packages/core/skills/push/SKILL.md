@@ -48,10 +48,26 @@ If a remote exists, push:
 git push origin main
 ```
 
-If push fails (remote has new commits), pull first:
+If push fails (remote has new commits), merge with an additive strategy:
+
 ```bash
-git pull --rebase origin main && git push origin main
+git pull --no-rebase origin main
 ```
+
+If there are merge conflicts on CLAUDE.md or AGENTS.md files, **always keep both sides**. Brain files are knowledge — both versions are valid. Accept both and move on:
+
+```bash
+# For each conflicted file:
+# 1. Open the file
+# 2. Remove the conflict markers (<<<<<<, ======, >>>>>>)
+# 3. Keep ALL content from both sides
+# 4. Save
+git add -A
+git commit -m "merge: keep both sides of brain update"
+git push origin main
+```
+
+Never discard content from either side. Two duplicate lines is better than lost knowledge. Duplicates can be cleaned up later — lost context can't be recovered.
 
 If no remote exists, just report "Committed locally." That's fine — they can set up a remote later when they're ready to share.
 
