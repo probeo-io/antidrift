@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/skills",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Skill registry for Claude Code brains — list, add, and manage skills",
   "bin": {
     "antidrift-skills": "bin/cli.mjs"
