@@ -1,7 +1,9 @@
 import { google } from 'googleapis';
+import { createServer } from 'http';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
+import { URL } from 'url';
 
 const CONFIG_DIR = join(homedir(), '.antidrift');
 const CREDS_DIR = join(CONFIG_DIR, 'credentials', 'google');
@@ -9,15 +11,14 @@ const TOKEN_PATH = join(CREDS_DIR, 'token.json');
 const CLIENT_PATH = join(CREDS_DIR, 'client.json');
 
 const OAUTH_URL = 'https://antidrift.io/.well-known/google-oauth.json';
+const REDIRECT_URI = 'http://localhost:3847/callback';
 
 const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
-  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
   'https://www.googleapis.com/auth/gmail.modify',
-  'https://www.googleapis.com/auth/calendar',
-  'email',
-  'profile',
+  'https://www.googleapis.com/auth/calendar'
 ];
 
 async function fetchClientCredentials() {
@@ -39,7 +40,7 @@ async function fetchClientCredentials() {
 
 export async function getAuthClient() {
   const creds = await fetchClientCredentials();
-  const oauth2 = new google.auth.OAuth2(creds.client_id, creds.client_secret);
+  const oauth2 = new google.auth.OAuth2(creds.client_id, creds.client_secret, REDIRECT_URI);
 
   if (existsSync(TOKEN_PATH)) {
     const token = JSON.parse(readFileSync(TOKEN_PATH, 'utf8'));
@@ -65,73 +66,56 @@ export function hasToken() {
 
 export async function runAuthFlow() {
   const creds = await fetchClientCredentials();
+  const oauth2 = new google.auth.OAuth2(creds.client_id, creds.client_secret, REDIRECT_URI);
 
-  console.log('  Requesting authorization...\n');
-
-  const deviceRes = await fetch('https://oauth2.googleapis.com/device/code', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: creds.client_id,
-      scope: SCOPES.join(' '),
-    }),
+  const authUrl = oauth2.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES,
+    prompt: 'consent'
   });
 
-  if (!deviceRes.ok) {
-    const err = await deviceRes.text();
-    throw new Error(`Device code request failed: ${err}`);
-  }
-
-  const device = await deviceRes.json();
-  const { device_code, user_code, verification_url, interval, expires_in } = device;
-
-  console.log(`  Go to: ${verification_url}`);
-  console.log(`  Enter code: ${user_code}\n`);
+  console.log('  Opening browser for Google authorization...\n');
 
   const { exec } = await import('child_process');
   const platform = process.platform;
   const openCmd = platform === 'darwin' ? 'open' : platform === 'win32' ? 'start' : 'xdg-open';
-  exec(`${openCmd} "${verification_url}"`);
+  exec(`${openCmd} "${authUrl}"`);
 
-  console.log('  Waiting for authorization...');
+  const code = await waitForCallback();
+  const { tokens } = await oauth2.getToken(code);
+  oauth2.setCredentials(tokens);
 
-  const pollInterval = (interval || 5) * 1000;
-  const deadline = Date.now() + (expires_in || 300) * 1000;
+  mkdirSync(CREDS_DIR, { recursive: true });
+  writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
+  console.log('  ✓ Authorized. Token saved.\n');
 
-  while (Date.now() < deadline) {
-    await new Promise(r => setTimeout(r, pollInterval));
+  return oauth2;
+}
 
-    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: creds.client_id,
-        client_secret: creds.client_secret,
-        device_code,
-        grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-      }),
+function waitForCallback() {
+  return new Promise((resolve, reject) => {
+    const server = createServer((req, res) => {
+      const url = new URL(req.url, 'http://localhost:3847');
+      const code = url.searchParams.get('code');
+
+      if (code) {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end('<h2>Authorized! You can close this tab.</h2>');
+        server.close();
+        resolve(code);
+      } else {
+        res.writeHead(400);
+        res.end('Missing code');
+      }
     });
 
-    const tokenData = await tokenRes.json();
+    server.listen(3847, () => {
+      console.log('  Waiting for authorization...');
+    });
 
-    if (tokenData.access_token) {
-      mkdirSync(CREDS_DIR, { recursive: true });
-      writeFileSync(TOKEN_PATH, JSON.stringify(tokenData, null, 2));
-      console.log(`\n  ✓ Authorized. Token saved.\n`);
-
-      const oauth2 = new google.auth.OAuth2(creds.client_id, creds.client_secret);
-      oauth2.setCredentials(tokenData);
-      return oauth2;
-    }
-
-    if (tokenData.error === 'authorization_pending') continue;
-    if (tokenData.error === 'slow_down') {
-      await new Promise(r => setTimeout(r, 5000));
-      continue;
-    }
-
-    throw new Error(`Authorization failed: ${tokenData.error_description || tokenData.error}`);
-  }
-
-  throw new Error('Authorization timed out. Please try again.');
+    setTimeout(() => {
+      server.close();
+      reject(new Error('Authorization timed out after 2 minutes'));
+    }, 120000);
+  });
 }
