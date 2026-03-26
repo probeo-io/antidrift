@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "antidrift"
-version = "0.6.3"
+version = "0.6.4"
 description = "Company brain for Claude. One repo your whole team shares — context, skills, and connected services."
 readme = "README.md"
 license = "MIT"
@@ -23,6 +23,9 @@ antidrift = "antidrift.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/antidrift"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
 
 [project.urls]
 Homepage = "https://antidrift.io"
