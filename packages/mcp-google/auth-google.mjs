@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import { URL } from 'url';
+import { exec } from 'child_process';
 
 const CONFIG_DIR = join(homedir(), '.antidrift');
 const CREDS_DIR = join(CONFIG_DIR, 'credentials', 'google');
@@ -74,14 +75,8 @@ export async function runAuthFlow() {
     prompt: 'consent'
   });
 
-  console.log('  Opening browser for Google authorization...\n');
-
-  const { exec } = await import('child_process');
-  const platform = process.platform;
-  const openCmd = platform === 'darwin' ? 'open' : platform === 'win32' ? 'start' : 'xdg-open';
-  exec(`${openCmd} "${authUrl}"`);
-
-  const code = await waitForCallback();
+  // Start server FIRST, then open browser
+  const code = await waitForCallback(authUrl);
   const { tokens } = await oauth2.getToken(code);
   oauth2.setCredentials(tokens);
 
@@ -92,7 +87,7 @@ export async function runAuthFlow() {
   return oauth2;
 }
 
-function waitForCallback() {
+function waitForCallback(authUrl) {
   return new Promise((resolve, reject) => {
     let timer;
     const server = createServer((req, res) => {
@@ -110,8 +105,14 @@ function waitForCallback() {
       }
     });
 
+    // Server listens first, THEN open browser
     server.listen(3847, () => {
-      console.log('  Waiting for authorization...');
+      console.log('  Waiting for authorization...\n');
+
+      const platform = process.platform;
+      const openCmd = platform === 'darwin' ? 'open' : platform === 'win32' ? 'start' : 'xdg-open';
+      exec(`${openCmd} "${authUrl}"`);
+      console.log('  Browser opened. Authorize in the browser.\n');
     });
 
     timer = setTimeout(() => {
