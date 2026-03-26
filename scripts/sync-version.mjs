@@ -39,6 +39,7 @@ const packageJsonFiles = [
   'packages/cli/package.json',
   'packages/core/package.json',
   'packages/skills/package.json',
+  'packages/mcp-google/package.json',
 ];
 
 for (const file of packageJsonFiles) {

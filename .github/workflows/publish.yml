@@ -36,6 +36,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish @antidrift/mcp-google
+        working-directory: packages/mcp-google
+        run: npm install --ignore-scripts && npm publish --access public --provenance || echo "Already published, skipping"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
   pypi-core:
     runs-on: ubuntu-latest
     environment: pypi
