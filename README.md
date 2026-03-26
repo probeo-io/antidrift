@@ -177,6 +177,10 @@ antidrift cross-compile .agents/skills/my-skill --to claude
 | `@antidrift/mcp-stripe` | Stripe invoices, customers, products |
 | `@antidrift/mcp-attio` | Attio CRM — people, companies, deals |
 
+## Learn More
+
+[antidrift.io](https://antidrift.io)
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on sharing skills and developing core.
