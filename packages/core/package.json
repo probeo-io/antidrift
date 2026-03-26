@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/core",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Company brain for Claude — shared knowledge, shared skills, no more passing markdown files around",
   "bin": {
     "antidrift": "bin/cli.mjs"

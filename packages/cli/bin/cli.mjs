@@ -24,7 +24,7 @@ Usage:
   antidrift help                          Show this message
 
 Install:
-  npm install -g antidrift
+  npm install -g @antidrift/cli
   pip install antidrift
 `;
 
