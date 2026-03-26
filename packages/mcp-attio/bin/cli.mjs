@@ -78,6 +78,9 @@ async function setup() {
     return;
   }
 
+  const masked = '*'.repeat(Math.max(0, apiKey.trim().length - 5)) + apiKey.trim().slice(-5);
+  console.log(`  Key: ${masked}\n`);
+
   // Verify the key works
   console.log('  Verifying...');
   try {
