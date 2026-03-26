@@ -6,6 +6,7 @@ import { createInterface } from 'readline';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { syncBrainFiles } from '../lib/sync.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -344,7 +345,12 @@ async function update() {
 
   // Step 3: Sync brain files
   console.log('  Step 3: Sync brain files');
-  syncBrainFiles(cwd);
+  const { synced } = syncBrainFiles(cwd);
+  if (synced > 0) {
+    console.log(`    Synced ${synced} brain file(s) (CLAUDE.md ↔ AGENTS.md ↔ GEMINI.md)`);
+  } else {
+    console.log('    All brain files in sync');
+  }
 
   console.log('\n  ✓ Brain updated.');
   console.log('  Browse community skills: antidrift skills list\n');
@@ -393,52 +399,6 @@ async function compileInstalledSkills(skillsDir) {
     console.log(`    Compiled ${compiled} community skill(s) for ${platforms.join(' + ')}`);
   } else {
     console.log('    No community skills to compile');
-  }
-}
-
-function syncBrainFiles(rootDir) {
-  let synced = 0;
-
-  function walk(dir) {
-    let entries;
-    try { entries = readdirSync(dir); } catch { return; }
-
-    for (const entry of entries) {
-      if (entry === 'node_modules' || entry === '.git' || entry === '.venv') continue;
-      const full = join(dir, entry);
-      try {
-        if (statSync(full).isDirectory()) walk(full);
-      } catch { continue; }
-    }
-
-    const claudePath = join(dir, 'CLAUDE.md');
-    const agentsPath = join(dir, 'AGENTS.md');
-    const geminiPath = join(dir, 'GEMINI.md');
-
-    // Find source of truth: CLAUDE.md > AGENTS.md > GEMINI.md
-    let source = null;
-    if (existsSync(claudePath)) source = claudePath;
-    else if (existsSync(agentsPath)) source = agentsPath;
-    else if (existsSync(geminiPath)) source = geminiPath;
-
-    if (source) {
-      const content = readFileSync(source, 'utf8');
-      const targets = [claudePath, agentsPath, geminiPath];
-      for (const target of targets) {
-        if (target === source) continue;
-        if (!existsSync(target) || readFileSync(target, 'utf8') !== content) {
-          writeFileSync(target, content);
-          synced++;
-        }
-      }
-    }
-  }
-
-  walk(rootDir);
-  if (synced > 0) {
-    console.log(`    Synced ${synced} brain file(s) (CLAUDE.md ↔ AGENTS.md ↔ GEMINI.md)`);
-  } else {
-    console.log('    All brain files in sync');
   }
 }
 

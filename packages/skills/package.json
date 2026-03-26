@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/skills",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Skill registry for Claude Code brains — list, add, and manage skills",
   "bin": {
     "antidrift-skills": "bin/cli.mjs"
@@ -22,7 +22,7 @@
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "node --test test/*.test.mjs"
   },
   "author": "Probeo <hello@probeo.io>"
 }
