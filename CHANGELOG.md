@@ -2,6 +2,77 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.4] - 2026-03-26
+
+### Fixed
+
+- Python package excludes `__pycache__` from dist
+- Export `parseIR` from core for third-party integrations
+- Updated CLI banner and messages
+
+### Added
+
+- Python test suite — 32 tests covering init, sync, and CLI commands
+
+## [0.6.3] - 2026-03-26
+
+### Added
+
+- Comprehensive test suite — 86 tests across `@antidrift/core` and `@antidrift/skills`
+- Covers init, brain sync, IR compilation, skill CLI, and cross-compile round-trips
+- 118 total tests across Node.js and Python
+
+## [0.6.2] - 2026-03-26
+
+### Added
+
+- Python CLI now supports `antidrift skills list`, `antidrift skills add`, and `antidrift cross-compile`
+- Delegates to `npx` under the hood — single compiler, zero duplication
+- `pip install antidrift` now gets the same capabilities as the Node.js CLI
+
+## [0.6.1] - 2026-03-26
+
+### Added
+
+- **Cursor and Antigravity support** — brain context and skills compile for all five tools
+- Cross-platform compiler updated for Claude Code, Cowork, Codex, Cursor, and Antigravity
+- **Security skill pack** — audit, secrets, threat-model, incident, pentest-prep
+- Any tool that reads markdown context files works out of the box
+
+## [0.6.0] - 2026-03-26
+
+### Added
+
+- **Google Antigravity support** — GEMINI.md brain file sync
+- Triple brain file sync (CLAUDE.md + AGENTS.md + GEMINI.md)
+
+## [0.5.4] - 2026-03-26
+
+### Added
+
+- **Unified CLI** — `@antidrift/cli` package for init, join, skills, and updates
+- Pack-based skill installation: `antidrift skills add essentials`
+- 4 skill packs: essentials, engineering, customer-research, legal
+- Install everything at once with `antidrift skills add --all`
+- Additive merge strategy for `/push` — safer team-level merges
+- Idempotent ingest with project detection and local path separation
+- Cleaner skills list output with truncated descriptions and `/name` format
+
+## [0.5.0] - 2026-03-25
+
+### Changed
+
+- Skills CLI no longer requires `gh` or GitHub auth
+- Skills list and add now fetch from a hosted registry over HTTPS
+- Registry auto-builds on merge to antidrift-skills
+
+## [0.4.1] - 2026-03-25
+
+### Fixed
+
+- Improved `antidrift update` output with step-by-step progress
+- Single source of truth for versioning via `version.json` + sync script
+
 ## [0.4.0] - 2026-03-25
 
 ### Added
