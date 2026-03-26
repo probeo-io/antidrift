@@ -28,6 +28,9 @@ const banner = `
   ┌─────────────────────────────┐
   │  antidrift v${ver.padEnd(16)}│
   │  AI agents and you          │
+  │                             │
+  │  https://antidrift.io       │
+  │  Built by Probeo.io         │
   └─────────────────────────────┘
 `;
 

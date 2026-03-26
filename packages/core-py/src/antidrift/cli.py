@@ -23,6 +23,9 @@ def _banner():
   ┌─────────────────────────────┐
   │  antidrift v{ver:<16}│
   │  AI agents and you          │
+  │                             │
+  │  https://antidrift.io       │
+  │  Built by Probeo.io         │
   └─────────────────────────────┘
 """
 
