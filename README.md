@@ -1,19 +1,31 @@
 # antidrift
 
-Company brain for AI coding agents. Shared knowledge, shared skills, works with Claude Code and Codex.
+Company brain for you and your AI agents. Shared knowledge, shared skills, no more passing files around.
 
-## What It Is
+Works with Claude Code and OpenAI Codex.
 
-Antidrift is a git repo that gives your AI coding agent full context on your company. Clone it on any machine and it knows your product, customers, stack, positioning, and how you work.
+## The Problem
+
+Every time you start a new session, your AI agent has no idea who you are, what your company does, who your customers are, or how you work. You repeat yourself constantly. Context drifts. Knowledge gets lost.
+
+## The Fix
+
+Antidrift is a git repo that gives your AI agents full context on your company. Product, customers, stack, positioning, decisions, standards — all of it. Clone it on any machine and your agent knows everything.
 
 **Two things in the box:**
-1. **The brain** — CLAUDE.md / AGENTS.md files organized by department. Your agent reads them automatically.
-2. **Skills** — slash commands that do real work. `/onboard`, `/push`, `/ingest`, `/write`, etc.
+1. **The brain** — markdown files organized by department. Your agent reads them automatically.
+2. **Skills** — slash commands that do real work: `/write`, `/review`, `/icp`, `/prep`, `/tps`, and more.
 
 ## Install
 
 ```bash
 npm install -g @antidrift/cli
+```
+
+Or via Python:
+
+```bash
+pip install antidrift
 ```
 
 ## Quick Start
@@ -22,32 +34,70 @@ npm install -g @antidrift/cli
 antidrift init
 ```
 
-That's it. Your agent loads the root brain file and knows where everything is.
+That's it. Your agent loads the brain and knows where everything is. Type `/ingest <path>` to start building context from your existing files.
 
-## Packages
+## What's In the Brain
 
-| Package | What It Does |
+```
+your-brain/
+├── CLAUDE.md              # Company overview, priorities, navigation
+├── AGENTS.md              # Same content — for Codex users
+├── product/               # What you're building, roadmap
+├── customers/             # Account data, meeting notes, agreements
+├── marketing/             # Positioning, brand voice, campaigns, ICPs
+├── sales/                 # Pipeline, prospects, outreach
+├── engineering/           # Architecture, coding standards, specs
+├── finance/               # Revenue, expenses
+├── decisions/             # Why we made the choices we made
+└── projects.md            # Project registry with repo URLs
+```
+
+Add a department by creating a directory. Nest as deep as you want. Your agent discovers it all.
+
+## Skills
+
+Skills are slash commands. Type `/` to see them.
+
+### Core (ships with every brain)
+
+| Skill | What it does |
 |---|---|
-| `@antidrift/cli` | Unified CLI (`antidrift init`, `antidrift skills list`) |
-| `@antidrift/core` | Brain + core skills + setup |
-| `@antidrift/skills` | Community skill registry |
-| `@antidrift/mcp-google` | Google Sheets, Docs, Drive, Gmail, Calendar |
-| `@antidrift/mcp-stripe` | Stripe invoices, customers, products |
-| `@antidrift/mcp-attio` | Attio CRM — people, companies, deals |
+| `/ingest <path>` | Import files and directories into the brain |
+| `/push` | Commit and push changes (syncs brain files, merges additively) |
+| `/refresh` | Pull latest changes from remote |
+| `/onboard` | Walk a new person through everything |
+| `/publish <skill>` | Share a skill with the community |
 
-## Skill Packs
-
-Install community skills by pack:
+### Community Skill Packs
 
 ```bash
-antidrift skills add essentials         # 7 skills — decision, recap, write, prep, followup, status, search
-antidrift skills add engineering        # 5 skills — review, spec, changelog, standards, tps
-antidrift skills add customer-research  # 3 skills — icp, voc, twins
-antidrift skills add legal              # 1 skill — legal document generator
+antidrift skills add essentials         # decision, recap, write, prep, followup, status, search
+antidrift skills add engineering        # review, spec, changelog, standards, tps
+antidrift skills add customer-research  # icp, voc, twins
+antidrift skills add legal              # legal document generator
 antidrift skills add --all              # everything
 ```
 
-Browse available skills:
+| Pack | Skills |
+|------|--------|
+| **essentials** | `/decision` — log decisions with context and reasoning |
+| | `/recap` — what changed since last time |
+| | `/write` — write anything using brand voice + brain context |
+| | `/prep` — prep for a customer call from account data |
+| | `/followup` — draft follow-up emails after meetings |
+| | `/status` — brain health, freshness, gaps |
+| | `/search` — search across the entire brain |
+| **engineering** | `/review` — code review using team standards from the brain |
+| | `/spec` — technical spec using architecture context |
+| | `/changelog` — generate changelog from git history |
+| | `/standards` — generate coding standards from existing code |
+| | `/tps` — TPS report from git history (yes, that TPS report) |
+| **customer-research** | `/icp` — build research-backed Ideal Customer Profiles |
+| | `/voc` — Voice of Customer analysis in their actual language |
+| | `/twins` — create AI twin personas for market testing |
+| **legal** | `/legal` — generate NDAs, subscription agreements, PSAs from templates |
+
+Browse what's available:
 
 ```bash
 antidrift skills list
@@ -55,63 +105,11 @@ antidrift skills list
 
 ## How It Works
 
-### The Brain
+### Your Agent Reads the Brain Automatically
 
-Every directory has a `CLAUDE.md`. Claude loads it automatically when working in that area.
+Every directory has a brain file (`CLAUDE.md` for Claude Code, `AGENTS.md` for Codex). Your agent loads it when working in that area. Only what's relevant gets loaded — not the whole brain at once.
 
-```
-your-brain/
-├── CLAUDE.md              # Company overview, priorities, navigation
-├── product/CLAUDE.md      # What you're building, roadmap
-├── customers/CLAUDE.md    # Customer accounts
-├── marketing/CLAUDE.md    # Positioning, campaigns
-├── sales/CLAUDE.md        # Pipeline, outbound
-├── engineering/CLAUDE.md  # Architecture, standards
-├── finance/CLAUDE.md      # Revenue, expenses
-├── ops/CLAUDE.md          # Setup, workflows
-├── devops/CLAUDE.md       # Infrastructure, deploys
-└── projects.md            # Project registry
-```
-
-Add a department by creating a directory with a CLAUDE.md. Nest as deep as you want. Claude discovers it all.
-
-### Skills
-
-Skills are slash commands that live in `.claude/skills/`. Type `/` in Claude Code to see them.
-
-There are two layers:
-
-#### Company Skills (shared)
-Live in the brain repo at `.claude/skills/`. Everyone gets them via git.
-
-```
-.claude/skills/
-├── onboard/SKILL.md       # /onboard — walk someone through the brain
-├── refresh/SKILL.md       # /refresh — pull latest changes
-├── push/SKILL.md          # /push — commit and push changes
-└── ...
-```
-
-#### Personal Skills (yours only)
-Live on your machine at `~/.claude/skills/`. Never shared unless you choose to.
-
-```
-~/.claude/skills/
-├── my-shortcut/SKILL.md   # Your own prompts and workflows
-├── draft-email/SKILL.md   # Whatever works for you
-└── ...
-```
-
-Personal skills override company skills if they share a name.
-
-#### Promoting a Personal Skill
-
-When a personal skill is useful for the whole team:
-
-1. Copy it from `~/.claude/skills/my-skill/` to `.claude/skills/my-skill/` in the brain repo
-2. `/push` — everyone gets it on their next `/refresh`
-
-#### Skill Format
+### Skills Are Just Markdown
 
 A skill is a directory with a `SKILL.md` file:
 
@@ -121,60 +119,63 @@ name: my-skill
 description: What this skill does and when to use it
 ---
 
-Instructions for Claude go here. Markdown.
+Instructions for your agent go here. Markdown.
 ```
 
-That's it. No build step, no config, no framework.
+No build step. No framework. No config.
 
-## Keeping the Brain Efficient
+### Two Layers of Skills
 
-Claude loads CLAUDE.md files automatically. Keep them concise — summaries and pointers, not full documents.
+**Company skills** live in the brain repo at `.claude/skills/`. Everyone gets them via git.
 
-For large reference material (test results, research data, raw copy), put it in a `_reference/` subdirectory. Claude won't read it unless specifically asked.
+**Personal skills** live on your machine at `~/.claude/skills/`. Never shared unless you choose to. Personal skills override company skills if they share a name.
+
+When a personal skill is useful for the team: copy it to the brain repo and `/push`.
+
+### Keeping the Brain Efficient
+
+Brain files are indexes, not documents. Keep them under 250 lines — summaries and pointers.
+
+Heavy reference material goes in `_reference/` subdirectories. Your agent won't read it unless asked.
 
 ```
 marketing/
 ├── CLAUDE.md              # Summary — auto-loaded (~150 lines)
-├── pricing-structure.md   # Active reference (~400 lines)
+├── pricing-structure.md   # Active reference
 └── _reference/            # Heavy files — only on demand
-    ├── twin-tests/        # (~3,000 lines)
-    └── website-copy/      # (~6,000 lines)
+    ├── twin-tests/
+    └── voc/
 ```
 
-## Cross-Platform (Claude Code + Codex)
+## Cross-Platform
 
-Antidrift works across both Claude Code and OpenAI Codex. The brain creates both `CLAUDE.md` and `AGENTS.md` automatically — same content, both tools read it.
+Antidrift works with both Claude Code and OpenAI Codex on the same brain.
+
+- `antidrift init` creates both `CLAUDE.md` and `AGENTS.md`
+- `/push` syncs them before every commit
+- `/ingest` creates both for every department
+- Community skills compile to the right format on install
+- Teams can mix Claude Code and Codex users — everything stays in sync
 
 ### Skill Compiler
 
 Convert skills between platforms:
 
 ```bash
-# Claude Code skill → Codex
 antidrift cross-compile .claude/skills/my-skill --to codex
-
-# Codex skill → Claude Code
 antidrift cross-compile .agents/skills/my-skill --to claude
 ```
 
-### How It Works
+## Packages
 
-- **`init`** creates both `CLAUDE.md` and `AGENTS.md` at root
-- **`/push`** syncs them before every commit
-- **`/ingest`** creates both for every department
-- **`update`** recompiles community skills for all detected platforms
-- Community skills use a universal IR format — compiled to native on install
-
-### Teams Using Both Tools
-
-If your team has some people on Claude Code and some on Codex, everything just works. The brain files are identical, skills compile for both, and `/push` keeps everything in sync.
-
-## Conventions
-
-- Decisions go in `product/decisions/` as dated markdown files
-- Customer work goes in `customers/[name]/`
-- When something is deprecated, mark it clearly — don't delete context
-- Keep CLAUDE.md files under 250 lines — use them as indexes, not documents
+| Package | What It Does |
+|---|---|
+| `@antidrift/cli` | Unified CLI |
+| `@antidrift/core` | Brain + core skills + setup |
+| `@antidrift/skills` | Community skill registry |
+| `@antidrift/mcp-google` | Google Sheets, Docs, Drive, Gmail, Calendar |
+| `@antidrift/mcp-stripe` | Stripe invoices, customers, products |
+| `@antidrift/mcp-attio` | Attio CRM — people, companies, deals |
 
 ## Contributing
 
