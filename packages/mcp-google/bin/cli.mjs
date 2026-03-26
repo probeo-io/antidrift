@@ -52,6 +52,7 @@ async function setup() {
   writeMcpConfig();
   console.log('  ✓ Google connected (Sheets, Docs, Drive, Gmail, Calendar)');
   console.log('  Restart Claude Code to use it.\n');
+  process.exit(0);
 }
 
 function status() {
@@ -89,4 +90,4 @@ function writeMcpConfig() {
   writeFileSync(mcpPath, JSON.stringify(config, null, 2));
 }
 
-main().catch(console.error);
+main().catch(console.error).finally(() => process.exit(0));
