@@ -104,25 +104,57 @@ def sync_brain_files(root_dir: Path):
         print("    All brain files in sync")
 
 
+def check_npx() -> bool:
+    """Check if npx is available."""
+    if shutil.which("npx") is not None:
+        return True
+    print("  npx is required for this command but not found.\n")
+    print("  Install Node.js: https://nodejs.org")
+    if sys.platform == "darwin":
+        print("  Or: brew install node\n")
+    else:
+        print()
+    return False
+
+
+def npx_delegate(package: str, args: list[str]):
+    """Delegate a command to an @antidrift npm package via npx."""
+    if not check_npx():
+        sys.exit(1)
+    pkg = f"@antidrift/{package}@latest"
+    cmd = f"npx --yes {pkg} {' '.join(args)}"
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        sys.exit(e.returncode)
+
+
+def skills_delegate():
+    """Delegate skills commands to @antidrift/skills via npx."""
+    sub_args = sys.argv[2:]
+    if not sub_args:
+        sub_args = ["list"]
+    npx_delegate("skills", sub_args)
+
+
 def show_help():
     print("""
 antidrift — Company brain for you and your AI agents
 
 Usage:
-  antidrift init              Start a new brain
-  antidrift join <repo>       Join an existing brain
-  antidrift update            Update core skills + sync brain files
-  antidrift help              Show this message
+  antidrift init                          Start a new brain
+  antidrift join <repo>                   Join an existing brain
+  antidrift update                        Update core skills + sync brain files
 
-Community skills:
-  npm install -g @antidrift/cli
-  antidrift skills list       Browse community skills
-  antidrift skills add <pack> Install a skill pack
+  antidrift skills list                   Browse community skills (by pack)
+  antidrift skills add <name|pack>        Add skills (essentials, engineering, security, etc.)
+  antidrift skills add --all              Add all community skills
+  antidrift skills remove <name>          Remove a skill
 
-Connect services (type /connect inside Claude, or install directly):
-  npx @antidrift/mcp-google   Google Sheets, Docs, Drive, Gmail, Calendar
-  npx @antidrift/mcp-stripe   Stripe invoices, customers
-  npx @antidrift/mcp-attio    Attio CRM
+  antidrift cross-compile <path> --to <claude|codex>
+
+  antidrift version                       Show version
+  antidrift help                          Show this message
 
 Learn more: https://antidrift.io
 """)
@@ -323,6 +355,10 @@ def main():
         join_brain()
     elif command == "update":
         update()
+    elif command == "skills":
+        skills_delegate()
+    elif command == "cross-compile":
+        npx_delegate("core", sys.argv[1:])
     else:
         print(f"  Unknown command: {command}\n")
         show_help()
