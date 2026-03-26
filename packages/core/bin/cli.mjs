@@ -305,6 +305,13 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
     claude
 
   Type /ingest to build your brain, or just start talking.
+
+  Tip: Install the CLI for easier access:
+    npm install -g antidrift
+
+  Then use:
+    antidrift skills list
+    antidrift update
 `);
   }
 }

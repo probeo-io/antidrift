@@ -1,33 +1,28 @@
 {
-  "name": "@antidrift/core",
+  "name": "antidrift",
   "version": "0.5.2",
-  "description": "Company brain for Claude — shared knowledge, shared skills, no more passing markdown files around",
+  "description": "CLI for antidrift — company brain for AI coding agents",
   "bin": {
     "antidrift": "bin/cli.mjs"
   },
   "files": [
-    "bin/",
-    "lib/",
-    "skills/"
+    "bin/"
   ],
   "keywords": [
+    "antidrift",
     "claude-code",
-    "claude",
-    "cowork",
+    "codex",
     "skills",
     "company-brain",
-    "knowledge-management"
+    "cli"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/probeo-io/antidrift.git",
-    "directory": "packages/core"
+    "directory": "packages/cli"
   },
   "type": "module",
-  "scripts": {
-    "test": "node --test test/*.test.mjs"
-  },
   "author": "Probeo <hello@probeo.io>",
   "bugs": {
     "url": "https://github.com/probeo-io/antidrift/issues"

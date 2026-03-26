@@ -36,6 +36,7 @@ console.log(`Syncing version: ${version}\n`);
 // ─── package.json files ─────────────────────────────────────────────────────
 
 const packageJsonFiles = [
+  'packages/cli/package.json',
   'packages/core/package.json',
   'packages/skills/package.json',
 ];

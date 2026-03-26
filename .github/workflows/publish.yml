@@ -18,6 +18,12 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
+      - name: Publish antidrift (CLI)
+        working-directory: packages/cli
+        run: npm publish --access public --provenance || echo "Already published, skipping"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish @antidrift/core
         working-directory: packages/core
         run: npm publish --access public --provenance || echo "Already published, skipping"
