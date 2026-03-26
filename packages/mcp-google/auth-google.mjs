@@ -82,13 +82,19 @@ export async function runAuthFlow() {
   const code = await waitForCallback(authUrl);
 
   console.log('  Step 3: Exchanging code for token...');
-  const { tokens } = await oauth2.getToken(code);
-  oauth2.setCredentials(tokens);
+  try {
+    const { tokens } = await oauth2.getToken(code);
+    console.log('  Step 3: ✓ Token received');
+    oauth2.setCredentials(tokens);
 
-  mkdirSync(CREDS_DIR, { recursive: true });
-  writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
-  console.log('  Step 3: ✓ Token saved\n');
-  console.log('  ✓ Authorized.\n');
+    mkdirSync(CREDS_DIR, { recursive: true });
+    writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
+    console.log('  Step 3: ✓ Token saved\n');
+    console.log('  ✓ Authorized.\n');
+  } catch (err) {
+    console.error(`  Step 3: ✗ Token exchange failed: ${err.message}\n`);
+    throw err;
+  }
 
   return oauth2;
 }
