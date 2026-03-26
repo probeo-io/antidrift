@@ -94,6 +94,7 @@ export async function runAuthFlow() {
 
 function waitForCallback() {
   return new Promise((resolve, reject) => {
+    let timer;
     const server = createServer((req, res) => {
       const url = new URL(req.url, 'http://localhost:3847');
       const code = url.searchParams.get('code');
@@ -101,8 +102,8 @@ function waitForCallback() {
       if (code) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end('<h2>Authorized! You can close this tab.</h2>');
-        server.close();
-        resolve(code);
+        clearTimeout(timer);
+        server.close(() => resolve(code));
       } else {
         res.writeHead(400);
         res.end('Missing code');
@@ -113,7 +114,7 @@ function waitForCallback() {
       console.log('  Waiting for authorization...');
     });
 
-    setTimeout(() => {
+    timer = setTimeout(() => {
       server.close();
       reject(new Error('Authorization timed out after 2 minutes'));
     }, 120000);
