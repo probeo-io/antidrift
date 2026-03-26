@@ -215,6 +215,105 @@ export const tools = [
     }
   },
   {
+    name: 'attio_update_record',
+    description: 'Update fields on a person, company, or deal in Attio.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        objectType: { type: 'string', description: 'Object type: "people", "companies", or "deals"' },
+        recordId: { type: 'string', description: 'The record ID to update' },
+        values: { type: 'object', description: 'Field values to update, e.g. {"job_title": [{"value": "CTO"}]}' }
+      },
+      required: ['objectType', 'recordId', 'values']
+    },
+    handler: async ({ objectType, recordId, values }) => {
+      const res = await attio('PATCH', `/objects/${objectType}/records/${recordId}`, { data: { values } });
+      return `✅ Updated ${objectType} record ${recordId}`;
+    }
+  },
+  {
+    name: 'attio_move_deal',
+    description: 'Move a deal to a different pipeline stage in Attio.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        recordId: { type: 'string', description: 'The deal record ID' },
+        stage: { type: 'string', description: 'The stage name to move to (e.g. "Qualified", "Proposal", "Closed Won")' }
+      },
+      required: ['recordId', 'stage']
+    },
+    handler: async ({ recordId, stage }) => {
+      const res = await attio('PATCH', `/objects/deals/records/${recordId}`, {
+        data: { values: { stage: [{ status: { title: stage } }] } }
+      });
+      return `✅ Deal moved to "${stage}"`;
+    }
+  },
+  {
+    name: 'attio_create_task',
+    description: 'Create a task in Attio, optionally linked to a record.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        content: { type: 'string', description: 'Task description' },
+        deadlineAt: { type: 'string', description: 'Deadline as ISO date string (optional)' },
+        linkedRecordId: { type: 'string', description: 'Record ID to link the task to (optional)' },
+        linkedObjectType: { type: 'string', description: 'Object type of linked record: "people", "companies", or "deals" (optional)' }
+      },
+      required: ['content']
+    },
+    handler: async ({ content, deadlineAt, linkedRecordId, linkedObjectType }) => {
+      const body = {
+        data: {
+          content: [{ type: 'paragraph', children: [{ text: content }] }],
+          format: 'plaintext',
+          is_completed: false
+        }
+      };
+      if (deadlineAt) body.data.deadline_at = deadlineAt;
+      if (linkedRecordId && linkedObjectType) {
+        body.data.linked_records = [{ target_object: linkedObjectType, target_record_id: linkedRecordId }];
+      }
+      const res = await attio('POST', '/tasks', body);
+      return `✅ Task created: "${content}"${deadlineAt ? ` (due: ${deadlineAt})` : ''}`;
+    }
+  },
+  {
+    name: 'attio_list_tasks',
+    description: 'List tasks in Attio.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        limit: { type: 'number', description: 'Max results (default 20)' }
+      }
+    },
+    handler: async ({ limit = 20 }) => {
+      const res = await attio('GET', `/tasks?limit=${limit}`);
+      if (!res.data?.length) return 'No tasks found.';
+      return res.data.map(t => {
+        const status = t.is_completed ? '✅' : '⬜';
+        const content = t.content_plaintext || 'No description';
+        const deadline = t.deadline_at ? ` (due: ${new Date(t.deadline_at).toLocaleDateString()})` : '';
+        return `${status} ${content}${deadline}  [id: ${t.id.task_id}]`;
+      }).join('\n');
+    }
+  },
+  {
+    name: 'attio_complete_task',
+    description: 'Mark a task as completed in Attio.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        taskId: { type: 'string', description: 'The task ID to complete' }
+      },
+      required: ['taskId']
+    },
+    handler: async ({ taskId }) => {
+      await attio('PATCH', `/tasks/${taskId}`, { data: { is_completed: true } });
+      return `✅ Task marked as completed`;
+    }
+  },
+  {
     name: 'attio_add_note',
     description: 'Add a note to a person or company in Attio.',
     inputSchema: {

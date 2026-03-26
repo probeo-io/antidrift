@@ -21,6 +21,7 @@ Usage:
   antidrift cross-compile <path> --to <claude|codex>
 
   antidrift connect google                Connect Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)
+  antidrift connect attio                 Connect Attio CRM
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -72,12 +73,14 @@ if (command === 'skills') {
   const service = args[1];
   const mcpPackages = {
     google: '@antidrift/mcp-google',
+    attio: '@antidrift/mcp-attio',
   };
   if (service && mcpPackages[service]) {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
   } else {
     console.log('\n  Available services:\n');
-    console.log('    antidrift connect google    Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)\n');
+    console.log('    antidrift connect google    Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)');
+    console.log('    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)\n');
   }
 } else if (command === 'init' || command === 'join' || command === 'update' || command === 'cross-compile' || command === 'mcp') {
   npxCore(args.join(' '));

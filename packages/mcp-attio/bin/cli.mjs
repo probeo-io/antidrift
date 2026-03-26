@@ -58,7 +58,7 @@ function status() {
   const hasConfig = existsSync(join(configDir, 'attio.json'));
   const icon = hasConfig ? '✓' : '○';
   console.log(`\n  ${icon} Attio CRM — ${hasConfig ? 'connected' : 'not connected'}`);
-  console.log('    People, companies, deals, notes\n');
+  console.log('    People, companies, deals, tasks, notes\n');
 }
 
 function writeMcpConfig() {
