@@ -62,7 +62,7 @@ async function setup() {
   if (existsSync(configPath)) {
     console.log('  Already authorized — updating server files.\n');
     writeMcpConfig();
-    console.log('  ✓ Attio updated. Restart Claude Code to pick up changes.\n');
+    console.log('  ✓ Attio updated. Restart your agent to pick up changes.\n');
     process.exit(0);
   }
 
@@ -100,7 +100,7 @@ async function setup() {
   writeFileSync(configPath, JSON.stringify({ apiKey: apiKey.trim() }, null, 2));
   writeMcpConfig();
   console.log('  ✓ Attio connected (people, companies, deals, tasks, notes)');
-  console.log('  Restart Claude Code to use it.\n');
+  console.log('  Restart your agent to use it.\n');
   process.exit(0);
 }
 

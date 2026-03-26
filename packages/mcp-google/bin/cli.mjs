@@ -43,7 +43,7 @@ async function setup() {
   if (existsSync(tokenPath)) {
     console.log('  Already authorized — updating server files.\n');
     await writeMcpConfig();
-    console.log('  ✓ Google updated. Restart Claude Code to pick up changes.\n');
+    console.log('  ✓ Google updated. Restart your agent to pick up changes.\n');
     process.exit(0);
   }
 
@@ -52,7 +52,7 @@ async function setup() {
 
   await writeMcpConfig();
   console.log('  ✓ Google connected (Sheets, Docs, Drive, Gmail, Calendar)');
-  console.log('  Restart Claude Code to use it.\n');
+  console.log('  Restart your agent to use it.\n');
   process.exit(0);
 }
 
