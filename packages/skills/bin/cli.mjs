@@ -29,6 +29,9 @@ function parseIRSimple(content) {
   return ir;
 }
 
+const REGISTRY_URL = `https://api.github.com/repos/${REPO}/contents/registry.json`;
+let _registryCache = null;
+
 const command = process.argv[2];
 const args = process.argv.slice(3);
 
@@ -62,36 +65,17 @@ Usage:
 }
 
 function fetchRegistry() {
+  if (_registryCache) return _registryCache;
   try {
-    const result = execSync(
-      `gh api repos/${REPO}/git/trees/main --jq '.tree[] | select(.type=="tree") | .path'`,
-      { stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8' }
-    );
-    return result.trim().split('\n').filter(Boolean);
+    const result = execSync(`curl -sf -H "Accept: application/vnd.github.raw+json" "${REGISTRY_URL}"`, {
+      stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8'
+    });
+    _registryCache = JSON.parse(result);
+    return _registryCache;
   } catch {
-    console.log('  Could not fetch registry. Make sure gh is installed and authenticated.\n');
+    console.log('  Could not fetch registry.\n');
     process.exit(1);
   }
-}
-
-function fetchSkillMeta(name) {
-  // Try IR format first (skill.ir.yaml), fall back to SKILL.md
-  for (const file of ['skill.ir.yaml', 'SKILL.md']) {
-    try {
-      const content = execSync(
-        `gh api repos/${REPO}/contents/${name}/${file} --jq '.content' | base64 -d`,
-        { stdio: ['pipe', 'pipe', 'pipe'], encoding: 'utf8' }
-      );
-      // Parse name and description from either format
-      const nameMatch = content.match(/^name:\s*"?(.+?)"?\s*$/m);
-      const descMatch = content.match(/^description:\s*"?(.+?)"?\s*$/m);
-      return {
-        name: nameMatch?.[1] || name,
-        description: descMatch?.[1] || '',
-      };
-    } catch { continue; }
-  }
-  return { name, description: '' };
 }
 
 function getInstalledSkills() {
@@ -103,18 +87,17 @@ function getInstalledSkills() {
 }
 
 function list() {
-  const available = fetchRegistry();
+  const registry = fetchRegistry();
   const installed = new Set(getInstalledSkills());
 
   console.log('');
-  for (const name of available) {
-    const meta = fetchSkillMeta(name);
-    const status = installed.has(name) ? '✓' : '○';
-    console.log(`  ${status} ${meta.name.padEnd(12)} ${meta.description}`);
+  for (const skill of registry) {
+    const status = installed.has(skill.name) ? '✓' : '○';
+    console.log(`  ${status} ${skill.name.padEnd(12)} ${skill.description}`);
   }
 
-  const installedCount = available.filter(n => installed.has(n)).length;
-  console.log(`\n  ${installedCount}/${available.length} installed\n`);
+  const installedCount = registry.filter(s => installed.has(s.name)).length;
+  console.log(`\n  ${installedCount}/${registry.length} installed\n`);
 }
 
 function cloneRegistry() {
@@ -132,7 +115,8 @@ function add(names) {
     return;
   }
 
-  const available = fetchRegistry();
+  const registry = fetchRegistry();
+  const available = registry.map(s => s.name);
   const toInstall = names.includes('--all')
     ? available
     : names.filter(n => {
