@@ -22,9 +22,11 @@ function ask(q) {
   });
 }
 
+const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
+const ver = pkg.version;
 const banner = `
   ┌─────────────────────────────┐
-  │  antidrift                  │
+  │  antidrift v${ver.padEnd(16)}│
   │  AI agents and you          │
   └─────────────────────────────┘
 `;

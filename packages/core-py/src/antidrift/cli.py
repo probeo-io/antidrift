@@ -10,9 +10,18 @@ from pathlib import Path
 
 SKILLS_DIR = Path(__file__).parent / "skills"
 
-BANNER = """
+def _get_version():
+    try:
+        from antidrift import __version__
+        return __version__
+    except ImportError:
+        return "?"
+
+def _banner():
+    ver = _get_version()
+    return f"""
   ┌─────────────────────────────┐
-  │  antidrift                  │
+  │  antidrift v{ver:<16}│
   │  AI agents and you          │
   └─────────────────────────────┘
 """
@@ -161,7 +170,7 @@ Learn more: https://antidrift.io
 
 
 def init():
-    print(BANNER)
+    print(_banner())
 
     company = ask("  Company name: ")
     dir_name = "".join(c if c.isalnum() else "-" for c in company.strip().lower()).strip("-") or "company-brain"
@@ -250,7 +259,7 @@ Each directory has a brain file (CLAUDE.md / AGENTS.md) that your agent reads au
 
 
 def join_brain():
-    print(BANNER)
+    print(_banner())
 
     repo = sys.argv[2] if len(sys.argv) > 2 else ask("  Brain repo (org/name or URL): ")
     repo = repo.strip()
@@ -305,7 +314,7 @@ def join_brain():
 
 
 def update():
-    print(BANNER)
+    print(_banner())
     print("  Updating brain...\n")
 
     cwd = Path.cwd()
@@ -342,7 +351,7 @@ def main():
 
     missing = check_prereqs()
     if missing:
-        print(BANNER)
+        print(_banner())
         print("  Missing prerequisites:\n")
         for m in missing:
             print(f"    ✗ {m['name']}")
