@@ -6,7 +6,7 @@ const args = process.argv.slice(2);
 const command = args[0];
 
 const HELP = `
-antidrift — Company brain for AI coding agents
+antidrift — AI agents and you
 
 Usage:
   antidrift init                          Start a new brain
@@ -14,7 +14,7 @@ Usage:
   antidrift update                        Update core skills + sync brain files
 
   antidrift skills list                   Browse community skills (by pack)
-  antidrift skills add <name|pack>        Add skills (essentials, engineering, customer-research, legal)
+  antidrift skills add <name|pack>        Add skills (essentials, engineering, customer-research, legal, security)
   antidrift skills add --all              Add all community skills
   antidrift skills remove <name>          Remove a skill
 
@@ -25,9 +25,8 @@ Usage:
   antidrift version                       Show version
   antidrift help                          Show this message
 
-Install:
-  npm install -g @antidrift/cli
-  pip install antidrift
+  https://antidrift.io
+  Built by Probeo.io
 `;
 
 function run(cmd) {
