@@ -41,9 +41,10 @@ async function setup() {
 
   const tokenPath = join(credsDir, 'token.json');
   if (existsSync(tokenPath)) {
-    console.log('  Already connected. Use "reset" to re-authorize.\n');
-    status();
-    return;
+    console.log('  Already authorized — updating server files.\n');
+    await writeMcpConfig();
+    console.log('  ✓ Google updated. Restart Claude Code to pick up changes.\n');
+    process.exit(0);
   }
 
   const { runAuthFlow } = await import('../auth-google.mjs');

@@ -60,9 +60,10 @@ async function setup() {
 
   const configPath = join(configDir, 'attio.json');
   if (existsSync(configPath)) {
-    console.log('  Already connected. Use "reset" to reconnect.\n');
-    status();
-    return;
+    console.log('  Already authorized — updating server files.\n');
+    writeMcpConfig();
+    console.log('  ✓ Attio updated. Restart Claude Code to pick up changes.\n');
+    process.exit(0);
   }
 
   console.log('  To get your API key:\n');
