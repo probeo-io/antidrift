@@ -81,10 +81,12 @@ export async function runAuthFlow() {
   console.log('  Step 2: Starting local server...');
   const code = await waitForCallback(authUrl);
 
-  console.log('  Step 3: Exchanging code for token...');
+  process.stdout.write('  Step 3: Waiting on Google...');
+  const dots = setInterval(() => process.stdout.write('.'), 500);
   try {
     const { tokens } = await oauth2.getToken(code);
-    console.log('  Step 3: ✓ Token received');
+    clearInterval(dots);
+    console.log(' ✓');
     oauth2.setCredentials(tokens);
 
     mkdirSync(CREDS_DIR, { recursive: true });
@@ -92,7 +94,8 @@ export async function runAuthFlow() {
     console.log('  Step 3: ✓ Token saved\n');
     console.log('  ✓ Authorized.\n');
   } catch (err) {
-    console.error(`  Step 3: ✗ Token exchange failed: ${err.message}\n`);
+    clearInterval(dots);
+    console.error(` ✗\n  Token exchange failed: ${err.message}\n`);
     throw err;
   }
 
