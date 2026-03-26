@@ -1,34 +1,57 @@
 # antidrift
 
-A company brain for Claude. Shared knowledge, shared skills, no more passing markdown files around.
+Company brain for AI coding agents. Shared knowledge, shared skills, works with Claude Code and Codex.
 
 ## What It Is
 
-Antidrift is a git repo that gives Claude full context on your company. Clone it on any machine and Claude knows your product, customers, stack, positioning, and how you work.
+Antidrift is a git repo that gives your AI coding agent full context on your company. Clone it on any machine and it knows your product, customers, stack, positioning, and how you work.
 
 **Two things in the box:**
-1. **The brain** — CLAUDE.md files organized by department. Claude reads them automatically.
-2. **Skills** — slash commands that do real work. `/onboard`, `/push`, `/ingest`, etc.
+1. **The brain** — CLAUDE.md / AGENTS.md files organized by department. Your agent reads them automatically.
+2. **Skills** — slash commands that do real work. `/onboard`, `/push`, `/ingest`, `/write`, etc.
+
+## Install
+
+```bash
+npm install -g @antidrift/cli
+```
 
 ## Quick Start
 
 ```bash
-npx @antidrift/core init
+antidrift init
 ```
 
-That's it. Claude loads the root CLAUDE.md and knows where everything is.
+That's it. Your agent loads the root brain file and knows where everything is.
 
 ## Packages
 
-| Package | What It Does | Dependencies |
-|---|---|---|
-| `@antidrift/core` | Brain + skills + CLI (`init`, `join`, `update`) | None |
-| `@antidrift/mcp-google` | Google Sheets, Docs, Drive, Gmail, Calendar | `googleapis` |
-| `@antidrift/mcp-stripe` | Stripe invoices, customers, products | `stripe` |
-| `@antidrift/mcp-attio` | Attio CRM — people, companies, deals | None (pure HTTP) |
-| `@antidrift/legal` | Legal templates — NDA, subscription, PSA, order form | None |
+| Package | What It Does |
+|---|---|
+| `@antidrift/cli` | Unified CLI (`antidrift init`, `antidrift skills list`) |
+| `@antidrift/core` | Brain + core skills + setup |
+| `@antidrift/skills` | Community skill registry |
+| `@antidrift/mcp-google` | Google Sheets, Docs, Drive, Gmail, Calendar |
+| `@antidrift/mcp-stripe` | Stripe invoices, customers, products |
+| `@antidrift/mcp-attio` | Attio CRM — people, companies, deals |
 
-Core is all you need to start. Everything else is optional — type `/connect` inside Claude to add services.
+## Skill Packs
+
+Install community skills by pack:
+
+```bash
+antidrift skills add essentials         # 7 skills — decision, recap, write, prep, followup, status, search
+antidrift skills add engineering        # 5 skills — review, spec, changelog, standards, tps
+antidrift skills add customer-research  # 3 skills — icp, voc, twins
+antidrift skills add legal              # 1 skill — legal document generator
+antidrift skills add --all              # everything
+```
+
+Browse available skills:
+
+```bash
+antidrift skills list
+```
 
 ## How It Works
 
@@ -103,35 +126,6 @@ Instructions for Claude go here. Markdown.
 
 That's it. No build step, no config, no framework.
 
-## Skill Packs
-
-Skills are organized into packs by function.
-
-### Core (ships with every brain)
-| Command | What It Does |
-|---|---|
-| `/onboard` | Walk a new person through the brain interactively |
-| `/refresh` | Pull latest brain changes from remote |
-| `/push` | Commit and push all brain changes to remote |
-
-### Operations Pack
-| Command | What It Does |
-|---|---|
-| `/deploy` | Walk through deployment and dev environment setup |
-| `/invoice` | Create and send invoices (requires MCP) |
-
-### Growth Pack
-| Command | What It Does |
-|---|---|
-| `/competitive-intel` | Run a competitive intelligence sweep |
-| `/prospect` | Research and qualify prospects (requires MCP) |
-
-### Content Pack
-| Command | What It Does |
-|---|---|
-| `/blog-post` | Draft a blog post using brand voice |
-| `/case-study` | Build a case study from customer data |
-
 ## Keeping the Brain Efficient
 
 Claude loads CLAUDE.md files automatically. Keep them concise — summaries and pointers, not full documents.
@@ -157,10 +151,10 @@ Convert skills between platforms:
 
 ```bash
 # Claude Code skill → Codex
-npx @antidrift/core cross-compile .claude/skills/my-skill --to codex
+antidrift cross-compile .claude/skills/my-skill --to codex
 
 # Codex skill → Claude Code
-npx @antidrift/core cross-compile .agents/skills/my-skill --to claude
+antidrift cross-compile .agents/skills/my-skill --to claude
 ```
 
 ### How It Works

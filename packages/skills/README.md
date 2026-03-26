@@ -1,29 +1,33 @@
 # @antidrift/skills
 
-Community skill registry for Claude Code brains.
+Community skill registry for antidrift brains. Works with Claude Code and Codex.
 
 ## Browse available skills
 
 ```bash
-npx @antidrift/skills list
+antidrift skills list
 ```
 
-## Install a skill
+## Install by pack
 
 ```bash
-npx @antidrift/skills add <name>
+antidrift skills add essentials         # decision, recap, write, prep, followup, status, search
+antidrift skills add engineering        # review, spec, changelog, standards, tps
+antidrift skills add customer-research  # icp, voc, twins
+antidrift skills add legal              # legal document generator
+antidrift skills add --all              # everything
 ```
 
-## Install all community skills
+## Install individual skills
 
 ```bash
-npx @antidrift/skills add --all
+antidrift skills add write recap icp
 ```
 
 ## Remove a skill
 
 ```bash
-npx @antidrift/skills remove <name>
+antidrift skills remove <name>
 ```
 
 ## Publish your own

@@ -1,26 +1,35 @@
 # @antidrift/core
 
-Company brain for Claude. One repo your whole team shares — context, skills, and connected services.
+Company brain for AI coding agents. One repo your whole team shares — context, skills, and connected services.
+
+## Install
+
+```bash
+npm install -g @antidrift/cli
+```
 
 ## Quick start
 
 ```bash
-npx @antidrift/core init
+antidrift init
 ```
 
 ## Join an existing brain
 
 ```bash
-npx @antidrift/core join <org/repo>
+antidrift join <org/repo>
 ```
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `npx @antidrift/core init` | Start a new brain |
-| `npx @antidrift/core join <repo>` | Clone and join an existing brain |
-| `npx @antidrift/core update` | Update core skills to latest |
+| `antidrift init` | Start a new brain |
+| `antidrift join <repo>` | Clone and join an existing brain |
+| `antidrift update` | Update core skills, compile community skills, sync brain files |
+| `antidrift skills list` | Browse community skills by pack |
+| `antidrift skills add <name\|pack>` | Install skills (essentials, engineering, customer-research, legal) |
+| `antidrift cross-compile <path> --to <claude\|codex>` | Convert skills between platforms |
 
 ## Core skills
 
@@ -36,13 +45,13 @@ Every brain ships with these slash commands:
 | `/publish <skill>` | Share a skill you built with the community |
 | `/onboard` | Walk a new person through everything |
 
-## Community skills
-
-Browse and install extras from the community registry:
+## Community skill packs
 
 ```bash
-npx @antidrift/skills list
-npx @antidrift/skills add <name>
+antidrift skills add essentials         # decision, recap, write, prep, followup, status, search
+antidrift skills add engineering        # review, spec, changelog, standards, tps
+antidrift skills add customer-research  # icp, voc, twins
+antidrift skills add legal              # legal document generator
 ```
 
 ## Learn more

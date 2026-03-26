@@ -38,7 +38,7 @@ Users installing your skill get it compiled to their platform (Claude Code or Co
 
 If you want to test cross-compilation manually:
 ```bash
-npx @antidrift/core cross-compile .claude/skills/my-skill --to codex --output /tmp/test
+antidrift cross-compile .claude/skills/my-skill --to codex --output /tmp/test
 ```
 
 ## Core development
