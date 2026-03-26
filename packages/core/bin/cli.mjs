@@ -199,7 +199,7 @@ async function init() {
 
   // Step 3: Gitignore
   if (!existsSync(join(targetDir, '.gitignore'))) {
-    writeFileSync(join(targetDir, '.gitignore'), 'scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n');
+    writeFileSync(join(targetDir, '.gitignore'), 'scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n.claude/local.json\n');
     console.log('  Created .gitignore');
   }
 
