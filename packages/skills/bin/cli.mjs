@@ -90,6 +90,9 @@ function list() {
   const registry = fetchRegistry();
   const installed = new Set(getInstalledSkills());
 
+  // Get terminal width, default 80
+  const cols = process.stdout.columns || 80;
+
   // Group by pack
   const packs = {};
   for (const skill of registry) {
@@ -104,14 +107,20 @@ function list() {
     console.log(`  ${pack} (${packInstalled}/${skills.length})`);
     for (const skill of skills) {
       const status = installed.has(skill.name) ? '✓' : '○';
-      console.log(`    ${status} ${skill.name.padEnd(12)} ${skill.description}`);
+      const prefix = `    ${status} /${skill.name.padEnd(12)} `;
+      const maxDesc = cols - prefix.length - 1;
+      const desc = skill.description.length > maxDesc
+        ? skill.description.slice(0, maxDesc - 1) + '…'
+        : skill.description;
+      console.log(`${prefix}${desc}`);
     }
     console.log('');
   }
 
   const installedCount = registry.filter(s => installed.has(s.name)).length;
   console.log(`  ${installedCount}/${registry.length} installed`);
-  console.log(`  Install a pack: npx @antidrift/skills add essentials\n`);
+  console.log(`  Add a pack:  npx @antidrift/skills add essentials`);
+  console.log(`  Add a skill: npx @antidrift/skills add <name>\n`);
 }
 
 function cloneRegistry() {
