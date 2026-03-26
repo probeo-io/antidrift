@@ -7,21 +7,27 @@ Saves all current changes. Pushes to remote if configured, otherwise just commit
 
 ## Instructions
 
-### Step 1 — Sync CLAUDE.md ↔ AGENTS.md
+### Step 1 — Sync brain files
 
-Before committing, sync brain files across platforms. Walk all directories and for each `CLAUDE.md` found, copy its content to `AGENTS.md` in the same directory (create it if it doesn't exist). If only `AGENTS.md` exists (no `CLAUDE.md`), copy it to `CLAUDE.md`.
+Before committing, sync brain files across all platforms (Claude Code, Codex, Antigravity). Walk all directories and find any `CLAUDE.md`, `AGENTS.md`, or `GEMINI.md`. Use the first one found as the source of truth and copy to the others.
 
 ```bash
-find . -name "CLAUDE.md" -not -path "*/node_modules/*" -not -path "*/.git/*" | while read f; do
+find . \( -name "CLAUDE.md" -o -name "AGENTS.md" -o -name "GEMINI.md" \) -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.venv/*" | while read f; do
   dir=$(dirname "$f")
-  cp "$f" "$dir/AGENTS.md"
-done
-
-find . -name "AGENTS.md" -not -path "*/node_modules/*" -not -path "*/.git/*" | while read f; do
-  dir=$(dirname "$f")
-  if [ ! -f "$dir/CLAUDE.md" ]; then
-    cp "$f" "$dir/CLAUDE.md"
+  name=$(basename "$f")
+  # Use CLAUDE.md as source if it exists, otherwise AGENTS.md, otherwise GEMINI.md
+  if [ -f "$dir/CLAUDE.md" ]; then
+    src="$dir/CLAUDE.md"
+  elif [ -f "$dir/AGENTS.md" ]; then
+    src="$dir/AGENTS.md"
+  else
+    src="$dir/GEMINI.md"
   fi
+  for target in CLAUDE.md AGENTS.md GEMINI.md; do
+    if [ "$dir/$target" != "$src" ]; then
+      cp "$src" "$dir/$target"
+    fi
+  done
 done
 ```
 

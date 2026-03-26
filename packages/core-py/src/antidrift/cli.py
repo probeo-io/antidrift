@@ -78,22 +78,28 @@ def sync_brain_files(root_dir: Path):
         dp = Path(dirpath)
         claude_path = dp / "CLAUDE.md"
         agents_path = dp / "AGENTS.md"
+        gemini_path = dp / "GEMINI.md"
 
-        if claude_path.exists() and not agents_path.exists():
-            agents_path.write_text(claude_path.read_text())
-            synced += 1
-        elif agents_path.exists() and not claude_path.exists():
-            claude_path.write_text(agents_path.read_text())
-            synced += 1
-        elif claude_path.exists() and agents_path.exists():
-            claude_content = claude_path.read_text()
-            agents_content = agents_path.read_text()
-            if claude_content != agents_content:
-                agents_path.write_text(claude_content)
-                synced += 1
+        # Find source of truth: CLAUDE.md > AGENTS.md > GEMINI.md
+        source = None
+        if claude_path.exists():
+            source = claude_path
+        elif agents_path.exists():
+            source = agents_path
+        elif gemini_path.exists():
+            source = gemini_path
+
+        if source:
+            content = source.read_text()
+            for target in [claude_path, agents_path, gemini_path]:
+                if target == source:
+                    continue
+                if not target.exists() or target.read_text() != content:
+                    target.write_text(content)
+                    synced += 1
 
     if synced > 0:
-        print(f"    Synced {synced} CLAUDE.md ↔ AGENTS.md file(s)")
+        print(f"    Synced {synced} brain file(s) (CLAUDE.md ↔ AGENTS.md ↔ GEMINI.md)")
     else:
         print("    All brain files in sync")
 
@@ -174,7 +180,8 @@ Each directory has a brain file (CLAUDE.md / AGENTS.md) that your agent reads au
 """
     (target_dir / "CLAUDE.md").write_text(brain_content)
     (target_dir / "AGENTS.md").write_text(brain_content)
-    print("  Created CLAUDE.md + AGENTS.md")
+    (target_dir / "GEMINI.md").write_text(brain_content)
+    print("  Created CLAUDE.md + AGENTS.md + GEMINI.md")
 
     # Commit
     try:

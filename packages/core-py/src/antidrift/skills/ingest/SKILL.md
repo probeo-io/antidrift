@@ -82,7 +82,7 @@ For `projects.md`:
 - Match existing projects by repo URL — update, don't duplicate
 - Add new projects at the end
 
-For every `CLAUDE.md` created or updated (including the root), also write an identical `AGENTS.md` in the same directory. This ensures the brain works across both Claude Code and Codex.
+For every `CLAUDE.md` created or updated (including the root), also write identical `AGENTS.md` and `GEMINI.md` in the same directory. This ensures the brain works across Claude Code, Codex, and Antigravity.
 
 Move or copy source files into the appropriate directories. Heavy reference material goes in `_reference/` subdirectories.
 

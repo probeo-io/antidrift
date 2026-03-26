@@ -229,7 +229,8 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
 `;
   writeFileSync(join(targetDir, 'CLAUDE.md'), claudeMd);
   writeFileSync(join(targetDir, 'AGENTS.md'), claudeMd);
-  console.log('  Created CLAUDE.md + AGENTS.md');
+  writeFileSync(join(targetDir, 'GEMINI.md'), claudeMd);
+  console.log('  Created CLAUDE.md + AGENTS.md + GEMINI.md');
 
   // Step 6: Commit
   try {
@@ -412,27 +413,30 @@ function syncBrainFiles(rootDir) {
 
     const claudePath = join(dir, 'CLAUDE.md');
     const agentsPath = join(dir, 'AGENTS.md');
+    const geminiPath = join(dir, 'GEMINI.md');
 
-    if (existsSync(claudePath) && !existsSync(agentsPath)) {
-      writeFileSync(agentsPath, readFileSync(claudePath, 'utf8'));
-      synced++;
-    } else if (existsSync(agentsPath) && !existsSync(claudePath)) {
-      writeFileSync(claudePath, readFileSync(agentsPath, 'utf8'));
-      synced++;
-    } else if (existsSync(claudePath) && existsSync(agentsPath)) {
-      // CLAUDE.md is source of truth — overwrite AGENTS.md
-      const claudeContent = readFileSync(claudePath, 'utf8');
-      const agentsContent = readFileSync(agentsPath, 'utf8');
-      if (claudeContent !== agentsContent) {
-        writeFileSync(agentsPath, claudeContent);
-        synced++;
+    // Find source of truth: CLAUDE.md > AGENTS.md > GEMINI.md
+    let source = null;
+    if (existsSync(claudePath)) source = claudePath;
+    else if (existsSync(agentsPath)) source = agentsPath;
+    else if (existsSync(geminiPath)) source = geminiPath;
+
+    if (source) {
+      const content = readFileSync(source, 'utf8');
+      const targets = [claudePath, agentsPath, geminiPath];
+      for (const target of targets) {
+        if (target === source) continue;
+        if (!existsSync(target) || readFileSync(target, 'utf8') !== content) {
+          writeFileSync(target, content);
+          synced++;
+        }
       }
     }
   }
 
   walk(rootDir);
   if (synced > 0) {
-    console.log(`    Synced ${synced} CLAUDE.md ↔ AGENTS.md file(s)`);
+    console.log(`    Synced ${synced} brain file(s) (CLAUDE.md ↔ AGENTS.md ↔ GEMINI.md)`);
   } else {
     console.log('    All brain files in sync');
   }
