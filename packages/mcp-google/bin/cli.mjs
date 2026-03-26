@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, cpSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -49,7 +49,7 @@ async function setup() {
   const { runAuthFlow } = await import('../auth-google.mjs');
   await runAuthFlow();
 
-  writeMcpConfig();
+  await writeMcpConfig();
   console.log('  ✓ Google connected (Sheets, Docs, Drive, Gmail, Calendar)');
   console.log('  Restart Claude Code to use it.\n');
   process.exit(0);
@@ -72,8 +72,28 @@ function reset() {
   }
 }
 
-function writeMcpConfig() {
-  const mcpPath = join(process.cwd(), '.mcp.json');
+async function writeMcpConfig() {
+  const cwd = process.cwd();
+  const serverDir = join(cwd, '.mcp-servers', 'google');
+  const pkgDir = join(__dirname, '..');
+
+  // Copy server files to brain
+  mkdirSync(join(serverDir, 'connectors'), { recursive: true });
+  for (const file of ['server.mjs', 'auth-google.mjs']) {
+    cpSync(join(pkgDir, file), join(serverDir, file));
+  }
+  for (const file of readdirSync(join(pkgDir, 'connectors'))) {
+    cpSync(join(pkgDir, 'connectors', file), join(serverDir, 'connectors', file));
+  }
+
+  // Install googleapis dependency
+  writeFileSync(join(serverDir, 'package.json'), JSON.stringify({ type: 'module', dependencies: { googleapis: '*' } }));
+  const { execSync } = await import('child_process');
+  console.log('  Installing Google API dependencies...');
+  execSync('npm install --silent', { cwd: serverDir, stdio: 'pipe' });
+
+  // Write .mcp.json pointing to local copy
+  const mcpPath = join(cwd, '.mcp.json');
   let config = {};
 
   if (existsSync(mcpPath)) {
@@ -84,7 +104,7 @@ function writeMcpConfig() {
 
   config.mcpServers['antidrift-google'] = {
     command: 'node',
-    args: [join(__dirname, '..', 'server.mjs')]
+    args: [join('.mcp-servers', 'google', 'server.mjs')]
   };
 
   writeFileSync(mcpPath, JSON.stringify(config, null, 2));

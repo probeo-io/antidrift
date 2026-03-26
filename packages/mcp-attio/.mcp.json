@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "antidrift-attio": {
+      "command": "node",
+      "args": [
+        "/Users/chriswelker/Projects/antidrift.io/packages/mcp-attio/server.mjs"
+      ]
+    }
+  }
+}

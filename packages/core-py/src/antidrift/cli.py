@@ -196,7 +196,7 @@ def init():
     # Gitignore
     gitignore = target_dir / ".gitignore"
     if not gitignore.exists():
-        gitignore.write_text("scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n.claude/local.json\n")
+        gitignore.write_text("scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n.claude/local.json\n.mcp.json\n.mcp-servers/\n")
         print("  Created .gitignore")
 
     # Core skills

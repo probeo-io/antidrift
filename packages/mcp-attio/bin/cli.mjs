@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, cpSync } from 'fs';
 import { join } from 'path';
 import { createInterface } from 'readline';
 import { fileURLToPath } from 'url';
@@ -111,7 +111,17 @@ function status() {
 }
 
 function writeMcpConfig() {
-  const mcpPath = join(process.cwd(), '.mcp.json');
+  const cwd = process.cwd();
+  const serverDir = join(cwd, '.mcp-servers', 'attio');
+  const pkgDir = join(__dirname, '..');
+
+  // Copy server files to brain
+  mkdirSync(join(serverDir, 'connectors'), { recursive: true });
+  cpSync(join(pkgDir, 'server.mjs'), join(serverDir, 'server.mjs'));
+  cpSync(join(pkgDir, 'connectors', 'attio.mjs'), join(serverDir, 'connectors', 'attio.mjs'));
+
+  // Write .mcp.json pointing to local copy
+  const mcpPath = join(cwd, '.mcp.json');
   let config = {};
 
   if (existsSync(mcpPath)) {
@@ -122,7 +132,7 @@ function writeMcpConfig() {
 
   config.mcpServers['antidrift-attio'] = {
     command: 'node',
-    args: [join(__dirname, '..', 'server.mjs')]
+    args: [join('.mcp-servers', 'attio', 'server.mjs')]
   };
 
   writeFileSync(mcpPath, JSON.stringify(config, null, 2));
