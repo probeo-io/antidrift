@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] - 2026-03-26
+
+### Fixed
+
+- Async `getAuthClient` in Google Workspace connectors (Calendar, Drive, Gmail, Sheets)
+
+## [0.7.0] - 2026-03-26
+
+### Changed
+
+- Google MCP auth switched from device auth flow to loopback redirect for faster, more reliable OAuth
+- 4 platform support: Claude Code, Codex, Cursor, and Antigravity
+
+### Added
+
+- `antidrift connect` command for first-party MCP connector setup
+- 21 skills across all packs
+- 118 tests across Node.js and Python
+
+## [0.6.5] - 2026-03-26
+
+### Added
+
+- Google Workspace MCP published to registry
+- Version displayed in CLI banner
+- Website and Probeo branding updates
+
 ## [0.6.4] - 2026-03-26
 
 ### Fixed
