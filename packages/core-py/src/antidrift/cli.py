@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""antidrift — Company brain for Claude."""
+"""antidrift — Company brain for you and your AI agents."""
 
+import json
 import os
 import shutil
 import subprocess
@@ -12,7 +13,7 @@ SKILLS_DIR = Path(__file__).parent / "skills"
 BANNER = """
   ┌─────────────────────────────┐
   │  antidrift                  │
-  │  Company brain for Claude   │
+  │  AI agents and you          │
   └─────────────────────────────┘
 """
 
@@ -42,12 +43,15 @@ def check_prereqs() -> list[dict]:
             install = "Run: sudo apt install git\n             Or: sudo dnf install git"
         missing.append({"name": "git", "install": install})
 
-    if shutil.which("claude") is None:
+    # Check for either Claude Code or Codex
+    has_claude = shutil.which("claude") is not None
+    has_codex = shutil.which("codex") is not None
+    if not has_claude and not has_codex:
         if p == "darwin":
-            install = "Run: brew install claude-code\n             Or: npm install -g @anthropic-ai/claude-code"
+            install = "Claude Code: brew install claude-code\n             Codex: npm install -g @openai/codex"
         else:
-            install = "Run: npm install -g @anthropic-ai/claude-code"
-        missing.append({"name": "Claude Code", "install": install})
+            install = "Claude Code: npm install -g @anthropic-ai/claude-code\n             Codex: npm install -g @openai/codex"
+        missing.append({"name": "Claude Code or Codex", "install": install})
 
     return missing
 
@@ -61,27 +65,60 @@ def install_core_skills(target_dir: Path):
         if dst.exists():
             shutil.rmtree(dst)
         shutil.copytree(src, dst)
-    print(f"  Installed {len(skills)} core skills: {', '.join(sorted(skills))}")
+    print(f"    Installed {len(skills)} core skills: {', '.join(sorted(skills))}")
+
+
+def sync_brain_files(root_dir: Path):
+    """Sync CLAUDE.md ↔ AGENTS.md across all directories."""
+    synced = 0
+    skip = {"node_modules", ".git", ".venv", "__pycache__"}
+
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        dirnames[:] = [d for d in dirnames if d not in skip]
+        dp = Path(dirpath)
+        claude_path = dp / "CLAUDE.md"
+        agents_path = dp / "AGENTS.md"
+
+        if claude_path.exists() and not agents_path.exists():
+            agents_path.write_text(claude_path.read_text())
+            synced += 1
+        elif agents_path.exists() and not claude_path.exists():
+            claude_path.write_text(agents_path.read_text())
+            synced += 1
+        elif claude_path.exists() and agents_path.exists():
+            claude_content = claude_path.read_text()
+            agents_content = agents_path.read_text()
+            if claude_content != agents_content:
+                agents_path.write_text(claude_content)
+                synced += 1
+
+    if synced > 0:
+        print(f"    Synced {synced} CLAUDE.md ↔ AGENTS.md file(s)")
+    else:
+        print("    All brain files in sync")
 
 
 def show_help():
     print("""
-antidrift — Company brain for Claude
+antidrift — Company brain for you and your AI agents
 
 Usage:
   antidrift init              Start a new brain
   antidrift join <repo>       Join an existing brain
-  antidrift update            Update core skills to latest
+  antidrift update            Update core skills + sync brain files
   antidrift help              Show this message
 
 Community skills:
-  antidrift-skills list       Browse community skills
-  antidrift-skills add <name> Add a community skill to your brain
+  npm install -g @antidrift/cli
+  antidrift skills list       Browse community skills
+  antidrift skills add <pack> Install a skill pack
 
 Connect services (type /connect inside Claude, or install directly):
   npx @antidrift/mcp-google   Google Sheets, Docs, Drive, Gmail, Calendar
   npx @antidrift/mcp-stripe   Stripe invoices, customers
   npx @antidrift/mcp-attio    Attio CRM
+
+Learn more: https://antidrift.io
 """)
 
 
@@ -90,7 +127,6 @@ def init():
 
     company = ask("  Company name: ")
     dir_name = "".join(c if c.isalnum() else "-" for c in company.strip().lower()).strip("-") or "company-brain"
-    # Collapse multiple hyphens
     while "--" in dir_name:
         dir_name = dir_name.replace("--", "-")
     target_dir = Path.cwd() / dir_name
@@ -110,14 +146,14 @@ def init():
     # Gitignore
     gitignore = target_dir / ".gitignore"
     if not gitignore.exists():
-        gitignore.write_text("scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n")
+        gitignore.write_text("scratch/\n.code/\n.env\n.env.*\n*.local\n.DS_Store\n.claude/local.json\n")
         print("  Created .gitignore")
 
     # Core skills
     install_core_skills(target_dir / ".claude" / "skills")
 
-    # CLAUDE.md
-    claude_md = f"""# {company.strip()} — Company Brain
+    # Brain files — both CLAUDE.md and AGENTS.md
+    brain_content = f"""# {company.strip()} — Company Brain
 
 ## Getting Started
 - `/ingest <path>` — Import files and directories into the brain
@@ -128,7 +164,7 @@ def init():
 - Say **"I'm new here"** to get walked through everything
 
 ## How It Works
-Each directory has a `CLAUDE.md` that Claude reads automatically. Add departments by creating directories with CLAUDE.md files. The brain grows as you use it.
+Each directory has a brain file (CLAUDE.md / AGENTS.md) that your agent reads automatically. Add departments by creating directories. The brain grows as you use it.
 
 ## Departments
 
@@ -136,8 +172,9 @@ Each directory has a `CLAUDE.md` that Claude reads automatically. Add department
 |---|---|
 | _Run /ingest to populate_ | |
 """
-    (target_dir / "CLAUDE.md").write_text(claude_md)
-    print("  Created CLAUDE.md")
+    (target_dir / "CLAUDE.md").write_text(brain_content)
+    (target_dir / "AGENTS.md").write_text(brain_content)
+    print("  Created CLAUDE.md + AGENTS.md")
 
     # Commit
     try:
@@ -163,13 +200,20 @@ Each directory has a `CLAUDE.md` that Claude reads automatically. Add department
     claude
 
   Type /ingest to build your brain, or just start talking.
+
+  Tip: Install the CLI for easier access:
+    npm install -g @antidrift/cli
+
+  Then use:
+    antidrift skills list
+    antidrift update
 """)
 
 
 def join_brain():
     print(BANNER)
 
-    repo = sys.argv[3] if len(sys.argv) > 3 else ask("  Brain repo (org/name or URL): ")
+    repo = sys.argv[2] if len(sys.argv) > 2 else ask("  Brain repo (org/name or URL): ")
     repo = repo.strip()
 
     if not repo:
@@ -223,21 +267,38 @@ def join_brain():
 
 def update():
     print(BANNER)
+    print("  Updating brain...\n")
 
-    skills_target = Path.cwd() / ".claude" / "skills"
+    cwd = Path.cwd()
+    skills_target = cwd / ".claude" / "skills"
+
     if not skills_target.exists():
-        print("  No .claude/skills/ found. Run `antidrift init` first.")
+        print(f"  No .claude/skills/ found in {cwd}")
+        print("  Run `antidrift init` first.\n")
         return
 
+    # Step 1: Core skills
+    print("  Step 1: Core skills")
     install_core_skills(skills_target)
-    print("\n  Core skills updated. Browse extras with: antidrift-skills list")
+
+    # Step 2: Sync brain files
+    print("  Step 2: Sync brain files")
+    sync_brain_files(cwd)
+
+    print("\n  ✓ Brain updated.")
+    print("  Browse community skills: antidrift skills list\n")
 
 
 def main():
     command = sys.argv[1] if len(sys.argv) > 1 else "help"
 
-    if command == "help":
+    if command in ("help", "--help", "-h"):
         show_help()
+        return
+
+    if command in ("version", "--version", "-v"):
+        from antidrift import __version__
+        print(f"antidrift {__version__}")
         return
 
     missing = check_prereqs()
