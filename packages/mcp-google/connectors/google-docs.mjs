@@ -4,16 +4,16 @@ import { getAuthClient } from '../auth-google.mjs';
 let docsApi = null;
 let driveApi = null;
 
-function getDocs() {
+async function getDocs() {
   if (!docsApi) {
-    docsApi = google.docs({ version: 'v1', auth: getAuthClient() });
+    docsApi = google.docs({ version: 'v1', auth: await getAuthClient() });
   }
   return docsApi;
 }
 
-function getDrive() {
+async function getDrive() {
   if (!driveApi) {
-    driveApi = google.drive({ version: 'v3', auth: getAuthClient() });
+    driveApi = google.drive({ version: 'v3', auth: await getAuthClient() });
   }
   return driveApi;
 }
@@ -32,11 +32,11 @@ export const tools = [
       required: ['title']
     },
     handler: async ({ title, content, folderId }) => {
-      const doc = await getDocs().documents.create({ requestBody: { title } });
+      const doc = await (await getDocs()).documents.create({ requestBody: { title } });
       const docId = doc.data.documentId;
 
       if (content) {
-        await getDocs().documents.batchUpdate({
+        await (await getDocs()).documents.batchUpdate({
           documentId: docId,
           requestBody: {
             requests: [{
@@ -47,8 +47,8 @@ export const tools = [
       }
 
       if (folderId) {
-        const file = await getDrive().files.get({ fileId: docId, fields: 'parents' });
-        await getDrive().files.update({
+        const file = await (await getDrive()).files.get({ fileId: docId, fields: 'parents' });
+        await (await getDrive()).files.update({
           fileId: docId,
           addParents: folderId,
           removeParents: file.data.parents.join(','),
@@ -73,7 +73,7 @@ export const tools = [
       required: ['documentId']
     },
     handler: async ({ documentId }) => {
-      const doc = await getDocs().documents.get({ documentId });
+      const doc = await (await getDocs()).documents.get({ documentId });
       const content = doc.data.body.content;
       let text = '';
       for (const el of content) {
@@ -98,10 +98,10 @@ export const tools = [
       required: ['documentId', 'text']
     },
     handler: async ({ documentId, text }) => {
-      const doc = await getDocs().documents.get({ documentId });
+      const doc = await (await getDocs()).documents.get({ documentId });
       const endIndex = doc.data.body.content.at(-1).endIndex - 1;
 
-      await getDocs().documents.batchUpdate({
+      await (await getDocs()).documents.batchUpdate({
         documentId,
         requestBody: {
           requests: [{
@@ -126,7 +126,7 @@ export const tools = [
     },
     handler: async ({ documentId, content }) => {
       // Clear existing content
-      const doc = await getDocs().documents.get({ documentId });
+      const doc = await (await getDocs()).documents.get({ documentId });
       const endIndex = doc.data.body.content.at(-1).endIndex - 1;
       const requests = [];
 
@@ -214,7 +214,7 @@ export const tools = [
         requests.push({ createParagraphBullets: { range, bulletPreset: 'BULLET_DISC_CIRCLE_SQUARE' } });
       }
 
-      await getDocs().documents.batchUpdate({ documentId, requestBody: { requests } });
+      await (await getDocs()).documents.batchUpdate({ documentId, requestBody: { requests } });
       return `✅ Document updated — https://docs.google.com/document/d/${documentId}/edit`;
     }
   },
@@ -231,14 +231,14 @@ export const tools = [
       required: ['documentId', 'signerEmail']
     },
     handler: async ({ documentId, signerEmail, message }) => {
-      await getDrive().permissions.create({
+      await (await getDrive()).permissions.create({
         fileId: documentId,
         requestBody: { type: 'user', role: 'writer', emailAddress: signerEmail },
         emailMessage: message || 'Please review and sign this document using File → eSignature in Google Docs.',
         sendNotificationEmail: true
       });
 
-      const doc = await getDocs().documents.get({ documentId });
+      const doc = await (await getDocs()).documents.get({ documentId });
       const url = `https://docs.google.com/document/d/${documentId}/edit`;
       return `✅ Shared "${doc.data.title}" with ${signerEmail}\n📝 They'll receive an email with a link to sign.\n🔗 ${url}`;
     }
@@ -259,7 +259,7 @@ export const tools = [
       if (query) q += ` and name contains '${query}'`;
       if (folderId) q += ` and '${folderId}' in parents`;
 
-      const res = await getDrive().files.list({
+      const res = await (await getDrive()).files.list({
         q, pageSize: limit,
         fields: 'files(id, name, modifiedTime, webViewLink)'
       });
@@ -279,7 +279,7 @@ export const tools = [
       required: ['documentId', 'email']
     },
     handler: async ({ documentId, email, role = 'writer' }) => {
-      await getDrive().permissions.create({
+      await (await getDrive()).permissions.create({
         fileId: documentId,
         requestBody: { type: 'user', role, emailAddress: email }
       });

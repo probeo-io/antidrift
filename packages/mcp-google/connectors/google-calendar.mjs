@@ -3,9 +3,9 @@ import { getAuthClient } from '../auth-google.mjs';
 
 let calApi = null;
 
-function getCal() {
+async function getCal() {
   if (!calApi) {
-    calApi = google.calendar({ version: 'v3', auth: getAuthClient() });
+    calApi = google.calendar({ version: 'v3', auth: await getAuthClient() });
   }
   return calApi;
 }
@@ -45,7 +45,7 @@ export const tools = [
       const now = new Date();
       const until = new Date(now.getTime() + days * 86400000);
 
-      const res = await getCal().events.list({
+      const res = await (await getCal()).events.list({
         calendarId: 'primary',
         timeMin: now.toISOString(),
         timeMax: until.toISOString(),
@@ -74,7 +74,7 @@ export const tools = [
       const now = new Date();
       const until = new Date(now.getTime() + days * 86400000);
 
-      const res = await getCal().events.list({
+      const res = await (await getCal()).events.list({
         calendarId: 'primary',
         q: query,
         timeMin: now.toISOString(),
@@ -118,7 +118,7 @@ export const tools = [
         event.attendees = attendees.split(',').map(e => ({ email: e.trim() }));
       }
 
-      const res = await getCal().events.insert({ calendarId: 'primary', requestBody: event, sendUpdates: 'all' });
+      const res = await (await getCal()).events.insert({ calendarId: 'primary', requestBody: event, sendUpdates: 'all' });
       return `✅ Created: ${formatEvent(res.data)}`;
     }
   },
@@ -131,7 +131,7 @@ export const tools = [
       const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const endOfDay = new Date(startOfDay.getTime() + 86400000);
 
-      const res = await getCal().events.list({
+      const res = await (await getCal()).events.list({
         calendarId: 'primary',
         timeMin: startOfDay.toISOString(),
         timeMax: endOfDay.toISOString(),

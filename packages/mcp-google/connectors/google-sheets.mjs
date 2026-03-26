@@ -4,16 +4,16 @@ import { getAuthClient } from '../auth-google.mjs';
 let sheetsApi = null;
 let driveApi = null;
 
-function getSheets() {
+async function getSheets() {
   if (!sheetsApi) {
-    sheetsApi = google.sheets({ version: 'v4', auth: getAuthClient() });
+    sheetsApi = google.sheets({ version: 'v4', auth: await getAuthClient() });
   }
   return sheetsApi;
 }
 
-function getDrive() {
+async function getDrive() {
   if (!driveApi) {
-    driveApi = google.drive({ version: 'v3', auth: getAuthClient() });
+    driveApi = google.drive({ version: 'v3', auth: await getAuthClient() });
   }
   return driveApi;
 }
@@ -33,7 +33,7 @@ export const tools = [
       const q = query
         ? `mimeType='application/vnd.google-apps.spreadsheet' and name contains '${query}'`
         : `mimeType='application/vnd.google-apps.spreadsheet'`;
-      const res = await getDrive().files.list({
+      const res = await (await getDrive()).files.list({
         q, pageSize: limit,
         fields: 'files(id, name, modifiedTime, webViewLink)'
       });
@@ -52,7 +52,7 @@ export const tools = [
       required: ['spreadsheetId', 'range']
     },
     handler: async ({ spreadsheetId, range }) => {
-      const res = await getSheets().spreadsheets.values.get({ spreadsheetId, range });
+      const res = await (await getSheets()).spreadsheets.values.get({ spreadsheetId, range });
       return res.data.values || [];
     }
   },
@@ -69,7 +69,7 @@ export const tools = [
       required: ['spreadsheetId', 'range', 'values']
     },
     handler: async ({ spreadsheetId, range, values }) => {
-      const res = await getSheets().spreadsheets.values.update({
+      const res = await (await getSheets()).spreadsheets.values.update({
         spreadsheetId, range,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
@@ -90,7 +90,7 @@ export const tools = [
       required: ['spreadsheetId', 'range', 'values']
     },
     handler: async ({ spreadsheetId, range, values }) => {
-      const res = await getSheets().spreadsheets.values.append({
+      const res = await (await getSheets()).spreadsheets.values.append({
         spreadsheetId, range,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
@@ -109,7 +109,7 @@ export const tools = [
       required: ['spreadsheetId']
     },
     handler: async ({ spreadsheetId }) => {
-      const res = await getSheets().spreadsheets.get({ spreadsheetId });
+      const res = await (await getSheets()).spreadsheets.get({ spreadsheetId });
       return {
         title: res.data.properties.title,
         sheets: res.data.sheets.map(s => ({

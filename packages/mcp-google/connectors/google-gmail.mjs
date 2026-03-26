@@ -3,9 +3,9 @@ import { getAuthClient } from '../auth-google.mjs';
 
 let gmailApi = null;
 
-function getGmail() {
+async function getGmail() {
   if (!gmailApi) {
-    gmailApi = google.gmail({ version: 'v1', auth: getAuthClient() });
+    gmailApi = google.gmail({ version: 'v1', auth: await getAuthClient() });
   }
   return gmailApi;
 }
@@ -46,11 +46,11 @@ export const tools = [
       required: ['query']
     },
     handler: async ({ query, limit = 10 }) => {
-      const res = await getGmail().users.messages.list({ userId: 'me', q: query, maxResults: limit });
+      const res = await (await getGmail()).users.messages.list({ userId: 'me', q: query, maxResults: limit });
       if (!res.data.messages?.length) return 'No messages found.';
 
       const messages = await Promise.all(res.data.messages.map(async (m) => {
-        const msg = await getGmail().users.messages.get({ userId: 'me', id: m.id, format: 'metadata', metadataHeaders: ['From', 'Subject', 'Date'] });
+        const msg = await (await getGmail()).users.messages.get({ userId: 'me', id: m.id, format: 'metadata', metadataHeaders: ['From', 'Subject', 'Date'] });
         const headers = msg.data.payload.headers;
         return `📧 ${getHeader(headers, 'Subject')}\n   From: ${getHeader(headers, 'From')}  •  ${getHeader(headers, 'Date')}  [id: ${m.id}]`;
       }));
@@ -68,7 +68,7 @@ export const tools = [
       required: ['messageId']
     },
     handler: async ({ messageId }) => {
-      const msg = await getGmail().users.messages.get({ userId: 'me', id: messageId, format: 'full' });
+      const msg = await (await getGmail()).users.messages.get({ userId: 'me', id: messageId, format: 'full' });
       const headers = msg.data.payload.headers;
       const body = decodeBody(msg.data.payload);
 
@@ -107,7 +107,7 @@ export const tools = [
       lines.push('', body);
 
       const raw = Buffer.from(lines.join('\r\n')).toString('base64url');
-      const res = await getGmail().users.messages.send({ userId: 'me', requestBody: { raw } });
+      const res = await (await getGmail()).users.messages.send({ userId: 'me', requestBody: { raw } });
       return `✅ Sent to ${to}  [id: ${res.data.id}]`;
     }
   },
@@ -123,7 +123,7 @@ export const tools = [
       required: ['messageId', 'body']
     },
     handler: async ({ messageId, body }) => {
-      const original = await getGmail().users.messages.get({ userId: 'me', id: messageId, format: 'metadata', metadataHeaders: ['From', 'Subject', 'Message-ID'] });
+      const original = await (await getGmail()).users.messages.get({ userId: 'me', id: messageId, format: 'metadata', metadataHeaders: ['From', 'Subject', 'Message-ID'] });
       const headers = original.data.payload.headers;
       const from = getHeader(headers, 'From');
       const subject = getHeader(headers, 'Subject');
@@ -140,7 +140,7 @@ export const tools = [
       ];
 
       const raw = Buffer.from(lines.join('\r\n')).toString('base64url');
-      const res = await getGmail().users.messages.send({
+      const res = await (await getGmail()).users.messages.send({
         userId: 'me',
         requestBody: { raw, threadId: original.data.threadId }
       });
