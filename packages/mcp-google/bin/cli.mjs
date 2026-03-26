@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -8,7 +8,7 @@ import { homedir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const configDir = join(homedir(), '.antidrift');
+const credsDir = join(homedir(), '.antidrift', 'credentials', 'google');
 
 async function main() {
   const command = process.argv[2];
@@ -17,29 +17,32 @@ async function main() {
     await setup();
   } else if (command === 'status') {
     status();
+  } else if (command === 'reset') {
+    reset();
   } else {
     console.log(`
-@antidrift/mcp-google — Google Workspace for Claude
+@antidrift/mcp-google — Google Workspace for your AI agent
 
 Usage:
   npx @antidrift/mcp-google              Connect Google (Sheets, Docs, Drive, Gmail, Calendar)
   npx @antidrift/mcp-google status       Check connection status
+  npx @antidrift/mcp-google reset        Clear credentials and re-authorize
 `);
   }
 }
 
 async function setup() {
-  mkdirSync(configDir, { recursive: true });
+  console.log(`
+  ┌─────────────────────────────┐
+  │  antidrift                  │
+  │  Google Workspace           │
+  └─────────────────────────────┘
+`);
 
-  const credsPath = join(configDir, 'google-credentials.json');
-  if (!existsSync(credsPath)) {
-    console.log('\n  Google OAuth credentials not found.\n');
-    console.log('  1. Go to https://console.cloud.google.com');
-    console.log('  2. APIs & Services → Credentials → Create OAuth Client ID');
-    console.log('  3. Application type: Desktop app');
-    console.log('  4. Download the JSON file');
-    console.log(`  5. Save it to: ${credsPath}\n`);
-    console.log('  Then run this command again.');
+  const tokenPath = join(credsDir, 'token.json');
+  if (existsSync(tokenPath)) {
+    console.log('  Already connected. Use "reset" to re-authorize.\n');
+    status();
     return;
   }
 
@@ -47,15 +50,25 @@ async function setup() {
   await runAuthFlow();
 
   writeMcpConfig();
-  console.log('  Google connected (Sheets, Docs, Drive, Gmail, Calendar).');
+  console.log('  ✓ Google connected (Sheets, Docs, Drive, Gmail, Calendar)');
   console.log('  Restart Claude Code to use it.\n');
 }
 
 function status() {
-  const hasToken = existsSync(join(configDir, 'google-token.json'));
+  const hasToken = existsSync(join(credsDir, 'token.json'));
   const icon = hasToken ? '✓' : '○';
   console.log(`\n  ${icon} Google Workspace — ${hasToken ? 'connected' : 'not connected'}`);
   console.log('    Sheets, Docs, Drive, Gmail, Calendar\n');
+}
+
+function reset() {
+  const tokenPath = join(credsDir, 'token.json');
+  if (existsSync(tokenPath)) {
+    rmSync(tokenPath);
+    console.log('  Credentials cleared. Run this command again to re-authorize.\n');
+  } else {
+    console.log('  No credentials to clear.\n');
+  }
 }
 
 function writeMcpConfig() {
