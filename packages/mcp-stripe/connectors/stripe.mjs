@@ -163,9 +163,12 @@ export const tools = [
       required: ['invoiceId']
     },
     handler: async ({ invoiceId, priceId, description, amount, quantity = 1 }) => {
-      const params = { invoice: invoiceId, quantity };
+      // Look up the invoice to get the customer
+      const invoice = await getStripe().invoices.retrieve(invoiceId);
+      const params = { invoice: invoiceId, customer: invoice.customer };
       if (priceId) {
         params.price = priceId;
+        params.quantity = quantity;
       } else {
         params.description = description;
         params.amount = amount;
