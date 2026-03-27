@@ -57,7 +57,10 @@ antidrift skills add legal              # legal document generator
 ## Connect services
 
 ```bash
-antidrift connect google                # Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)
+antidrift connect google                # Google Workspace — all-in-one
+antidrift connect gmail                 # Gmail only (14 tools)
+antidrift connect drive                 # Drive, Docs, Sheets (19 tools)
+antidrift connect calendar              # Calendar only (4 tools)
 antidrift connect stripe                # Stripe (invoices, customers, subscriptions, charges)
 antidrift connect attio                 # Attio CRM (people, companies, deals, tasks, notes)
 antidrift connect github                # GitHub (repos, issues, PRs, actions, releases)

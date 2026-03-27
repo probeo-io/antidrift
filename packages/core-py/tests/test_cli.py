@@ -217,6 +217,43 @@ class TestConnect:
         assert "github" in captured.out
         assert "stripe" in captured.out
 
+    def test_connect_gmail_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "gmail"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-gmail", [])
+
+    def test_connect_drive_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "drive"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-drive", [])
+
+    def test_connect_calendar_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "calendar"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-calendar", [])
+
+    def test_help_text_includes_gmail_drive_calendar(self, capsys):
+        show_help()
+        captured = capsys.readouterr()
+        assert "connect gmail" in captured.out
+        assert "connect drive" in captured.out
+        assert "connect calendar" in captured.out
+
+    def test_connect_no_service_lists_gmail_drive_calendar(self, capsys):
+        with patch.object(sys, "argv", ["antidrift", "connect"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                main()
+        captured = capsys.readouterr()
+        assert "gmail" in captured.out
+        assert "drive" in captured.out
+        assert "calendar" in captured.out
+
 
 class TestSkillsDelegate:
     """Skills command should delegate to npx."""

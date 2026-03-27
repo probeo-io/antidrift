@@ -74,6 +74,7 @@ Skills are slash commands. Type `/` to see them.
 antidrift skills add essentials         # decision, recap, write, prep, followup, status, search
 antidrift skills add engineering        # review, spec, changelog, standards, tps
 antidrift skills add customer-research  # icp, voc, twins
+antidrift skills add email              # inbox (classify, move, archive, clean)
 antidrift skills add legal              # legal document generator
 antidrift skills add --all              # everything
 ```
@@ -95,6 +96,7 @@ antidrift skills add --all              # everything
 | **customer-research** | `/icp` — build research-backed Ideal Customer Profiles |
 | | `/voc` — Voice of Customer analysis in their actual language |
 | | `/twins` — create AI twin personas for market testing |
+| **email** | `/inbox` — classify, label, move, archive, and clean your inbox (requires mcp-gmail) |
 | **legal** | `/legal` — generate NDAs, subscription agreements, PSAs from templates |
 
 Browse what's available:
@@ -179,7 +181,10 @@ antidrift cross-compile .agents/skills/my-skill --to claude
 Connect external services as MCP servers — your AI agent gets live access to your tools.
 
 ```bash
-antidrift connect google                # Google Workspace
+antidrift connect google                # Google Workspace (all-in-one)
+antidrift connect gmail                 # Gmail only
+antidrift connect drive                 # Drive, Docs, Sheets
+antidrift connect calendar              # Calendar only
 antidrift connect stripe                # Stripe
 antidrift connect attio                 # Attio CRM
 antidrift connect github                # GitHub
@@ -202,7 +207,10 @@ antidrift connect stripe --claude-code  # Claude Code (explicit)
 | `@antidrift/cli` | Unified CLI |
 | `@antidrift/core` | Brain + core skills + setup |
 | `@antidrift/skills` | Community skill registry |
-| `@antidrift/mcp-google` | Google Workspace (Sheets, Docs, Drive, Gmail, Calendar) |
+| `@antidrift/mcp-google` | Google Workspace — all-in-one (Sheets, Docs, Drive, Gmail, Calendar) |
+| `@antidrift/mcp-gmail` | Gmail (search, read, send, reply, labels, archive, drafts) |
+| `@antidrift/mcp-drive` | Drive + Docs + Sheets (files, folders, docs, spreadsheets) |
+| `@antidrift/mcp-calendar` | Calendar (upcoming, search, create, today) |
 | `@antidrift/mcp-stripe` | Stripe (invoices, customers, subscriptions, charges, payment links) |
 | `@antidrift/mcp-attio` | Attio CRM (people, companies, deals, tasks, notes) |
 | `@antidrift/mcp-github` | GitHub (repos, issues, PRs, actions, releases, traffic) |

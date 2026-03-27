@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.2] - 2026-03-27
+
+### Added
+
+- **Split Google MCP** into individual packages: `@antidrift/mcp-gmail` (14 tools), `@antidrift/mcp-drive` (19 tools), `@antidrift/mcp-calendar` (4 tools) — `@antidrift/mcp-google` remains as an all-in-one bundle
+- **Privacy warning** on all MCP installs with Y/N confirmation before connecting
+- **Email skill pack** with `/inbox` skill — classify, move, archive, and clean your inbox using metadata only (sender + subject, never reads body)
+- `/inbox` modes: process, setup, check (dry run), move, archive newsletters, archive notifications, archive older, clean
+- Gmail MCP: 14 tools (search, read, send, reply, labels, archive, trash, mark read/unread, drafts)
+- CLI README for npmjs.org
+
 ## [0.8.1] - 2026-03-27
 
 ### Added

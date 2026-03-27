@@ -14,6 +14,7 @@ antidrift skills list
 antidrift skills add essentials         # decision, recap, write, prep, followup, status, search
 antidrift skills add engineering        # review, spec, changelog, standards, tps
 antidrift skills add customer-research  # icp, voc, twins
+antidrift skills add email              # inbox (classify, move, archive, clean)
 antidrift skills add legal              # legal document generator
 antidrift skills add --all              # everything
 ```
