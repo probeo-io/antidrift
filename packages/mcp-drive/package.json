@@ -1,0 +1,38 @@
+{
+  "name": "@antidrift/mcp-drive",
+  "version": "0.8.2",
+  "description": "Google Drive connector for antidrift — Drive, Docs, and Sheets",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-drive": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "auth-google.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "claude-code",
+    "codex",
+    "cursor",
+    "antigravity",
+    "ai-agents",
+    "google-drive",
+    "google-sheets",
+    "google-docs"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-drive"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "dependencies": {
+    "googleapis": "^171.4.0"
+  }
+}

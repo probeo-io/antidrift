@@ -165,7 +165,10 @@ Usage:
 
   antidrift cross-compile <path> --to <claude|codex>
 
-  antidrift connect google                Connect Google Workspace (Claude Code)
+  antidrift connect google                All Google (Sheets, Docs, Drive, Gmail, Calendar)
+  antidrift connect gmail                 Gmail only
+  antidrift connect drive                 Drive, Docs, Sheets
+  antidrift connect calendar              Calendar only
   antidrift connect google --cowork       Connect to Claude Desktop / Cowork
   antidrift connect google --all          Connect to all detected platforms
   antidrift connect attio                 Connect Attio CRM
@@ -384,12 +387,15 @@ def main():
         skills_delegate()
     elif command == "connect":
         service = sys.argv[2] if len(sys.argv) > 2 else None
-        mcp_packages = {"google": "mcp-google", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github"}
+        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github"}
         if service and service in mcp_packages:
             npx_delegate(mcp_packages[service], sys.argv[3:])
         else:
             print("\n  Available services:\n")
-            print("    antidrift connect google    Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)")
+            print("    antidrift connect google    All Google (Sheets, Docs, Drive, Gmail, Calendar)")
+            print("    antidrift connect gmail     Gmail only")
+            print("    antidrift connect drive     Drive, Docs, Sheets")
+            print("    antidrift connect calendar  Calendar only")
             print("    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)")
             print("    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)")
             print("    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)")

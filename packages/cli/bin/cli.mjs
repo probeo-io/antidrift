@@ -20,7 +20,10 @@ Usage:
 
   antidrift cross-compile <path> --to <claude|codex>
 
-  antidrift connect google                Connect Google Workspace (Claude Code)
+  antidrift connect google                All Google (Sheets, Docs, Drive, Gmail, Calendar)
+  antidrift connect gmail                 Gmail only
+  antidrift connect drive                 Drive, Docs, Sheets
+  antidrift connect calendar              Calendar only
   antidrift connect google --cowork       Connect to Claude Desktop / Cowork
   antidrift connect google --all          Connect to all detected platforms
   antidrift connect attio                 Connect Attio CRM
@@ -83,6 +86,9 @@ if (command === 'skills') {
   const service = args[1];
   const mcpPackages = {
     google: '@antidrift/mcp-google',
+    gmail: '@antidrift/mcp-gmail',
+    drive: '@antidrift/mcp-drive',
+    calendar: '@antidrift/mcp-calendar',
     attio: '@antidrift/mcp-attio',
     stripe: '@antidrift/mcp-stripe',
     github: '@antidrift/mcp-github',
@@ -91,7 +97,10 @@ if (command === 'skills') {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
   } else {
     console.log('\n  Available services:\n');
-    console.log('    antidrift connect google    Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)');
+    console.log('    antidrift connect google    All Google (Sheets, Docs, Drive, Gmail, Calendar)');
+    console.log('    antidrift connect gmail     Gmail only');
+    console.log('    antidrift connect drive     Drive, Docs, Sheets');
+    console.log('    antidrift connect calendar  Calendar only');
     console.log('    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)');
     console.log('    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)');
     console.log('    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)\n');

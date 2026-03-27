@@ -1,0 +1,37 @@
+{
+  "name": "@antidrift/mcp-calendar",
+  "version": "0.8.2",
+  "description": "Google Calendar connector for antidrift — view, search, and create events",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-calendar": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "auth-google.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "claude-code",
+    "codex",
+    "cursor",
+    "antigravity",
+    "ai-agents",
+    "google-calendar",
+    "calendar"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-calendar"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "dependencies": {
+    "googleapis": "^171.4.0"
+  }
+}
