@@ -20,9 +20,6 @@ function ask(q) {
 
 
 async function privacyCheck() {
-  const { createInterface } = await import("readline");
-  const rl = createInterface({ input: process.stdin, output: process.stdout });
-  const ask = (q) => new Promise((r) => rl.question(q, (a) => { r(a); }));
 
   console.log("");
   console.log("  \u26a0 PRIVACY NOTICE");
@@ -32,10 +29,10 @@ async function privacyCheck() {
   console.log("");
 
   const answer = await ask("  I understand (Y/N): ");
-  rl.close();
 
   if (!answer.trim().toLowerCase().startsWith("y")) {
     console.log("\n  Setup cancelled.\n");
+    rl.close();
     process.exit(0);
   }
   console.log("");
