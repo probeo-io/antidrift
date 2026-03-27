@@ -35,6 +35,9 @@ Usage:
   antidrift connect github                Connect GitHub
   antidrift connect github --cowork       Connect to Claude Desktop / Cowork
   antidrift connect github --all          Connect to all detected platforms
+  antidrift connect clickup               Connect ClickUp
+  antidrift connect clickup --cowork      Connect to Claude Desktop / Cowork
+  antidrift connect clickup --all         Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -92,6 +95,7 @@ if (command === 'skills') {
     attio: '@antidrift/mcp-attio',
     stripe: '@antidrift/mcp-stripe',
     github: '@antidrift/mcp-github',
+    clickup: '@antidrift/mcp-clickup',
   };
   if (service && mcpPackages[service]) {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
@@ -103,7 +107,8 @@ if (command === 'skills') {
     console.log('    antidrift connect calendar  Calendar only');
     console.log('    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)');
     console.log('    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)');
-    console.log('    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)\n');
+    console.log('    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)');
+    console.log('    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)\n');
   }
 } else if (command === 'init' || command === 'join' || command === 'update' || command === 'cross-compile' || command === 'mcp') {
   npxCore(args.join(' '));

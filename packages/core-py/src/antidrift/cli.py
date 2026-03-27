@@ -180,6 +180,9 @@ Usage:
   antidrift connect github                Connect GitHub
   antidrift connect github --cowork       Connect to Claude Desktop / Cowork
   antidrift connect github --all          Connect to all detected platforms
+  antidrift connect clickup               Connect ClickUp
+  antidrift connect clickup --cowork      Connect to Claude Desktop / Cowork
+  antidrift connect clickup --all         Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -387,7 +390,7 @@ def main():
         skills_delegate()
     elif command == "connect":
         service = sys.argv[2] if len(sys.argv) > 2 else None
-        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github"}
+        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github", "clickup": "mcp-clickup"}
         if service and service in mcp_packages:
             npx_delegate(mcp_packages[service], sys.argv[3:])
         else:
@@ -399,6 +402,7 @@ def main():
             print("    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)")
             print("    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)")
             print("    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)")
+            print("    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)")
             print("\n  Flags: --claude-code, --cowork, --all\n")
     elif command == "cross-compile":
         npx_delegate("core", sys.argv[1:])

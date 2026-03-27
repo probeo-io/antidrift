@@ -46,6 +46,7 @@ const packageJsonFiles = [
   'packages/mcp-attio/package.json',
   'packages/mcp-stripe/package.json',
   'packages/mcp-github/package.json',
+  'packages/mcp-clickup/package.json',
 ];
 
 for (const file of packageJsonFiles) {
