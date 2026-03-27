@@ -24,9 +24,9 @@ async function main() {
 @antidrift/mcp-google — Google Workspace for your AI agent
 
 Usage:
-  npx @antidrift/mcp-google              Connect Google (Sheets, Docs, Drive, Gmail, Calendar)
-  npx @antidrift/mcp-google status       Check connection status
-  npx @antidrift/mcp-google reset        Clear credentials and re-authorize
+  antidrift connect google               Connect Google Workspace
+  antidrift connect google status        Check connection status
+  antidrift connect google reset         Clear credentials and re-authorize
 `);
   }
 }

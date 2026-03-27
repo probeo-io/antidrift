@@ -41,8 +41,9 @@ async function main() {
 @antidrift/mcp-attio — Attio CRM for Claude
 
 Usage:
-  npx @antidrift/mcp-attio              Connect Attio
-  npx @antidrift/mcp-attio status       Check connection status
+  antidrift connect attio               Connect Attio
+  antidrift connect attio status        Check connection status
+  antidrift connect attio reset         Clear credentials
 `);
   }
 

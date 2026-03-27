@@ -41,9 +41,11 @@ async function main() {
 @antidrift/mcp-stripe — Stripe for your AI agent
 
 Usage:
-  npx @antidrift/mcp-stripe              Connect Stripe
-  npx @antidrift/mcp-stripe status       Check connection status
-  npx @antidrift/mcp-stripe reset        Clear credentials and re-authorize
+  antidrift connect stripe               Connect Stripe
+  antidrift connect stripe --cowork      Connect to Claude Desktop / Cowork
+  antidrift connect stripe --all         Connect to all platforms
+  antidrift connect stripe status        Check connection status
+  antidrift connect stripe reset         Clear credentials (use to switch test ↔ live keys)
 `);
   }
 
