@@ -174,6 +174,9 @@ Usage:
   antidrift connect stripe                Connect Stripe
   antidrift connect stripe --cowork       Connect to Claude Desktop / Cowork
   antidrift connect stripe --all          Connect to all detected platforms
+  antidrift connect github                Connect GitHub
+  antidrift connect github --cowork       Connect to Claude Desktop / Cowork
+  antidrift connect github --all          Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -381,7 +384,7 @@ def main():
         skills_delegate()
     elif command == "connect":
         service = sys.argv[2] if len(sys.argv) > 2 else None
-        mcp_packages = {"google": "mcp-google", "attio": "mcp-attio", "stripe": "mcp-stripe"}
+        mcp_packages = {"google": "mcp-google", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github"}
         if service and service in mcp_packages:
             npx_delegate(mcp_packages[service], sys.argv[3:])
         else:
@@ -389,6 +392,7 @@ def main():
             print("    antidrift connect google    Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)")
             print("    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)")
             print("    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)")
+            print("    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)")
             print("\n  Flags: --claude-code, --cowork, --all\n")
     elif command == "cross-compile":
         npx_delegate("core", sys.argv[1:])

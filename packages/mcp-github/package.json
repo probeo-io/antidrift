@@ -1,0 +1,32 @@
+{
+  "name": "@antidrift/mcp-github",
+  "version": "0.8.0",
+  "description": "GitHub connector for antidrift — repos, issues, PRs, actions, releases",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-github": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "github",
+    "ai-agents",
+    "codex",
+    "cursor",
+    "antigravity",
+    "cowork"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-github"
+  },
+  "author": "Probeo <hello@probeo.io>"
+}
