@@ -1,7 +1,7 @@
 {
   "name": "@antidrift/core",
   "version": "0.7.3",
-  "description": "Company brain for Claude — shared knowledge, shared skills, no more passing markdown files around",
+  "description": "Company brain for AI agents — shared knowledge, shared skills, no more passing markdown files around",
   "bin": {
     "antidrift": "bin/cli.mjs"
   },
@@ -13,6 +13,12 @@
   "keywords": [
     "claude-code",
     "claude",
+    "codex",
+    "cursor",
+    "antigravity",
+    "ai-agents",
+    "openai-codex",
+    "google-antigravity",
     "cowork",
     "skills",
     "company-brain",

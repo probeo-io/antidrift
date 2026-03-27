@@ -1,6 +1,6 @@
 # antidrift
 
-Company brain for Claude. One repo your whole team shares — context, skills, and connected services.
+Company brain for AI agents (Claude Code, Codex, Cursor, Antigravity). One repo your whole team shares — context, skills, and connected services.
 
 ## Quick start
 

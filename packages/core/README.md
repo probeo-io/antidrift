@@ -1,6 +1,6 @@
 # @antidrift/core
 
-Company brain for AI coding agents. One repo your whole team shares — context, skills, and connected services.
+Company brain for AI coding agents (Claude Code, Codex, Cursor, Antigravity). One repo your whole team shares — context, skills, and connected services.
 
 ## Install
 

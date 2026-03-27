@@ -1,7 +1,7 @@
 {
   "name": "@antidrift/skills",
   "version": "0.7.3",
-  "description": "Skill registry for Claude Code brains — list, add, and manage skills",
+  "description": "Skill registry for AI agent brains — list, add, and manage skills",
   "bin": {
     "antidrift-skills": "bin/cli.mjs"
   },
@@ -11,6 +11,12 @@
   "keywords": [
     "claude-code",
     "claude",
+    "codex",
+    "cursor",
+    "antigravity",
+    "ai-agents",
+    "openai-codex",
+    "google-antigravity",
     "skills",
     "company-brain"
   ],
