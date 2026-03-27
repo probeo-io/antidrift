@@ -168,11 +168,8 @@ export const tools = [
         params.price = priceId;
       } else {
         params.description = description;
-        params.price_data = {
-          currency: 'usd',
-          product_data: { name: description },
-          unit_amount: amount
-        };
+        params.unit_amount = amount;
+        params.currency = 'usd';
       }
       const item = await getStripe().invoiceItems.create(params);
       return { id: item.id, amount: item.amount, description: item.description };
