@@ -20,8 +20,12 @@ Usage:
 
   antidrift cross-compile <path> --to <claude|codex>
 
-  antidrift connect google                Connect Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)
+  antidrift connect google                Connect Google Workspace (Claude Code)
+  antidrift connect google --cowork       Connect to Claude Desktop / Cowork
+  antidrift connect google --all          Connect to all detected platforms
   antidrift connect attio                 Connect Attio CRM
+  antidrift connect attio --cowork        Connect to Claude Desktop / Cowork
+  antidrift connect attio --all           Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message

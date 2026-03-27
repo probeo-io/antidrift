@@ -165,6 +165,13 @@ Usage:
 
   antidrift cross-compile <path> --to <claude|codex>
 
+  antidrift connect google                Connect Google Workspace (Claude Code)
+  antidrift connect google --cowork       Connect to Claude Desktop / Cowork
+  antidrift connect google --all          Connect to all detected platforms
+  antidrift connect attio                 Connect Attio CRM
+  antidrift connect attio --cowork        Connect to Claude Desktop / Cowork
+  antidrift connect attio --all           Connect to all detected platforms
+
   antidrift version                       Show version
   antidrift help                          Show this message
 
@@ -369,6 +376,16 @@ def main():
         update()
     elif command == "skills":
         skills_delegate()
+    elif command == "connect":
+        service = sys.argv[2] if len(sys.argv) > 2 else None
+        mcp_packages = {"google": "mcp-google", "attio": "mcp-attio"}
+        if service and service in mcp_packages:
+            npx_delegate(mcp_packages[service], sys.argv[3:])
+        else:
+            print("\n  Available services:\n")
+            print("    antidrift connect google    Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)")
+            print("    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)")
+            print("\n  Flags: --claude-code, --cowork, --all\n")
     elif command == "cross-compile":
         npx_delegate("core", sys.argv[1:])
     else:

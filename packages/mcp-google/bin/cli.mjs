@@ -73,12 +73,56 @@ function reset() {
   }
 }
 
+function parsePlatformFlags() {
+  const argv = process.argv;
+  const hasClaudeCode = argv.includes('--claude-code');
+  const hasCowork = argv.includes('--cowork');
+  const hasAll = argv.includes('--all');
+
+  if (hasAll) return { claudeCode: true, cowork: true };
+  if (hasClaudeCode && !hasCowork) return { claudeCode: true, cowork: false };
+  if (hasCowork && !hasClaudeCode) return { claudeCode: false, cowork: true };
+
+  // Auto-detect: always write .mcp.json; write Desktop config if it exists
+  const desktopConfigPath = getDesktopConfigPath();
+  const coworkDetected = desktopConfigPath && existsSync(desktopConfigPath);
+  return { claudeCode: true, cowork: coworkDetected };
+}
+
+function getDesktopConfigPath() {
+  if (process.platform === 'win32') {
+    return join(process.env.APPDATA || '', 'Claude', 'claude_desktop_config.json');
+  }
+  return join(homedir(), 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json');
+}
+
+function writeDesktopConfig(serverName, absoluteServerPath) {
+  const configPath = getDesktopConfigPath();
+  const configDir = dirname(configPath);
+
+  mkdirSync(configDir, { recursive: true });
+
+  let config = {};
+  if (existsSync(configPath)) {
+    try { config = JSON.parse(readFileSync(configPath, 'utf8')); } catch {}
+  }
+
+  if (!config.mcpServers) config.mcpServers = {};
+
+  config.mcpServers[serverName] = {
+    command: 'node',
+    args: [absoluteServerPath]
+  };
+
+  writeFileSync(configPath, JSON.stringify(config, null, 2));
+}
+
 async function writeMcpConfig() {
   const cwd = process.cwd();
   const serverDir = join(cwd, '.mcp-servers', 'google');
   const pkgDir = join(__dirname, '..');
 
-  // Copy server files to brain
+  // Always copy server files to .mcp-servers/ regardless of target
   mkdirSync(join(serverDir, 'connectors'), { recursive: true });
   for (const file of ['server.mjs', 'auth-google.mjs']) {
     cpSync(join(pkgDir, file), join(serverDir, file));
@@ -93,22 +137,35 @@ async function writeMcpConfig() {
   console.log('  Installing Google API dependencies...');
   execSync('npm install --silent', { cwd: serverDir, stdio: 'pipe' });
 
-  // Write .mcp.json pointing to local copy
-  const mcpPath = join(cwd, '.mcp.json');
-  let config = {};
+  // Determine platform targets
+  const targets = parsePlatformFlags();
 
-  if (existsSync(mcpPath)) {
-    try { config = JSON.parse(readFileSync(mcpPath, 'utf8')); } catch {}
+  // Write .mcp.json (Claude Code) — relative paths
+  if (targets.claudeCode) {
+    const mcpPath = join(cwd, '.mcp.json');
+    let config = {};
+
+    if (existsSync(mcpPath)) {
+      try { config = JSON.parse(readFileSync(mcpPath, 'utf8')); } catch {}
+    }
+
+    if (!config.mcpServers) config.mcpServers = {};
+
+    config.mcpServers['antidrift-google'] = {
+      command: 'node',
+      args: [join('.mcp-servers', 'google', 'server.mjs')]
+    };
+
+    writeFileSync(mcpPath, JSON.stringify(config, null, 2));
+    console.log('  ✓ Wrote .mcp.json (Claude Code)');
   }
 
-  if (!config.mcpServers) config.mcpServers = {};
-
-  config.mcpServers['antidrift-google'] = {
-    command: 'node',
-    args: [join('.mcp-servers', 'google', 'server.mjs')]
-  };
-
-  writeFileSync(mcpPath, JSON.stringify(config, null, 2));
+  // Write claude_desktop_config.json (Cowork / Claude Desktop) — absolute paths
+  if (targets.cowork) {
+    const absoluteServerPath = join(cwd, '.mcp-servers', 'google', 'server.mjs');
+    writeDesktopConfig('antidrift-google', absoluteServerPath);
+    console.log('  ✓ Wrote claude_desktop_config.json (Claude Desktop / Cowork)');
+  }
 }
 
 main().catch(console.error).finally(() => process.exit(0));
