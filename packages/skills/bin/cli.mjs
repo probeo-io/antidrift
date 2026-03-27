@@ -7,6 +7,15 @@ import { execSync } from 'child_process';
 
 const REPO = 'probeo-io/antidrift-skills';
 
+// Detect if the CLI is globally installed
+let CMD_PREFIX;
+try {
+  execSync('which antidrift', { stdio: 'ignore' });
+  CMD_PREFIX = 'antidrift skills';
+} catch {
+  CMD_PREFIX = 'npx @antidrift/skills';
+}
+
 function detectPlatforms() {
   const platforms = [];
   try { execSync('which claude', { stdio: 'ignore' }); platforms.push('claude'); } catch {}
@@ -50,17 +59,17 @@ if (!command || command === 'help') {
 
 function showHelp() {
   console.log(`
-@antidrift/skills — Community skills for Claude Code brains
+@antidrift/skills — Community skills for AI agent brains
 
 Core skills ship with every brain via @antidrift/core.
 This registry has community extras from github.com/${REPO}
 
 Usage:
-  npx @antidrift/skills list                 List community skills
-  npx @antidrift/skills add <name...>        Add skills to current brain
-  npx @antidrift/skills add --all            Add all community skills
-  npx @antidrift/skills remove <name...>     Remove skills from current brain
-  npx @antidrift/skills help                 Show this message
+  ${CMD_PREFIX} list                 List community skills
+  ${CMD_PREFIX} add <name|pack>     Add skills (essentials, engineering, security, etc.)
+  ${CMD_PREFIX} add --all           Add all community skills
+  ${CMD_PREFIX} remove <name>       Remove a skill
+  ${CMD_PREFIX} help                Show this message
 `);
 }
 
@@ -119,8 +128,8 @@ function list() {
 
   const installedCount = registry.filter(s => installed.has(s.name)).length;
   console.log(`  ${installedCount}/${registry.length} installed`);
-  console.log(`  Add a pack:  npx @antidrift/skills add essentials`);
-  console.log(`  Add a skill: npx @antidrift/skills add <name>\n`);
+  console.log(`  Add a pack:  ${CMD_PREFIX} add essentials`);
+  console.log(`  Add a skill: ${CMD_PREFIX} add <name>\n`);
 }
 
 function cloneRegistry() {
@@ -133,9 +142,9 @@ function cloneRegistry() {
 
 function add(names) {
   if (names.length === 0) {
-    console.log('  Usage: npx @antidrift/skills add <name...>');
-    console.log('         npx @antidrift/skills add essentials    Add the Essentials Starter Pack');
-    console.log('         npx @antidrift/skills add --all         Add all community skills\n');
+    console.log(`  Usage: ${CMD_PREFIX} add <name...>`);
+    console.log(`         ${CMD_PREFIX} add essentials    Add the Essentials Starter Pack`);
+    console.log(`         ${CMD_PREFIX} add --all         Add all community skills\n`);
     return;
   }
 
@@ -217,7 +226,7 @@ function add(names) {
 
 function remove(names) {
   if (names.length === 0) {
-    console.log('  Usage: npx @antidrift/skills remove <name...>\n');
+    console.log(`  Usage: ${CMD_PREFIX} remove <name...>\n`);
     return;
   }
 

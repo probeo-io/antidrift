@@ -24,6 +24,11 @@ function ask(q) {
 
 const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
 const ver = pkg.version;
+
+// Detect if CLI is globally installed
+let hasCli = false;
+try { execSync('which antidrift', { stdio: 'ignore' }); hasCli = true; } catch {}
+const CMD = hasCli ? 'antidrift' : 'npx @antidrift/core';
 const banner = `
   ┌─────────────────────────────┐
   │  antidrift v${ver.padEnd(16)}│
@@ -159,26 +164,27 @@ async function crossCompileCommand() {
 }
 
 function showHelp() {
+  const s = hasCli ? 'antidrift skills' : 'npx @antidrift/skills';
   console.log(`
-antidrift — Company brain for Claude
+antidrift — AI agents and you
 
 Usage:
-  npx @antidrift/core init              Start a new brain
-  npx @antidrift/core join <repo>       Join an existing brain
-  npx @antidrift/core update            Update core skills to latest
-  npx @antidrift/core help              Show this message
+  ${CMD} init              Start a new brain
+  ${CMD} join <repo>       Join an existing brain
+  ${CMD} update            Update core skills + sync brain files
 
-Cross-compile skills:
-  npx @antidrift/core cross-compile <path> --to <claude|codex>
+  ${s} list            Browse community skills
+  ${s} add <name|pack> Add skills
 
-Community skills:
-  npx @antidrift/skills list            Browse community skills
-  npx @antidrift/skills add <name>      Add a community skill to your brain
+  ${CMD} cross-compile <path> --to <claude|codex>
 
-Connect services (type /connect inside Claude, or install directly):
-  npx @antidrift/mcp-google             Google Sheets, Docs, Drive, Gmail, Calendar
-  npx @antidrift/mcp-stripe             Stripe invoices, customers
-  npx @antidrift/mcp-attio              Attio CRM
+Connect services:
+  ${hasCli ? 'antidrift' : 'npx @antidrift/cli'} connect google      Google Workspace
+  ${hasCli ? 'antidrift' : 'npx @antidrift/cli'} connect stripe      Stripe
+  ${hasCli ? 'antidrift' : 'npx @antidrift/cli'} connect attio       Attio CRM
+  ${hasCli ? 'antidrift' : 'npx @antidrift/cli'} connect github      GitHub
+${hasCli ? '' : '\nTip: npm install -g @antidrift/cli for shorter commands\n'}
+https://antidrift.io
 `);
 }
 
@@ -265,7 +271,7 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
           console.log('  Installed @antidrift/mcp-google');
           execSync('npx @antidrift/mcp-google', { cwd: targetDir, stdio: 'inherit' });
         } catch {
-          console.log('  Skipped Google — run `npx @antidrift/mcp-google` later to set up.');
+          console.log('  Skipped Google — run `antidrift connect google` later to set up.');
         }
       }
 
@@ -276,7 +282,7 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
           console.log('  Installed @antidrift/mcp-stripe');
           execSync('npx @antidrift/mcp-stripe', { cwd: targetDir, stdio: 'inherit' });
         } catch {
-          console.log('  Skipped Stripe — run `npx @antidrift/mcp-stripe` later to set up.');
+          console.log('  Skipped Stripe — run `antidrift connect stripe` later to set up.');
         }
       }
 
@@ -287,7 +293,7 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
           console.log('  Installed @antidrift/mcp-attio');
           execSync('npx @antidrift/mcp-attio', { cwd: targetDir, stdio: 'inherit' });
         } catch {
-          console.log('  Skipped Attio — run `npx @antidrift/mcp-attio` later to set up.');
+          console.log('  Skipped Attio — run `antidrift connect attio` later to set up.');
         }
       }
     }
@@ -332,7 +338,7 @@ async function update() {
 
   if (!existsSync(skillsTarget)) {
     console.log('  No .claude/skills/ found in ' + cwd);
-    console.log('  Run `npx @antidrift/core init` first.\n');
+    console.log('  Run `antidrift init` first (or `npx @antidrift/core init`).\n');
     return;
   }
 
@@ -409,11 +415,12 @@ async function compileInstalledSkills(skillsDir) {
 
 function mcpRedirect() {
   console.log(banner);
-  console.log('  MCP connectors are separate packages. Install what you need:\n');
-  console.log('    npx @antidrift/mcp-google     Google Workspace');
-  console.log('    npx @antidrift/mcp-stripe     Stripe');
-  console.log('    npx @antidrift/mcp-attio      Attio CRM\n');
-  console.log('  Or type /connect inside Claude to set up interactively.\n');
+  console.log('  Connect services:\n');
+  const c = hasCli ? 'antidrift connect' : 'npx @antidrift/cli connect';
+  console.log(`    ${c} google      Google Workspace`);
+  console.log(`    ${c} stripe      Stripe`);
+  console.log(`    ${c} attio       Attio CRM`);
+  console.log(`    ${c} github      GitHub\n`);
 }
 
 async function joinBrain() {
