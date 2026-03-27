@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/cli",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "CLI for antidrift — company brain for AI coding agents",
   "bin": {
     "antidrift": "bin/cli.mjs"
