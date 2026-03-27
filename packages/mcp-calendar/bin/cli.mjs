@@ -61,6 +61,8 @@ async function setup() {
   │  Google Calendar            │
   └─────────────────────────────┘
 `);
+  await privacyCheck();
+
 
   const tokenPath = join(credsDir, 'token.json');
   if (existsSync(tokenPath)) {
@@ -69,8 +71,6 @@ async function setup() {
     console.log('  ✓ Calendar updated. Restart your agent to pick up changes.\n');
     process.exit(0);
   }
-
-  await privacyCheck();
 
   const { runAuthFlow } = await import('../auth-google.mjs');
   await runAuthFlow();

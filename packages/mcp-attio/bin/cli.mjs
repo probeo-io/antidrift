@@ -49,6 +49,8 @@ async function main() {
   } else if (command === 'status') {
     status();
   } else if (command === 'reset') {
+  await privacyCheck();
+
 
   const configPath = join(configDir, 'attio.json');
     if (existsSync(configPath)) {
@@ -89,8 +91,6 @@ async function setup() {
     console.log('  ✓ Attio updated. Restart your agent to pick up changes.\n');
     process.exit(0);
   }
-
-  await privacyCheck();
 
   console.log('  To get your API key:\n');
   console.log('  1. Go to https://app.attio.com');

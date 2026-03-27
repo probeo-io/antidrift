@@ -49,6 +49,8 @@ async function main() {
   } else if (command === 'status') {
     status();
   } else if (command === 'reset') {
+  await privacyCheck();
+
 
   const configPath = join(configDir, 'github.json');
     if (existsSync(configPath)) {
