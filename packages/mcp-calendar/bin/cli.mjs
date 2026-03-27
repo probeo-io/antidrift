@@ -11,27 +11,7 @@ const __dirname = dirname(__filename);
 const credsDir = join(homedir(), '.antidrift', 'credentials', 'google');
 
 
-async function privacyCheck() {
-  const { createInterface } = await import("readline");
-  const rl = createInterface({ input: process.stdin, output: process.stdout });
-  const ask = (q) => new Promise((r) => rl.question(q, (a) => { r(a); }));
 
-  console.log("");
-  console.log("  ⚠ PRIVACY NOTICE");
-  console.log("  Data accessed through this connector will be sent to your AI model");
-  console.log("  provider (Anthropic, OpenAI, Google, etc.) as part of your conversation.");
-  console.log("  Do not connect services containing data you are not comfortable sharing.");
-  console.log("");
-
-  const answer = await ask("  I understand (Y/N): ");
-  rl.close();
-
-  if (!answer.trim().toLowerCase().startsWith("y")) {
-    console.log("\n  Setup cancelled.\n");
-    process.exit(0);
-  }
-  console.log("");
-}
 
 async function main() {
   const command = process.argv[2];
@@ -61,8 +41,13 @@ async function setup() {
   │  Google Calendar            │
   └─────────────────────────────┘
 `);
-  await privacyCheck();
 
+
+    console.log('');
+  console.log('  ⚠ By installing this connector, you acknowledge that data accessed');
+  console.log('  through it will be sent to your AI model provider (Anthropic, OpenAI,');
+  console.log('  Google, etc.) as part of your conversation.');
+  console.log('');
 
   const tokenPath = join(credsDir, 'token.json');
   if (existsSync(tokenPath)) {

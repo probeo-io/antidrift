@@ -19,24 +19,7 @@ function ask(q) {
 }
 
 
-async function privacyCheck() {
 
-  console.log("");
-  console.log("  \u26a0 PRIVACY NOTICE");
-  console.log("  Data accessed through this connector will be sent to your AI model");
-  console.log("  provider (Anthropic, OpenAI, Google, etc.) as part of your conversation.");
-  console.log("  Do not connect services containing data you are not comfortable sharing.");
-  console.log("");
-
-  const answer = await ask("  I understand (Y/N): ");
-
-  if (!answer.trim().toLowerCase().startsWith("y")) {
-    console.log("\n  Setup cancelled.\n");
-    rl.close();
-    process.exit(0);
-  }
-  console.log("");
-}
 
 async function main() {
   const command = process.argv[2];
@@ -46,8 +29,13 @@ async function main() {
   } else if (command === 'status') {
     status();
   } else if (command === 'reset') {
-  await privacyCheck();
 
+
+    console.log('');
+  console.log('  ⚠ By installing this connector, you acknowledge that data accessed');
+  console.log('  through it will be sent to your AI model provider (Anthropic, OpenAI,');
+  console.log('  Google, etc.) as part of your conversation.');
+  console.log('');
 
   const configPath = join(configDir, 'clickup.json');
     if (existsSync(configPath)) {
@@ -88,8 +76,6 @@ async function setup() {
     console.log('  \u2713 ClickUp updated. Restart your agent to pick up changes.\n');
     process.exit(0);
   }
-
-  await privacyCheck();
 
   console.log('  To get your API token:\n');
   console.log('  1. Go to ClickUp \u2192 Settings \u2192 Apps');
