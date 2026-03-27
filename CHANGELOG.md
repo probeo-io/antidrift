@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2026-03-27
+
+### Added
+
+- **GitHub MCP** — `antidrift connect github` (15 tools: repos, issues, PRs, diffs, actions, releases, branches, traffic)
+- **Stripe MCP** — `antidrift connect stripe` (17 tools: customers, invoices, subscriptions, charges, payment links)
+- READMEs for all 4 MCP packages with tools tables and auth instructions
+- CLI detects global install — shows `antidrift` commands instead of `npx`
+- MIT LICENSE added to skills package and community repo
+- 151 tests (101 JS + 50 Python)
+
 ## [0.8.0] - 2026-03-27
 
 ### Added
