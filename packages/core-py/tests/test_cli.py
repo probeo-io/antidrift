@@ -114,3 +114,92 @@ class TestUnknownCommand:
         captured = capsys.readouterr()
         assert "Unknown command: boguscmd" in captured.out
         assert "antidrift" in captured.out
+
+
+class TestConnect:
+    """Connect command should route to npx with correct args."""
+
+    def test_connect_no_service_shows_list(self, capsys):
+        with patch.object(sys, "argv", ["antidrift", "connect"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                main()
+        captured = capsys.readouterr()
+        assert "google" in captured.out
+        assert "attio" in captured.out
+
+    def test_connect_unknown_service_shows_list(self, capsys):
+        with patch.object(sys, "argv", ["antidrift", "connect", "unknown"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                main()
+        captured = capsys.readouterr()
+        assert "Available services" in captured.out
+
+    def test_connect_google_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "google"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-google", [])
+
+    def test_connect_attio_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "attio"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-attio", [])
+
+    def test_connect_passes_flags_through(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "google", "--cowork"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-google", ["--cowork"])
+
+    def test_connect_passes_all_flag(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "attio", "--all"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-attio", ["--all"])
+
+    def test_connect_passes_claude_code_flag(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "google", "--claude-code"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-google", ["--claude-code"])
+
+    def test_help_text_includes_connect_flags(self, capsys):
+        show_help()
+        captured = capsys.readouterr()
+        assert "--cowork" in captured.out
+        assert "connect google" in captured.out
+
+
+class TestSkillsDelegate:
+    """Skills command should delegate to npx."""
+
+    def test_skills_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "skills", "list"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once()
+
+    def test_skills_no_args_defaults_to_list(self):
+        with patch.object(sys, "argv", ["antidrift", "skills"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.skills_delegate") as mock_skills:
+                    main()
+        mock_skills.assert_called_once()
+
+
+class TestCrossCompile:
+    """Cross-compile should delegate to npx core."""
+
+    def test_cross_compile_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "cross-compile", "./skill", "--to", "codex"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("core", ["cross-compile", "./skill", "--to", "codex"])
