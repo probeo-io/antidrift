@@ -100,7 +100,11 @@ async function setup() {
   mkdirSync(configDir, { recursive: true });
   writeFileSync(configPath, JSON.stringify({ apiKey: apiKey.trim() }, null, 2));
   await writeMcpConfig();
-  console.log('  ✓ Stripe connected (customers, products, invoices, subscriptions, charges)');
+  console.log('  ✓ Stripe connected (customers, products, invoices, subscriptions, charges)\n');
+  console.log('  ⚠ WARNING: This connector can create invoices, modify customers,');
+  console.log('    and cancel subscriptions. It CANNOT process credit card payments');
+  console.log('    directly — payments go through Stripe\'s hosted pages (PCI compliant).');
+  console.log('    Use a test key (sk_test_) to try it safely before using live.\n');
   console.log('  Restart your agent to use it.\n');
   process.exit(0);
 }
