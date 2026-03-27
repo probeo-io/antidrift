@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-google",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Google Workspace connector for antidrift — Sheets, Docs, Drive, Gmail, Calendar",
   "main": "server.mjs",
   "bin": {
