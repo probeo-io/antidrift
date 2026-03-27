@@ -34,7 +34,7 @@ async function main() {
     console.log('');
   console.log('  ⚠ By installing this connector, you acknowledge that data accessed');
   console.log('  through it will be sent to your AI model provider (Anthropic, OpenAI,');
-  console.log('  Google, etc.) as part of your conversation.');
+  console.log('  Google, etc.) as part of your conversation. Press Ctrl+C to cancel.');
   console.log('');
 
   const configPath = join(configDir, 'attio.json');
