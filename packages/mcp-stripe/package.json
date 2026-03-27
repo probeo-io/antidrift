@@ -1,7 +1,7 @@
 {
   "name": "@antidrift/mcp-stripe",
   "version": "0.1.0",
-  "description": "Stripe connector for antidrift — invoices, customers, products",
+  "description": "Stripe connector for AI agents — invoices, customers, products, subscriptions, charges",
   "main": "server.mjs",
   "bin": {
     "antidrift-mcp-stripe": "bin/cli.mjs"
@@ -15,6 +15,11 @@
     "antidrift",
     "mcp",
     "claude-code",
+    "codex",
+    "cursor",
+    "antigravity",
+    "ai-agents",
+    "cowork",
     "stripe"
   ],
   "license": "MIT",

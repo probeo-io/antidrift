@@ -41,6 +41,7 @@ const packageJsonFiles = [
   'packages/skills/package.json',
   'packages/mcp-google/package.json',
   'packages/mcp-attio/package.json',
+  'packages/mcp-stripe/package.json',
 ];
 
 for (const file of packageJsonFiles) {

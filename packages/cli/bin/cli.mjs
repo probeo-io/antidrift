@@ -26,6 +26,9 @@ Usage:
   antidrift connect attio                 Connect Attio CRM
   antidrift connect attio --cowork        Connect to Claude Desktop / Cowork
   antidrift connect attio --all           Connect to all detected platforms
+  antidrift connect stripe                Connect Stripe
+  antidrift connect stripe --cowork       Connect to Claude Desktop / Cowork
+  antidrift connect stripe --all          Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -78,13 +81,15 @@ if (command === 'skills') {
   const mcpPackages = {
     google: '@antidrift/mcp-google',
     attio: '@antidrift/mcp-attio',
+    stripe: '@antidrift/mcp-stripe',
   };
   if (service && mcpPackages[service]) {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
   } else {
     console.log('\n  Available services:\n');
     console.log('    antidrift connect google    Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)');
-    console.log('    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)\n');
+    console.log('    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)');
+    console.log('    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)\n');
   }
 } else if (command === 'init' || command === 'join' || command === 'update' || command === 'cross-compile' || command === 'mcp') {
   npxCore(args.join(' '));
