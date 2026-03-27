@@ -100,6 +100,12 @@ async function setup() {
   writeFileSync(configPath, JSON.stringify({ apiKey: apiKey.trim() }, null, 2));
   writeMcpConfig();
   console.log('  ✓ Attio connected (people, companies, deals, tasks, notes)');
+
+  console.log('');
+  console.log('  ⚠ PRIVACY: Data accessed through this connector is sent to your AI');
+  console.log('    model provider (Anthropic, OpenAI, Google, etc.) as part of your');
+  console.log('    conversation. Do not connect services containing data you are not');
+  console.log('    comfortable sharing with your model provider.');
   console.log('  Restart your agent to use it.\n');
   process.exit(0);
 }

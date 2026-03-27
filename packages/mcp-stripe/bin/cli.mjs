@@ -107,6 +107,12 @@ async function setup() {
   console.log('    and cancel subscriptions. It CANNOT process credit card payments');
   console.log('    directly — payments go through Stripe\'s hosted pages (PCI compliant).');
   console.log('    Use a test key (sk_test_) to try it safely before using live.\n');
+
+  console.log('');
+  console.log('  ⚠ PRIVACY: Data accessed through this connector is sent to your AI');
+  console.log('    model provider (Anthropic, OpenAI, Google, etc.) as part of your');
+  console.log('    conversation. Do not connect services containing data you are not');
+  console.log('    comfortable sharing with your model provider.');
   console.log('  Restart your agent to use it.\n');
   process.exit(0);
 }
