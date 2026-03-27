@@ -2,7 +2,7 @@
 
 Company brain for you and your AI agents. Shared knowledge, shared skills, no more passing files around.
 
-Works with Claude Code and OpenAI Codex.
+Works with Claude Code, Claude Cowork / Desktop, OpenAI Codex, Cursor, and Google Antigravity.
 
 ## The Problem
 
@@ -147,15 +147,23 @@ marketing/
     └── voc/
 ```
 
-## Cross-Platform
+## Supported Platforms
 
-Antidrift works with both Claude Code and OpenAI Codex on the same brain.
+Antidrift works across all major AI coding platforms on the same brain.
 
-- `antidrift init` creates both `CLAUDE.md` and `AGENTS.md`
+| Platform | Brain File | Config File |
+|---|---|---|
+| Claude Code | CLAUDE.md | .mcp.json |
+| Claude Cowork / Desktop | CLAUDE.md | claude_desktop_config.json |
+| OpenAI Codex | AGENTS.md | — |
+| Cursor | AGENTS.md | — |
+| Google Antigravity | GEMINI.md | — |
+
+- `antidrift init` creates CLAUDE.md, AGENTS.md, and GEMINI.md
 - `/push` syncs them before every commit
-- `/ingest` creates both for every department
+- `/ingest` creates all brain files for every department
 - Community skills compile to the right format on install
-- Teams can mix Claude Code and Codex users — everything stays in sync
+- Teams can mix platforms — everything stays in sync
 
 ### Skill Compiler
 
@@ -166,6 +174,27 @@ antidrift cross-compile .claude/skills/my-skill --to codex
 antidrift cross-compile .agents/skills/my-skill --to claude
 ```
 
+## Connect Services
+
+Connect external services as MCP servers — your AI agent gets live access to your tools.
+
+```bash
+antidrift connect google                # Google Workspace
+antidrift connect stripe                # Stripe
+antidrift connect attio                 # Attio CRM
+antidrift connect github                # GitHub
+```
+
+### Platform targeting
+
+By default, `connect` installs for Claude Code. Use flags to target other platforms:
+
+```bash
+antidrift connect stripe --cowork       # Claude Cowork / Desktop
+antidrift connect stripe --all          # All detected platforms
+antidrift connect stripe --claude-code  # Claude Code (explicit)
+```
+
 ## Packages
 
 | Package | What It Does |
@@ -173,9 +202,10 @@ antidrift cross-compile .agents/skills/my-skill --to claude
 | `@antidrift/cli` | Unified CLI |
 | `@antidrift/core` | Brain + core skills + setup |
 | `@antidrift/skills` | Community skill registry |
-| `@antidrift/mcp-google` | Google Sheets, Docs, Drive, Gmail, Calendar |
-| `@antidrift/mcp-stripe` | Stripe invoices, customers, products |
-| `@antidrift/mcp-attio` | Attio CRM — people, companies, deals |
+| `@antidrift/mcp-google` | Google Workspace (Sheets, Docs, Drive, Gmail, Calendar) |
+| `@antidrift/mcp-stripe` | Stripe (invoices, customers, subscriptions, charges, payment links) |
+| `@antidrift/mcp-attio` | Attio CRM (people, companies, deals, tasks, notes) |
+| `@antidrift/mcp-github` | GitHub (repos, issues, PRs, actions, releases, traffic) |
 
 ## Learn More
 

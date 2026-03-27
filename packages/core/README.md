@@ -54,6 +54,22 @@ antidrift skills add customer-research  # icp, voc, twins
 antidrift skills add legal              # legal document generator
 ```
 
+## Connect services
+
+```bash
+antidrift connect google                # Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)
+antidrift connect stripe                # Stripe (invoices, customers, subscriptions, charges)
+antidrift connect attio                 # Attio CRM (people, companies, deals, tasks, notes)
+antidrift connect github                # GitHub (repos, issues, PRs, actions, releases)
+```
+
+Platform targeting:
+
+```bash
+antidrift connect google --cowork       # Claude Cowork / Desktop
+antidrift connect google --all          # All detected platforms
+```
+
 ## Learn more
 
 [antidrift.io](https://antidrift.io)

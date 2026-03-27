@@ -57,9 +57,10 @@ packages/
   core/           @antidrift/core — brain + skills + CLI
   core-py/        antidrift (Python) — Python installer
   skills/         @antidrift/skills — community skills CLI
-  mcp-google/     @antidrift/mcp-google
-  mcp-stripe/     @antidrift/mcp-stripe
-  mcp-attio/      @antidrift/mcp-attio
+  mcp-google/     @antidrift/mcp-google — Google Workspace (27 tools)
+  mcp-stripe/     @antidrift/mcp-stripe — Stripe (17 tools)
+  mcp-attio/      @antidrift/mcp-attio — Attio CRM (14 tools)
+  mcp-github/     @antidrift/mcp-github — GitHub (15 tools)
   legal/          @antidrift/legal
 ```
 

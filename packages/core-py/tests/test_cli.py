@@ -169,11 +169,53 @@ class TestConnect:
                     main()
         mock_npx.assert_called_once_with("mcp-google", ["--claude-code"])
 
+    def test_connect_github_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "github"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-github", [])
+
+    def test_connect_stripe_delegates_to_npx(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "stripe"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-stripe", [])
+
+    def test_connect_github_with_cowork_flag(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "github", "--cowork"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-github", ["--cowork"])
+
+    def test_connect_stripe_with_cowork_flag(self):
+        with patch.object(sys, "argv", ["antidrift", "connect", "stripe", "--cowork"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                with patch("antidrift.cli.npx_delegate") as mock_npx:
+                    main()
+        mock_npx.assert_called_once_with("mcp-stripe", ["--cowork"])
+
     def test_help_text_includes_connect_flags(self, capsys):
         show_help()
         captured = capsys.readouterr()
         assert "--cowork" in captured.out
         assert "connect google" in captured.out
+
+    def test_help_text_includes_github_and_stripe(self, capsys):
+        show_help()
+        captured = capsys.readouterr()
+        assert "connect github" in captured.out
+        assert "connect stripe" in captured.out
+
+    def test_connect_no_service_lists_github(self, capsys):
+        with patch.object(sys, "argv", ["antidrift", "connect"]):
+            with patch("antidrift.cli.check_prereqs", return_value=[]):
+                main()
+        captured = capsys.readouterr()
+        assert "github" in captured.out
+        assert "stripe" in captured.out
 
 
 class TestSkillsDelegate:

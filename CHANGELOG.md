@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2026-03-27
+
+### Added
+
+- **Claude Cowork / Desktop support** — MCP connectors now install to `claude_desktop_config.json` with `--cowork` flag
+- **Platform targeting flags** — `--claude-code`, `--cowork`, and `--all` for `antidrift connect`
+- 5 supported platforms: Claude Code, Claude Cowork / Desktop, OpenAI Codex, Cursor, Google Antigravity
+
+## [0.7.3] - 2026-03-27
+
+### Added
+
+- **Attio MCP** — 14 tools: people, companies, deals, tasks, notes, pipeline management
+- Portable `.mcp-servers/` install for project-level MCP configuration
+
+## [0.7.2] - 2026-03-26
+
+### Added
+
+- **Stripe MCP** — 17 tools: customers, invoices, subscriptions, charges, products, prices, payment links, balance
+- **GitHub MCP** — 15 tools: repos, issues, PRs, actions, releases, branches, file access, traffic
+
 ## [0.7.1] - 2026-03-26
 
 ### Fixed
