@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-attio",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "Attio CRM connector for antidrift — people, companies, deals, notes",
   "main": "server.mjs",
   "bin": {

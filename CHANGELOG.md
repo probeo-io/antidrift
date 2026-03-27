@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.4] - 2026-03-27
+
+### Added
+
+- **ClickUp MCP** — `antidrift connect clickup` (12 tools: workspaces, spaces, tasks, comments, search)
+- Privacy notice on all MCP installs (passive acknowledgment, Ctrl+C to cancel)
+
+### Fixed
+
+- Removed Y/N privacy prompt — replaced with passive notice
+- Fixed duplicate readline causing doubled input on key-based connectors
+
 ## [0.8.2] - 2026-03-27
 
 ### Added
