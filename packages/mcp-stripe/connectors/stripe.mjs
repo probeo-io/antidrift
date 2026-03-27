@@ -168,7 +168,7 @@ export const tools = [
         params.price = priceId;
       } else {
         params.description = description;
-        params.unit_amount = amount;
+        params.amount = amount;
         params.currency = 'usd';
       }
       const item = await getStripe().invoiceItems.create(params);
