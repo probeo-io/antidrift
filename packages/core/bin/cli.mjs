@@ -29,6 +29,7 @@ const ver = pkg.version;
 let hasCli = false;
 try { execSync('which antidrift', { stdio: 'ignore' }); hasCli = true; } catch {}
 const CMD = hasCli ? 'antidrift' : 'npx @antidrift/core';
+const cliTip = hasCli ? '' : '\n  Tip: npm install -g @antidrift/cli for easier commands\n';
 const banner = `
   ┌─────────────────────────────┐
   │  antidrift v${ver.padEnd(16)}│
@@ -36,7 +37,7 @@ const banner = `
   │                             │
   │  https://antidrift.io       │
   │  Built by Probeo.io         │
-  └─────────────────────────────┘
+  └─────────────────────────────┘${cliTip}
 `;
 
 async function main() {
