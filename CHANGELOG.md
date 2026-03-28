@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.5] - 2026-03-27
+
+### Fixed
+
+- `/refresh` skill stashes local changes before pulling and uses rebase — no longer fails when brain has uncommitted edits
+
 ## [0.8.4] - 2026-03-27
 
 ### Added
