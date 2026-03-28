@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "antidrift"
-version = "0.8.4"
+version = "0.8.5"
 description = "Company brain for AI agents. One repo your whole team shares — context, skills, and connected services."
 readme = "README.md"
 license = "MIT"
