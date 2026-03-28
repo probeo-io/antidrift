@@ -36,11 +36,23 @@ jobs:
         working-directory: packages/cli
         run: npm test
 
-      - name: Test MCP packages (unit tests only, skip server subprocess tests in CI)
+      - name: Test MCP packages (no external deps)
         run: |
-          for pkg in mcp-github mcp-attio mcp-clickup mcp-notion mcp-google mcp-gmail mcp-drive mcp-calendar; do
+          for pkg in mcp-github mcp-attio mcp-clickup mcp-notion; do
             echo "--- $pkg ---"
             cd packages/$pkg
+            for f in test/tools.test.mjs test/handlers.test.mjs; do
+              [ -f "$f" ] && node --test "$f"
+            done
+            cd ../..
+          done
+
+      - name: Test MCP Google packages (need googleapis)
+        run: |
+          for pkg in mcp-google mcp-gmail mcp-drive mcp-calendar; do
+            echo "--- $pkg ---"
+            cd packages/$pkg
+            npm install --ignore-scripts 2>/dev/null
             for f in test/tools.test.mjs test/handlers.test.mjs; do
               [ -f "$f" ] && node --test "$f"
             done
