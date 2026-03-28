@@ -38,6 +38,9 @@ Usage:
   antidrift connect clickup               Connect ClickUp
   antidrift connect clickup --cowork      Connect to Claude Desktop / Cowork
   antidrift connect clickup --all         Connect to all detected platforms
+  antidrift connect notion                Connect Notion (read-only)
+  antidrift connect notion --cowork       Connect to Claude Desktop / Cowork
+  antidrift connect notion --all          Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -96,6 +99,7 @@ if (command === 'skills') {
     stripe: '@antidrift/mcp-stripe',
     github: '@antidrift/mcp-github',
     clickup: '@antidrift/mcp-clickup',
+    notion: '@antidrift/mcp-notion',
   };
   if (service && mcpPackages[service]) {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
@@ -108,7 +112,8 @@ if (command === 'skills') {
     console.log('    antidrift connect attio     Attio CRM (people, companies, deals, tasks, notes)');
     console.log('    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)');
     console.log('    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)');
-    console.log('    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)\n');
+    console.log('    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)');
+    console.log('    antidrift connect notion    Notion (pages, databases, blocks — read-only)\n');
   }
 } else if (command === 'init' || command === 'join' || command === 'update' || command === 'cross-compile' || command === 'mcp') {
   npxCore(args.join(' '));

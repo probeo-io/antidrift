@@ -1,0 +1,32 @@
+{
+  "name": "@antidrift/mcp-notion",
+  "version": "0.8.5",
+  "description": "Notion connector for antidrift — read-only access to pages, databases, and blocks",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-notion": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "notion",
+    "ai-agents",
+    "codex",
+    "cursor",
+    "antigravity",
+    "cowork"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-notion"
+  },
+  "author": "Probeo <hello@probeo.io>"
+}

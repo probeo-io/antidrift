@@ -47,6 +47,7 @@ const packageJsonFiles = [
   'packages/mcp-stripe/package.json',
   'packages/mcp-github/package.json',
   'packages/mcp-clickup/package.json',
+  'packages/mcp-notion/package.json',
 ];
 
 for (const file of packageJsonFiles) {
