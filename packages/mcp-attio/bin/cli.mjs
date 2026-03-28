@@ -66,6 +66,8 @@ async function setup() {
   ┌─────────────────────────────┐
   │  antidrift                  │
   │  Attio CRM                  │
+  │                             │
+  │  https://antidrift.io       │
   └─────────────────────────────┘
 `);
 

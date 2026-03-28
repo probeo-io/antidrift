@@ -39,6 +39,8 @@ async function setup() {
   ┌─────────────────────────────┐
   │  antidrift                  │
   │  Gmail                      │
+  │                             │
+  │  https://antidrift.io       │
   └─────────────────────────────┘
 `);
 

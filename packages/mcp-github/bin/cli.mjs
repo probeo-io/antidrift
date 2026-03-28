@@ -66,6 +66,8 @@ async function setup() {
   ┌─────────────────────────────┐
   │  antidrift                  │
   │  GitHub                     │
+  │                             │
+  │  https://antidrift.io       │
   └─────────────────────────────┘
 `);
 

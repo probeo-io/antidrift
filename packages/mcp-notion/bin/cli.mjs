@@ -59,6 +59,15 @@ Usage:
 
 async function setup() {
   console.log(`
+  ┌─────────────────────────────┐
+  │  antidrift                  │
+  │  Notion (read-only)          │
+  │                             │
+  │  https://antidrift.io       │
+  └─────────────────────────────┘
+`);
+
+  console.log(`
   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510
   \u2502  antidrift                  \u2502
   \u2502  Notion                     \u2502

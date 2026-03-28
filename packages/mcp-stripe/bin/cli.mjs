@@ -68,6 +68,8 @@ async function setup() {
   ┌─────────────────────────────┐
   │  antidrift                  │
   │  Stripe                     │
+  │                             │
+  │  https://antidrift.io       │
   └─────────────────────────────┘
 `);
 

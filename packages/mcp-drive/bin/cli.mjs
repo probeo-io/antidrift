@@ -39,6 +39,8 @@ async function setup() {
   ┌─────────────────────────────┐
   │  antidrift                  │
   │  Google Drive               │
+  │                             │
+  │  https://antidrift.io       │
   └─────────────────────────────┘
 `);
 
