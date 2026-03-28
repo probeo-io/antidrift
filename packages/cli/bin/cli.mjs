@@ -15,7 +15,7 @@ Usage:
 
   antidrift skills list                   Browse community skills (by pack)
   antidrift skills add <name|pack>        Add skills (essentials, engineering, customer-research, legal, security)
-  antidrift skills add --all              Add all community skills
+  antidrift skills add all              Add all community skills
   antidrift skills remove <name>          Remove a skill
 
   antidrift cross-compile <path> --to <claude|codex>

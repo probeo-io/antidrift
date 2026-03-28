@@ -67,7 +67,7 @@ This registry has community extras from github.com/${REPO}
 Usage:
   ${CMD_PREFIX} list                 List community skills
   ${CMD_PREFIX} add <name|pack>     Add skills (essentials, engineering, security, etc.)
-  ${CMD_PREFIX} add --all           Add all community skills
+  ${CMD_PREFIX} add all           Add all community skills
   ${CMD_PREFIX} remove <name>       Remove a skill
   ${CMD_PREFIX} help                Show this message
 `);
@@ -144,7 +144,7 @@ function add(names) {
   if (names.length === 0) {
     console.log(`  Usage: ${CMD_PREFIX} add <name...>`);
     console.log(`         ${CMD_PREFIX} add essentials    Add the Essentials Starter Pack`);
-    console.log(`         ${CMD_PREFIX} add --all         Add all community skills\n`);
+    console.log(`         ${CMD_PREFIX} add all         Add all community skills\n`);
     return;
   }
 
@@ -162,7 +162,7 @@ function add(names) {
 
   const resolved = [];
   for (const name of names) {
-    if (name === '--all') {
+    if (name === 'all' || name === '--all') {
       resolved.push(...available);
     } else if (packs[name]) {
       console.log(`  Pack "${name}": ${packs[name].join(', ')}`);
