@@ -256,30 +256,24 @@ Each directory has a brain file (CLAUDE.md / AGENTS.md) that your agent reads au
     except subprocess.CalledProcessError:
         pass
 
-    # Launch
-    print()
-    launch = ask("  Launch Claude Code? (y/n) ")
-    if launch.strip().lower().startswith("y"):
-        print("\n  Type /ingest to build your brain, or just start talking.\n")
-        try:
-            run("claude", cwd=target_dir)
-        except Exception:
-            print(f"\n  cd {target_dir} && claude")
-    else:
-        print(f"""
-  Ready. Next steps:
+    # Done
+    try:
+        os.chdir(target_dir)
+    except OSError:
+        pass
 
-    cd {target_dir}
-    claude
+    print(f"""
+  ✓ Brain created at {target_dir}
 
-  Type /ingest to build your brain, or just start talking.
+  You're now in the brain directory. Next steps:
 
-  Tip: Install the CLI for easier access:
-    npm install -g @antidrift/cli
+    /ingest <path>              Import your files
+    antidrift skills add --all  Install community skills
+    antidrift connect google    Connect services
 
-  Then use:
-    antidrift skills list
-    antidrift update
+  Start your agent and type /ingest to build your brain.
+
+  https://antidrift.io
 """)
 
 

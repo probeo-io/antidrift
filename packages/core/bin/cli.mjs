@@ -299,34 +299,24 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
     }
   }
 
-  // Launch
-  console.log('');
-  const launch = await ask('  Launch Claude Code? (y/n) ');
+  // Done
+  try {
+    process.chdir(targetDir);
+  } catch {}
 
-  if (launch.trim().toLowerCase().startsWith('y')) {
-    console.log('\n  Type /ingest to build your brain, or just start talking.\n');
-    try {
-      execSync('claude', { cwd: targetDir, stdio: 'inherit' });
-    } catch {
-      console.log(`\n  cd ${targetDir} && claude`);
-    }
-  } else {
-    console.log(`
-  Ready. Next steps:
+  console.log(`
+  ✓ Brain created at ${targetDir}
 
-    cd ${targetDir}
-    claude
+  You're now in the brain directory. Next steps:
 
-  Type /ingest to build your brain, or just start talking.
+    /ingest <path>              Import your files
+    antidrift skills add --all  Install community skills
+    antidrift connect google    Connect services
 
-  Tip: Install the CLI for easier access:
-    npm install -g antidrift
+  Start your agent and type /ingest to build your brain.
 
-  Then use:
-    antidrift skills list
-    antidrift update
+  https://antidrift.io
 `);
-  }
 }
 
 async function update() {
