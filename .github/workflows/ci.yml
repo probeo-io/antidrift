@@ -38,7 +38,7 @@ jobs:
 
       - name: Test MCP packages (unit tests only, skip server subprocess tests in CI)
         run: |
-          for pkg in mcp-github mcp-stripe mcp-attio mcp-clickup mcp-notion mcp-google mcp-gmail mcp-drive mcp-calendar; do
+          for pkg in mcp-github mcp-attio mcp-clickup mcp-notion mcp-google mcp-gmail mcp-drive mcp-calendar; do
             echo "--- $pkg ---"
             cd packages/$pkg
             for f in test/tools.test.mjs test/handlers.test.mjs; do
@@ -46,3 +46,7 @@ jobs:
             done
             cd ../..
           done
+
+      - name: Test MCP Stripe (needs stripe dep)
+        working-directory: packages/mcp-stripe
+        run: npm install --ignore-scripts && node --test test/tools.test.mjs
