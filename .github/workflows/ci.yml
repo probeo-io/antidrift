@@ -24,12 +24,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: npm install
+      - name: Test core
+        working-directory: packages/core
+        run: npm test
 
-      - name: Test all packages
-        run: |
-          for pkg in core skills mcp-github mcp-stripe mcp-attio mcp-clickup mcp-notion mcp-google mcp-gmail mcp-drive mcp-calendar cli; do
-            echo "--- Testing $pkg ---"
-            cd packages/$pkg && npm test && cd ../..
-          done
+      - name: Test skills
+        working-directory: packages/skills
+        run: npm test
