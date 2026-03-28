@@ -1,7 +1,7 @@
 {
   "name": "@antidrift/mcp-attio",
   "version": "0.9.0",
-  "description": "Attio CRM connector for antidrift — people, companies, deals, notes",
+  "description": "Attio CRM connector for antidrift \u2014 people, companies, deals, notes",
   "main": "server.mjs",
   "bin": {
     "antidrift-mcp-attio": "bin/cli.mjs"
@@ -31,5 +31,8 @@
     "url": "git+https://github.com/probeo-io/antidrift.git",
     "directory": "packages/mcp-attio"
   },
-  "author": "Probeo <hello@probeo.io>"
+  "author": "Probeo <hello@probeo.io>",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
 }

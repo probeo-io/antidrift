@@ -12,7 +12,7 @@
     "url": "git+https://github.com/probeo-io/antidrift.git"
   },
   "scripts": {
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "npm test --workspaces --if-present"
   },
   "author": "Probeo <hello@probeo.io>",
   "bugs": {

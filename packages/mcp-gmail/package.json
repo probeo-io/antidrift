@@ -1,7 +1,7 @@
 {
   "name": "@antidrift/mcp-gmail",
   "version": "0.9.0",
-  "description": "Gmail connector for antidrift — search, read, send, and manage email",
+  "description": "Gmail connector for antidrift \u2014 search, read, send, and manage email",
   "main": "server.mjs",
   "bin": {
     "antidrift-mcp-gmail": "bin/cli.mjs"
@@ -34,5 +34,8 @@
   "author": "Probeo <hello@probeo.io>",
   "dependencies": {
     "googleapis": "^171.4.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
   }
 }

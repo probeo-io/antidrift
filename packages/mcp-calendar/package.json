@@ -1,7 +1,7 @@
 {
   "name": "@antidrift/mcp-calendar",
   "version": "0.9.0",
-  "description": "Google Calendar connector for antidrift — view, search, and create events",
+  "description": "Google Calendar connector for antidrift \u2014 view, search, and create events",
   "main": "server.mjs",
   "bin": {
     "antidrift-mcp-calendar": "bin/cli.mjs"
@@ -33,5 +33,8 @@
   "author": "Probeo <hello@probeo.io>",
   "dependencies": {
     "googleapis": "^171.4.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
   }
 }

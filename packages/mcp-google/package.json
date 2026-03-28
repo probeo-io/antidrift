@@ -1,7 +1,7 @@
 {
   "name": "@antidrift/mcp-google",
   "version": "0.9.0",
-  "description": "Google Workspace connector for antidrift — Sheets, Docs, Drive, Gmail, Calendar",
+  "description": "Google Workspace connector for antidrift \u2014 Sheets, Docs, Drive, Gmail, Calendar",
   "main": "server.mjs",
   "bin": {
     "antidrift-mcp-google": "bin/cli.mjs"
@@ -38,5 +38,8 @@
   "author": "Probeo <hello@probeo.io>",
   "dependencies": {
     "googleapis": "^171.4.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
   }
 }
