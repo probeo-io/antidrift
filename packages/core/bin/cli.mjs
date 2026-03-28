@@ -315,12 +315,10 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
      /ingest ~/Documents/company-docs
      /ingest ~/Projects/my-app
 
-  3. Install skills:
-     antidrift skills add essentials     Writing, decisions, search, prep
-     antidrift skills add engineering    Code review, specs, TPS reports
-     antidrift skills add --all          Everything
+  3. Browse skills:
+     antidrift skills list
 
-  4. Connect services:
+  4. Connect applications:
      antidrift connect gmail             Email
      antidrift connect github            Repos, issues, PRs
      antidrift connect stripe            Invoices, customers
