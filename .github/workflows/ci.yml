@@ -31,3 +31,14 @@ jobs:
       - name: Test skills
         working-directory: packages/skills
         run: npm test
+
+      - name: Test CLI
+        working-directory: packages/cli
+        run: npm test
+
+      - name: Test MCP packages
+        run: |
+          for pkg in mcp-github mcp-stripe mcp-attio mcp-clickup mcp-notion mcp-google mcp-gmail mcp-drive mcp-calendar; do
+            echo "--- $pkg ---"
+            (cd packages/$pkg && npm test) || exit 1
+          done
