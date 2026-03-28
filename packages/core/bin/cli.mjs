@@ -305,15 +305,31 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
   } catch {}
 
   console.log(`
-  ✓ Brain created at ${targetDir}
+  ✓ Brain created at ${dirName}/
 
-  You're now in the brain directory. Next steps:
+  What to do now:
 
-    /ingest <path>              Import your files
-    antidrift skills add --all  Install community skills
-    antidrift connect google    Connect services
+  1. Start your agent in this directory (claude, codex, etc.)
 
-  Start your agent and type /ingest to build your brain.
+  2. Import your company knowledge:
+     /ingest ~/Documents/company-docs
+     /ingest ~/Projects/my-app
+
+  3. Install skills:
+     antidrift skills add essentials     Writing, decisions, search, prep
+     antidrift skills add engineering    Code review, specs, TPS reports
+     antidrift skills add --all          Everything
+
+  4. Connect services:
+     antidrift connect gmail             Email
+     antidrift connect github            Repos, issues, PRs
+     antidrift connect stripe            Invoices, customers
+     antidrift connect attio             CRM
+     antidrift connect clickup           Tasks, projects
+     antidrift connect notion            Pages, databases
+
+  Your brain grows as you use it. The more you ingest, the smarter
+  your agent gets about your company.
 
   https://antidrift.io
 `);
