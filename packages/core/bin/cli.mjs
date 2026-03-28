@@ -319,12 +319,7 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
      antidrift skills list
 
   4. Connect applications:
-     antidrift connect gmail             Email
-     antidrift connect github            Repos, issues, PRs
-     antidrift connect stripe            Invoices, customers
-     antidrift connect attio             CRM
-     antidrift connect clickup           Tasks, projects
-     antidrift connect notion            Pages, databases
+     antidrift connect list
 
   Your brain grows as you use it. The more you ingest, the smarter
   your agent gets about your company.
