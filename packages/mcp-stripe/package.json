@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-stripe",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Stripe connector for AI agents — invoices, customers, products, subscriptions, charges",
   "main": "server.mjs",
   "bin": {

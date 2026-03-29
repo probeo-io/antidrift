@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-notion",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Notion connector for antidrift — read-only access to pages, databases, and blocks",
   "main": "server.mjs",
   "bin": {
