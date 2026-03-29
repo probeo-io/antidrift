@@ -36,7 +36,7 @@ const banner = `
   │  AI agents and you          │
   │                             │
   │  https://antidrift.io       │
-  │  github.com/probeo-io       │
+  │  github.com/probeo-io/antidrift│
   │  MIT License                │
   └─────────────────────────────┘${cliTip}
 `;

@@ -41,7 +41,7 @@ async function setup() {
   │  Google Calendar            │
   │                             │
   │  https://antidrift.io       │
-  │  github.com/probeo-io       │
+  │  github.com/probeo-io/antidrift│
   │  MIT License                │
   └─────────────────────────────┘
 `);

@@ -70,7 +70,7 @@ async function setup() {
   │  Stripe                     │
   │                             │
   │  https://antidrift.io       │
-  │  github.com/probeo-io       │
+  │  github.com/probeo-io/antidrift│
   │  MIT License                │
   └─────────────────────────────┘
 `);
