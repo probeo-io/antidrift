@@ -31,6 +31,7 @@ async function loadConnectors() {
     { name: 'github', config: 'github.json', module: '../mcp-github/connectors/github.mjs' },
     { name: 'attio', config: 'attio.json', module: '../mcp-attio/connectors/attio.mjs' },
     { name: 'clickup', config: 'clickup.json', module: '../mcp-clickup/connectors/clickup.mjs' },
+    { name: 'jira', config: 'jira.json', module: '../mcp-jira/connectors/jira.mjs' },
     { name: 'notion', config: 'notion.json', module: '../mcp-notion/connectors/notion.mjs' },
     { name: 'stripe', config: 'stripe.json', module: '../mcp-stripe/connectors/stripe.mjs' },
     { name: 'hubspot', config: 'hubspot.json', module: '../mcp-hubspot-crm/connectors/hubspot-crm.mjs' },

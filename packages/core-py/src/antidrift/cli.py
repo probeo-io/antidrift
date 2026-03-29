@@ -183,6 +183,9 @@ Usage:
   antidrift connect clickup               Connect ClickUp
   antidrift connect clickup --cowork      Connect to Claude Desktop / Cowork
   antidrift connect clickup --all         Connect to all detected platforms
+  antidrift connect jira                  Connect Jira
+  antidrift connect jira --cowork         Connect to Claude Desktop / Cowork
+  antidrift connect jira --all            Connect to all detected platforms
   antidrift connect notion                Connect Notion (read-only)
   antidrift connect notion --cowork       Connect to Claude Desktop / Cowork
   antidrift connect notion --all          Connect to all detected platforms
@@ -402,7 +405,7 @@ def main():
         skills_delegate()
     elif command == "connect":
         service = sys.argv[2] if len(sys.argv) > 2 else None
-        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github", "clickup": "mcp-clickup", "notion": "mcp-notion", "hubspot-crm": "mcp-hubspot-crm", "hubspot-marketing": "mcp-hubspot-marketing"}
+        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github", "clickup": "mcp-clickup", "jira": "mcp-jira", "notion": "mcp-notion", "hubspot-crm": "mcp-hubspot-crm", "hubspot-marketing": "mcp-hubspot-marketing"}
         if service and service in mcp_packages:
             npx_delegate(mcp_packages[service], sys.argv[3:])
         else:
@@ -415,6 +418,7 @@ def main():
             print("    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)")
             print("    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)")
             print("    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)")
+            print("    antidrift connect jira      Jira (projects, issues, sprints, boards)")
             print("    antidrift connect notion    Notion (pages, databases, blocks — read-only)")
             print("    antidrift connect hubspot-crm  HubSpot CRM (contacts, companies, deals, notes)")
             print("    antidrift connect hubspot-marketing  HubSpot Marketing (emails, campaigns, forms, pages, blog)")

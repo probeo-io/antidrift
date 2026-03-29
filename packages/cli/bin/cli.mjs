@@ -38,6 +38,9 @@ Usage:
   antidrift connect clickup               Connect ClickUp
   antidrift connect clickup --cowork      Connect to Claude Desktop / Cowork
   antidrift connect clickup --all         Connect to all detected platforms
+  antidrift connect jira                  Connect Jira
+  antidrift connect jira --cowork         Connect to Claude Desktop / Cowork
+  antidrift connect jira --all            Connect to all detected platforms
   antidrift connect notion                Connect Notion (read-only)
   antidrift connect notion --cowork       Connect to Claude Desktop / Cowork
   antidrift connect notion --all          Connect to all detected platforms
@@ -105,6 +108,7 @@ if (command === 'skills') {
     stripe: '@antidrift/mcp-stripe',
     github: '@antidrift/mcp-github',
     clickup: '@antidrift/mcp-clickup',
+    jira: '@antidrift/mcp-jira',
     notion: '@antidrift/mcp-notion',
     'hubspot-crm': '@antidrift/mcp-hubspot-crm',
     'hubspot-marketing': '@antidrift/mcp-hubspot-marketing',
@@ -121,6 +125,7 @@ if (command === 'skills') {
     console.log('    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)');
     console.log('    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)');
     console.log('    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)');
+    console.log('    antidrift connect jira      Jira (projects, issues, sprints, boards)');
     console.log('    antidrift connect notion    Notion (pages, databases, blocks — read-only)');
     console.log('    antidrift connect hubspot-crm  HubSpot CRM (contacts, companies, deals, notes)');
     console.log('    antidrift connect hubspot-marketing  HubSpot Marketing (emails, campaigns, forms, pages, blog)\n');
