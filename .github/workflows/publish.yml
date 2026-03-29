@@ -90,6 +90,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish @antidrift/mcp-hubspot-crm
+        working-directory: packages/mcp-hubspot-crm
+        run: npm publish --access public --provenance || echo "Already published, skipping"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
   pypi-core:
     runs-on: ubuntu-latest
     environment: pypi

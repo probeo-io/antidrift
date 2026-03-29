@@ -1,0 +1,36 @@
+{
+  "name": "@antidrift/mcp-hubspot-crm",
+  "version": "0.10.0",
+  "description": "HubSpot CRM connector for antidrift — contacts, companies, deals, notes",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-hubspot-crm": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "hubspot",
+    "crm",
+    "ai-agents",
+    "codex",
+    "cursor",
+    "antigravity",
+    "cowork"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-hubspot-crm"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

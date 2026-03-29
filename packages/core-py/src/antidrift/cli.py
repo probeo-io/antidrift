@@ -186,6 +186,9 @@ Usage:
   antidrift connect notion                Connect Notion (read-only)
   antidrift connect notion --cowork       Connect to Claude Desktop / Cowork
   antidrift connect notion --all          Connect to all detected platforms
+  antidrift connect hubspot-crm           Connect HubSpot CRM
+  antidrift connect hubspot-crm --cowork  Connect to Claude Desktop / Cowork
+  antidrift connect hubspot-crm --all     Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -396,7 +399,7 @@ def main():
         skills_delegate()
     elif command == "connect":
         service = sys.argv[2] if len(sys.argv) > 2 else None
-        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github", "clickup": "mcp-clickup", "notion": "mcp-notion"}
+        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github", "clickup": "mcp-clickup", "notion": "mcp-notion", "hubspot-crm": "mcp-hubspot-crm"}
         if service and service in mcp_packages:
             npx_delegate(mcp_packages[service], sys.argv[3:])
         else:
@@ -410,6 +413,7 @@ def main():
             print("    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)")
             print("    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)")
             print("    antidrift connect notion    Notion (pages, databases, blocks — read-only)")
+            print("    antidrift connect hubspot-crm  HubSpot CRM (contacts, companies, deals, notes)")
             print("\n  Flags: --claude-code, --cowork, --all\n")
     elif command == "cross-compile":
         npx_delegate("core", sys.argv[1:])
