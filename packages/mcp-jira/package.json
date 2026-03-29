@@ -1,0 +1,37 @@
+{
+  "name": "@antidrift/mcp-jira",
+  "version": "0.10.0",
+  "description": "Jira connector for antidrift — projects, issues, sprints, boards",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-jira": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "jira",
+    "atlassian",
+    "ai-agents",
+    "codex",
+    "cursor",
+    "antigravity",
+    "cowork",
+    "project-management"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-jira"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}
