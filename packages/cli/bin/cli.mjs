@@ -38,6 +38,9 @@ Usage:
   antidrift connect clickup               Connect ClickUp
   antidrift connect clickup --cowork      Connect to Claude Desktop / Cowork
   antidrift connect clickup --all         Connect to all detected platforms
+  antidrift connect aws                   Connect AWS (S3, Lambda, ECS, Logs, SQS, Cost)
+  antidrift connect aws --cowork          Connect to Claude Desktop / Cowork
+  antidrift connect aws --all             Connect to all detected platforms
   antidrift connect jira                  Connect Jira
   antidrift connect jira --cowork         Connect to Claude Desktop / Cowork
   antidrift connect jira --all            Connect to all detected platforms
@@ -108,6 +111,7 @@ if (command === 'skills') {
     stripe: '@antidrift/mcp-stripe',
     github: '@antidrift/mcp-github',
     clickup: '@antidrift/mcp-clickup',
+    aws: '@antidrift/mcp-aws',
     jira: '@antidrift/mcp-jira',
     notion: '@antidrift/mcp-notion',
     'hubspot-crm': '@antidrift/mcp-hubspot-crm',
@@ -125,6 +129,7 @@ if (command === 'skills') {
     console.log('    antidrift connect stripe    Stripe (customers, invoices, subscriptions, charges)');
     console.log('    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)');
     console.log('    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)');
+    console.log('    antidrift connect aws       AWS (S3, Lambda, ECS, CloudWatch, SQS, Cost Explorer)');
     console.log('    antidrift connect jira      Jira (projects, issues, sprints, boards)');
     console.log('    antidrift connect notion    Notion (pages, databases, blocks — read-only)');
     console.log('    antidrift connect hubspot-crm  HubSpot CRM (contacts, companies, deals, notes)');

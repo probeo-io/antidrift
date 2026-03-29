@@ -47,6 +47,7 @@ const packageJsonFiles = [
   'packages/mcp-stripe/package.json',
   'packages/mcp-github/package.json',
   'packages/mcp-clickup/package.json',
+  'packages/mcp-aws/package.json',
   'packages/mcp-jira/package.json',
   'packages/mcp-notion/package.json',
   'packages/mcp-hubspot-crm/package.json',

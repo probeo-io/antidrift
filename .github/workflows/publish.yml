@@ -84,6 +84,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish @antidrift/mcp-aws
+        working-directory: packages/mcp-aws
+        run: npm publish --access public --provenance || echo "Already published, skipping"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish @antidrift/mcp-jira
         working-directory: packages/mcp-jira
         run: npm publish --access public --provenance || echo "Already published, skipping"

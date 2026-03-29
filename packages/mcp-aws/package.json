@@ -1,0 +1,34 @@
+{
+  "name": "@antidrift/mcp-aws",
+  "version": "0.10.0",
+  "description": "AWS connector for antidrift — S3, Lambda, ECS, CloudWatch, SQS, Cost Explorer via AWS CLI",
+  "type": "module",
+  "bin": {
+    "@antidrift/mcp-aws": "bin/cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "connectors/",
+    "server.mjs",
+    "README.md"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "aws",
+    "cloud",
+    "ai-agents",
+    "codex",
+    "cursor",
+    "antigravity",
+    "cowork"
+  ],
+  "author": "Probeo.io",
+  "license": "MIT",
+  "homepage": "https://antidrift.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/probeo-io/antidrift.io",
+    "directory": "packages/mcp-aws"
+  }
+}
