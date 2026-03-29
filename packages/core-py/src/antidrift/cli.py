@@ -25,7 +25,8 @@ def _banner():
   │  AI agents and you          │
   │                             │
   │  https://antidrift.io       │
-  │  Built by Probeo.io         │
+  │  github.com/probeo-io       │
+  │  MIT License                │
   └─────────────────────────────┘
 """
 

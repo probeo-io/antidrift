@@ -41,6 +41,8 @@ async function setup() {
   │  Google Drive               │
   │                             │
   │  https://antidrift.io       │
+  │  github.com/probeo-io       │
+  │  MIT License                │
   └─────────────────────────────┘
 `);
 

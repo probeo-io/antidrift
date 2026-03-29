@@ -68,6 +68,8 @@ async function setup() {
   │  ClickUp                     │
   │                             │
   │  https://antidrift.io       │
+  │  github.com/probeo-io       │
+  │  MIT License                │
   └─────────────────────────────┘
 `);
 
