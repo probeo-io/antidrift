@@ -329,7 +329,7 @@ export const tools = [
     }
   },
   {
-    name: 'jira_get_board',
+    name: 'jira_list_boards',
     description: 'List Jira boards, optionally filtered by project.',
     inputSchema: {
       type: 'object',

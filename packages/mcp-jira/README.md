@@ -32,7 +32,7 @@ Credentials are stored locally in `~/.antidrift/jira.json`.
 | `jira_list_statuses` | List statuses for a project |
 | `jira_list_users` | List assignable users |
 | `jira_list_sprints` | List sprints for a board |
-| `jira_get_board` | List boards |
+| `jira_list_boards` | List boards |
 | `jira_list_issue_types` | List issue types for a project |
 | `jira_my_issues` | Get issues assigned to current user |
 
@@ -55,3 +55,7 @@ npx antidrift connect jira               # Connect
 npx antidrift connect jira status        # Check status
 npx antidrift connect jira reset         # Clear credentials
 ```
+
+## License
+
+MIT — Built by [Probeo.io](https://probeo.io)
