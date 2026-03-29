@@ -36,14 +36,14 @@ Usage:
 
 async function setup() {
   console.log(`
-  ┌─────────────────────────────┐
-  │  antidrift                  │
-  │  Google Workspace           │
-  │                             │
-  │  https://antidrift.io       │
-  │  github.com/probeo-io/antidrift│
-  │  MIT License                │
-  └─────────────────────────────┘
+    ┌─────────────────────────────────────┐
+  │  antidrift                          │
+  │  Google Workspace                    │
+  │                                     │
+  │  https://antidrift.io               │
+  │  github.com/probeo-io/antidrift     │
+  │  MIT License                        │
+  └─────────────────────────────────────┘
 `);
 
 

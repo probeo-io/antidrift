@@ -59,14 +59,14 @@ Usage:
 
 async function setup() {
   console.log(`
-  ┌─────────────────────────────┐
-  │  antidrift                  │
-  │  Notion (read-only)          │
-  │                             │
-  │  https://antidrift.io       │
-  │  github.com/probeo-io/antidrift│
-  │  MIT License                │
-  └─────────────────────────────┘
+    ┌─────────────────────────────────────┐
+  │  antidrift                          │
+  │  Notion (read-only)                  │
+  │                                     │
+  │  https://antidrift.io               │
+  │  github.com/probeo-io/antidrift     │
+  │  MIT License                        │
+  └─────────────────────────────────────┘
 `);
 
   console.log(`

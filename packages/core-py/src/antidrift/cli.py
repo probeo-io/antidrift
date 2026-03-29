@@ -20,14 +20,14 @@ def _get_version():
 def _banner():
     ver = _get_version()
     return f"""
-  ┌─────────────────────────────┐
-  │  antidrift v{ver:<16}│
-  │  AI agents and you          │
-  │                             │
-  │  https://antidrift.io       │
-  │  github.com/probeo-io/antidrift│
-  │  MIT License                │
-  └─────────────────────────────┘
+  ┌─────────────────────────────────────┐
+  │  antidrift v{ver:<24}│
+  │  AI agents and you                  │
+  │                                     │
+  │  https://antidrift.io               │
+  │  github.com/probeo-io/antidrift     │
+  │  MIT License                        │
+  └─────────────────────────────────────┘
 """
 
 

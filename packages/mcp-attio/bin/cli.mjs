@@ -63,14 +63,14 @@ Usage:
 
 async function setup() {
   console.log(`
-  ┌─────────────────────────────┐
-  │  antidrift                  │
-  │  Attio CRM                  │
-  │                             │
-  │  https://antidrift.io       │
-  │  github.com/probeo-io/antidrift│
-  │  MIT License                │
-  └─────────────────────────────┘
+    ┌─────────────────────────────────────┐
+  │  antidrift                          │
+  │  Attio CRM                           │
+  │                                     │
+  │  https://antidrift.io               │
+  │  github.com/probeo-io/antidrift     │
+  │  MIT License                        │
+  └─────────────────────────────────────┘
 `);
 
   const configPath = join(configDir, 'attio.json');

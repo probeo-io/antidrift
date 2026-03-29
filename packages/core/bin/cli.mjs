@@ -31,14 +31,14 @@ try { execSync('which antidrift', { stdio: 'ignore' }); hasCli = true; } catch {
 const CMD = hasCli ? 'antidrift' : 'npx @antidrift/core';
 const cliTip = hasCli ? '' : '\n  Tip: npm install -g @antidrift/cli for easier commands\n';
 const banner = `
-  ┌─────────────────────────────┐
-  │  antidrift v${ver.padEnd(16)}│
-  │  AI agents and you          │
-  │                             │
-  │  https://antidrift.io       │
-  │  github.com/probeo-io/antidrift│
-  │  MIT License                │
-  └─────────────────────────────┘${cliTip}
+  ┌─────────────────────────────────────┐
+  │  antidrift v${ver.padEnd(24)}│
+  │  AI agents and you                  │
+  │                                     │
+  │  https://antidrift.io               │
+  │  github.com/probeo-io/antidrift     │
+  │  MIT License                        │
+  └─────────────────────────────────────┘${cliTip}
 `;
 
 async function main() {
