@@ -30,7 +30,6 @@ antidrift connect drive
 | `read_doc` | Read content from a Google Doc |
 | `append_to_doc` | Append content to a Google Doc |
 | `write_doc` | Replace content in a Google Doc |
-| `request_signature` | Request a signature on a Google Doc |
 | `list_docs` | List Google Docs in Drive |
 | `share_doc` | Share a Google Doc with a user |
 

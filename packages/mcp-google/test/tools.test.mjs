@@ -13,7 +13,7 @@ before(async () => {
 });
 
 const EXPECTED_SHEETS = ['list_spreadsheets', 'read_sheet', 'write_sheet', 'append_sheet', 'get_sheet_info'];
-const EXPECTED_DOCS = ['create_doc', 'read_doc', 'append_to_doc', 'write_doc', 'request_signature', 'list_docs', 'share_doc'];
+const EXPECTED_DOCS = ['create_doc', 'read_doc', 'append_to_doc', 'write_doc', 'list_docs', 'share_doc'];
 const EXPECTED_DRIVE = ['drive_list_files', 'drive_list_folders', 'drive_get_file_info', 'drive_download', 'drive_share', 'drive_create_folder', 'drive_move_file'];
 const EXPECTED_GMAIL = ['gmail_search', 'gmail_read', 'gmail_send', 'gmail_reply', 'gmail_list_labels', 'gmail_create_label', 'gmail_add_label', 'gmail_remove_label', 'gmail_archive', 'gmail_trash', 'gmail_mark_read', 'gmail_mark_unread', 'gmail_list_drafts', 'gmail_create_draft'];
 const EXPECTED_CALENDAR = ['calendar_upcoming', 'calendar_search', 'calendar_create', 'calendar_today'];

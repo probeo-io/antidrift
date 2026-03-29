@@ -1,0 +1,23 @@
+{
+  "name": "@antidrift/api",
+  "version": "0.10.0",
+  "description": "Local MCP gateway — one HTTP endpoint for all your connected tools",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-api": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "gateway",
+    "api",
+    "ai-agents"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "author": "Probeo <hello@probeo.io>"
+}

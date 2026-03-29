@@ -219,31 +219,6 @@ export const tools = [
     }
   },
   {
-    name: 'request_signature',
-    description: 'Share a Google Doc with someone for e-signature. Shares the doc as a writer and returns the link. The signer opens the doc and uses File → eSignature to sign.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        documentId: { type: 'string', description: 'The Google Doc ID' },
-        signerEmail: { type: 'string', description: 'Email of the person who needs to sign' },
-        message: { type: 'string', description: 'Optional message to include in the sharing notification' }
-      },
-      required: ['documentId', 'signerEmail']
-    },
-    handler: async ({ documentId, signerEmail, message }) => {
-      await (await getDrive()).permissions.create({
-        fileId: documentId,
-        requestBody: { type: 'user', role: 'writer', emailAddress: signerEmail },
-        emailMessage: message || 'Please review and sign this document using File → eSignature in Google Docs.',
-        sendNotificationEmail: true
-      });
-
-      const doc = await (await getDocs()).documents.get({ documentId });
-      const url = `https://docs.google.com/document/d/${documentId}/edit`;
-      return `✅ Shared "${doc.data.title}" with ${signerEmail}\n📝 They'll receive an email with a link to sign.\n🔗 ${url}`;
-    }
-  },
-  {
     name: 'list_docs',
     description: 'List Google Docs in Drive. Optional query to filter by name.',
     inputSchema: {
