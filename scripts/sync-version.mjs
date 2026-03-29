@@ -49,6 +49,7 @@ const packageJsonFiles = [
   'packages/mcp-clickup/package.json',
   'packages/mcp-notion/package.json',
   'packages/mcp-hubspot-crm/package.json',
+  'packages/mcp-hubspot-marketing/package.json',
 ];
 
 for (const file of packageJsonFiles) {

@@ -34,6 +34,7 @@ async function loadConnectors() {
     { name: 'notion', config: 'notion.json', module: '../mcp-notion/connectors/notion.mjs' },
     { name: 'stripe', config: 'stripe.json', module: '../mcp-stripe/connectors/stripe.mjs' },
     { name: 'hubspot', config: 'hubspot.json', module: '../mcp-hubspot-crm/connectors/hubspot-crm.mjs' },
+    { name: 'hubspot-marketing', config: 'hubspot.json', module: '../mcp-hubspot-marketing/connectors/hubspot-marketing.mjs' },
     { name: 'gmail', config: 'credentials/google/token.json', module: '../mcp-gmail/connectors/google-gmail.mjs' },
     { name: 'drive', config: 'credentials/google/token.json', module: '../mcp-drive/connectors/google-drive.mjs' },
     { name: 'sheets', config: 'credentials/google/token.json', module: '../mcp-drive/connectors/google-sheets.mjs' },

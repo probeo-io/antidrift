@@ -424,5 +424,139 @@ export const tools = [
 
       return res.results.map(formatter).join('\n');
     }
+  },
+  {
+    name: 'hubspot_list_leads',
+    description: 'List leads in HubSpot CRM.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        limit: { type: 'number', description: 'Max results (default 20)' }
+      }
+    },
+    handler: async ({ limit = 20 }) => {
+      const res = await hubspot('GET', `/crm/v3/objects/leads?limit=${limit}&properties=firstname,lastname,email,phone,company`);
+      if (!res.results?.length) return 'No leads found.';
+      return res.results.map(record => {
+        const p = record.properties || {};
+        const name = [p.firstname, p.lastname].filter(Boolean).join(' ') || 'Unknown';
+        const email = p.email || '';
+        let line = `\ud83c\udfaf ${name}`;
+        if (email) line += ` \u2014 ${email}`;
+        line += ` [id: ${record.id}]`;
+        return line;
+      }).join('\n');
+    }
+  },
+  {
+    name: 'hubspot_get_lead',
+    description: 'Get full details for a lead by ID.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        leadId: { type: 'string', description: 'The lead ID' }
+      },
+      required: ['leadId']
+    },
+    handler: async ({ leadId }) => {
+      const res = await hubspot('GET', `/crm/v3/objects/leads/${leadId}?properties=firstname,lastname,email,phone,company,lifecyclestage,hs_lead_status`);
+      const p = res.properties || {};
+      const lines = [];
+      const name = [p.firstname, p.lastname].filter(Boolean).join(' ') || 'Unknown';
+      lines.push(`\ud83c\udfaf ${name}`);
+      if (p.email) lines.push(`\ud83d\udce7 ${p.email}`);
+      if (p.phone) lines.push(`\ud83d\udcde ${p.phone}`);
+      if (p.company) lines.push(`\ud83c\udfe2 ${p.company}`);
+      if (p.lifecyclestage) lines.push(`\ud83d\udcca Lifecycle: ${p.lifecyclestage}`);
+      if (p.hs_lead_status) lines.push(`\ud83d\udccc Status: ${p.hs_lead_status}`);
+      lines.push(`[id: ${leadId}]`);
+      return lines.join('\n');
+    }
+  },
+  {
+    name: 'hubspot_create_lead',
+    description: 'Create a new lead in HubSpot CRM.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', description: 'Email address' },
+        firstName: { type: 'string', description: 'First name' },
+        lastName: { type: 'string', description: 'Last name' },
+        phone: { type: 'string', description: 'Phone number (optional)' },
+        company: { type: 'string', description: 'Company name (optional)' }
+      },
+      required: ['email']
+    },
+    handler: async ({ email, firstName, lastName, phone, company }) => {
+      const properties = { email };
+      if (firstName) properties.firstname = firstName;
+      if (lastName) properties.lastname = lastName;
+      if (phone) properties.phone = phone;
+      if (company) properties.company = company;
+
+      const res = await hubspot('POST', '/crm/v3/objects/leads', { properties });
+      return `\u2705 Created lead ${firstName || ''} ${lastName || ''} (${email})  [id: ${res.id}]`;
+    }
+  },
+  {
+    name: 'hubspot_update_lead',
+    description: 'Update a lead in HubSpot CRM.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        leadId: { type: 'string', description: 'The lead ID' },
+        properties: { type: 'object', description: 'Properties to update, e.g. {"hs_lead_status": "OPEN"}' }
+      },
+      required: ['leadId', 'properties']
+    },
+    handler: async ({ leadId, properties }) => {
+      await hubspot('PATCH', `/crm/v3/objects/leads/${leadId}`, { properties });
+      return `\u2705 Updated lead ${leadId}`;
+    }
+  },
+  {
+    name: 'hubspot_list_forecasts',
+    description: 'List forecasts in HubSpot CRM.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        limit: { type: 'number', description: 'Max results (default 20)' }
+      }
+    },
+    handler: async ({ limit = 20 }) => {
+      const res = await hubspot('GET', `/crm/v3/objects/forecasts?limit=${limit}`);
+      if (!res.results?.length) return 'No forecasts found.';
+      return res.results.map(record => {
+        const p = record.properties || {};
+        const lines = [`Forecast [id: ${record.id}]`];
+        for (const [key, value] of Object.entries(p)) {
+          if (value != null && value !== '') lines.push(`  ${key}: ${value}`);
+        }
+        return lines.join('\n');
+      }).join('\n\n');
+    }
+  },
+  {
+    name: 'hubspot_list_line_items',
+    description: 'List line items in HubSpot CRM.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        limit: { type: 'number', description: 'Max results (default 20)' }
+      }
+    },
+    handler: async ({ limit = 20 }) => {
+      const res = await hubspot('GET', `/crm/v3/objects/line_items?limit=${limit}&properties=name,quantity,price,amount`);
+      if (!res.results?.length) return 'No line items found.';
+      return res.results.map(record => {
+        const p = record.properties || {};
+        let line = p.name || 'Unknown';
+        if (p.quantity) line += ` \u00d7${p.quantity}`;
+        if (p.price) line += ` @ $${p.price}`;
+        if (p.amount) line += ` = $${p.amount}`;
+        line += ` [id: ${record.id}]`;
+        return line;
+      }).join('\n');
+    }
   }
 ];

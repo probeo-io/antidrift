@@ -50,6 +50,12 @@ The token is stored in `~/.antidrift/hubspot.json`.
 | `hubspot_add_note` | Add a note to a contact, company, or deal |
 | `hubspot_list_activities` | List recent notes for a record |
 | `hubspot_search` | Search across contacts, companies, or deals |
+| `hubspot_list_leads` | List leads |
+| `hubspot_get_lead` | Get full lead details by ID |
+| `hubspot_create_lead` | Create a new lead |
+| `hubspot_update_lead` | Update lead properties |
+| `hubspot_list_forecasts` | List forecasts |
+| `hubspot_list_line_items` | List line items |
 
 ## Commands
 

@@ -1,0 +1,36 @@
+{
+  "name": "@antidrift/mcp-hubspot-marketing",
+  "version": "0.10.0",
+  "description": "HubSpot Marketing connector for antidrift — emails, campaigns, forms, pages, blog",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-hubspot-marketing": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "hubspot",
+    "marketing",
+    "ai-agents",
+    "codex",
+    "cursor",
+    "antigravity",
+    "cowork"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-hubspot-marketing"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

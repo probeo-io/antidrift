@@ -44,6 +44,9 @@ Usage:
   antidrift connect hubspot-crm           Connect HubSpot CRM
   antidrift connect hubspot-crm --cowork  Connect to Claude Desktop / Cowork
   antidrift connect hubspot-crm --all     Connect to all detected platforms
+  antidrift connect hubspot-marketing           Connect HubSpot Marketing
+  antidrift connect hubspot-marketing --cowork  Connect to Claude Desktop / Cowork
+  antidrift connect hubspot-marketing --all     Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -104,6 +107,7 @@ if (command === 'skills') {
     clickup: '@antidrift/mcp-clickup',
     notion: '@antidrift/mcp-notion',
     'hubspot-crm': '@antidrift/mcp-hubspot-crm',
+    'hubspot-marketing': '@antidrift/mcp-hubspot-marketing',
   };
   if (service && mcpPackages[service]) {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
@@ -118,7 +122,8 @@ if (command === 'skills') {
     console.log('    antidrift connect github    GitHub (repos, issues, PRs, actions, releases)');
     console.log('    antidrift connect clickup   ClickUp (workspaces, spaces, tasks, comments)');
     console.log('    antidrift connect notion    Notion (pages, databases, blocks — read-only)');
-    console.log('    antidrift connect hubspot-crm  HubSpot CRM (contacts, companies, deals, notes)\n');
+    console.log('    antidrift connect hubspot-crm  HubSpot CRM (contacts, companies, deals, notes)');
+    console.log('    antidrift connect hubspot-marketing  HubSpot Marketing (emails, campaigns, forms, pages, blog)\n');
   }
 } else if (command === 'init' || command === 'join' || command === 'update' || command === 'cross-compile' || command === 'mcp') {
   npxCore(args.join(' '));
