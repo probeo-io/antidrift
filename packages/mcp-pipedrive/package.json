@@ -1,0 +1,39 @@
+{
+  "name": "@antidrift/mcp-pipedrive",
+  "version": "0.11.0",
+  "description": "Pipedrive CRM connector for antidrift — deals, persons, organizations, activities, notes",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-pipedrive": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "claude-code",
+    "codex",
+    "cursor",
+    "antigravity",
+    "ai-agents",
+    "openai-codex",
+    "google-antigravity",
+    "pipedrive",
+    "crm",
+    "sales"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-pipedrive"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

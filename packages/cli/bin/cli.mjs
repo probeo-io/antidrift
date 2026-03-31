@@ -56,6 +56,9 @@ Usage:
   antidrift connect linear                Connect Linear (issues, projects, cycles)
   antidrift connect linear --cowork       Connect to Claude Desktop / Cowork
   antidrift connect linear --all          Connect to all detected platforms
+  antidrift connect pipedrive             Connect Pipedrive CRM
+  antidrift connect pipedrive --cowork    Connect to Claude Desktop / Cowork
+  antidrift connect pipedrive --all       Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -120,6 +123,7 @@ if (command === 'skills') {
     'hubspot-crm': '@antidrift/mcp-hubspot-crm',
     'hubspot-marketing': '@antidrift/mcp-hubspot-marketing',
     linear: '@antidrift/mcp-linear',
+    pipedrive: '@antidrift/mcp-pipedrive',
   };
   if (service && mcpPackages[service]) {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
@@ -138,7 +142,8 @@ if (command === 'skills') {
     console.log('    antidrift connect notion    Notion (pages, databases, blocks — read-only)');
     console.log('    antidrift connect hubspot-crm  HubSpot CRM (contacts, companies, deals, notes)');
     console.log('    antidrift connect hubspot-marketing  HubSpot Marketing (emails, campaigns, forms, pages, blog)');
-    console.log('    antidrift connect linear    Linear (issues, projects, cycles, teams, comments)\n');
+    console.log('    antidrift connect linear    Linear (issues, projects, cycles, teams, comments)');
+    console.log('    antidrift connect pipedrive Pipedrive CRM (deals, contacts, organizations, activities)\n');
   }
 } else if (command === 'init' || command === 'join' || command === 'update' || command === 'cross-compile' || command === 'mcp') {
   npxCore(args.join(' '));
