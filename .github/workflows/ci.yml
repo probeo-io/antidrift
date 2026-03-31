@@ -40,9 +40,10 @@ jobs:
         run: |
           for pkg in mcp-github mcp-attio mcp-clickup mcp-notion mcp-cloudflare mcp-linear mcp-netlify mcp-pipedrive mcp-vercel mcp-hubspot-crm mcp-hubspot-marketing mcp-jira mcp-aws; do
             echo "--- $pkg ---"
-            cd packages/$pkg
-            node --experimental-test-module-mocks --test test/*.mjs
-            cd ../..
+            for f in packages/$pkg/test/*.mjs; do
+              echo "  $f"
+              node --experimental-test-module-mocks --test "$f"
+            done
           done
 
       - name: Test MCP Google packages (need googleapis)
@@ -51,10 +52,17 @@ jobs:
             echo "--- $pkg ---"
             cd packages/$pkg
             npm install --ignore-scripts 2>/dev/null
-            node --experimental-test-module-mocks --test test/*.mjs
             cd ../..
+            for f in packages/$pkg/test/*.mjs; do
+              echo "  $f"
+              node --experimental-test-module-mocks --test "$f"
+            done
           done
 
       - name: Test MCP Stripe (needs stripe dep)
-        working-directory: packages/mcp-stripe
-        run: npm install --ignore-scripts && node --experimental-test-module-mocks --test test/*.mjs
+        run: |
+          cd packages/mcp-stripe && npm install --ignore-scripts && cd ../..
+          for f in packages/mcp-stripe/test/*.mjs; do
+            echo "  $f"
+            node --experimental-test-module-mocks --test "$f"
+          done
