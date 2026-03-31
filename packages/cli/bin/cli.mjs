@@ -65,6 +65,9 @@ Usage:
   antidrift connect netlify               Connect Netlify (sites, deploys, env vars, forms)
   antidrift connect netlify --cowork      Connect to Claude Desktop / Cowork
   antidrift connect netlify --all         Connect to all detected platforms
+  antidrift connect cloudflare            Connect Cloudflare (DNS, Pages, Workers, R2)
+  antidrift connect cloudflare --cowork   Connect to Claude Desktop / Cowork
+  antidrift connect cloudflare --all      Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -132,6 +135,7 @@ if (command === 'skills') {
     pipedrive: '@antidrift/mcp-pipedrive',
     vercel: '@antidrift/mcp-vercel',
     netlify: '@antidrift/mcp-netlify',
+    cloudflare: '@antidrift/mcp-cloudflare',
   };
   if (service && mcpPackages[service]) {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
@@ -153,7 +157,8 @@ if (command === 'skills') {
     console.log('    antidrift connect linear    Linear (issues, projects, cycles, teams, comments)');
     console.log('    antidrift connect pipedrive Pipedrive CRM (deals, contacts, organizations, activities)');
     console.log('    antidrift connect vercel    Vercel (projects, deployments, domains, env vars)');
-    console.log('    antidrift connect netlify   Netlify (sites, deploys, env vars, forms)\n');
+    console.log('    antidrift connect netlify   Netlify (sites, deploys, env vars, forms)');
+    console.log('    antidrift connect cloudflare Cloudflare (DNS, Pages, Workers, R2)\n');
   }
 } else if (command === 'init' || command === 'join' || command === 'update' || command === 'cross-compile' || command === 'mcp') {
   npxCore(args.join(' '));
