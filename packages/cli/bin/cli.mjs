@@ -59,6 +59,12 @@ Usage:
   antidrift connect pipedrive             Connect Pipedrive CRM
   antidrift connect pipedrive --cowork    Connect to Claude Desktop / Cowork
   antidrift connect pipedrive --all       Connect to all detected platforms
+  antidrift connect vercel                Connect Vercel (projects, deployments, domains, env vars)
+  antidrift connect vercel --cowork       Connect to Claude Desktop / Cowork
+  antidrift connect vercel --all          Connect to all detected platforms
+  antidrift connect netlify               Connect Netlify (sites, deploys, env vars, forms)
+  antidrift connect netlify --cowork      Connect to Claude Desktop / Cowork
+  antidrift connect netlify --all         Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -124,6 +130,8 @@ if (command === 'skills') {
     'hubspot-marketing': '@antidrift/mcp-hubspot-marketing',
     linear: '@antidrift/mcp-linear',
     pipedrive: '@antidrift/mcp-pipedrive',
+    vercel: '@antidrift/mcp-vercel',
+    netlify: '@antidrift/mcp-netlify',
   };
   if (service && mcpPackages[service]) {
     run(`npx --yes ${mcpPackages[service]}@latest ${args.slice(2).join(' ')}`);
@@ -143,7 +151,9 @@ if (command === 'skills') {
     console.log('    antidrift connect hubspot-crm  HubSpot CRM (contacts, companies, deals, notes)');
     console.log('    antidrift connect hubspot-marketing  HubSpot Marketing (emails, campaigns, forms, pages, blog)');
     console.log('    antidrift connect linear    Linear (issues, projects, cycles, teams, comments)');
-    console.log('    antidrift connect pipedrive Pipedrive CRM (deals, contacts, organizations, activities)\n');
+    console.log('    antidrift connect pipedrive Pipedrive CRM (deals, contacts, organizations, activities)');
+    console.log('    antidrift connect vercel    Vercel (projects, deployments, domains, env vars)');
+    console.log('    antidrift connect netlify   Netlify (sites, deploys, env vars, forms)\n');
   }
 } else if (command === 'init' || command === 'join' || command === 'update' || command === 'cross-compile' || command === 'mcp') {
   npxCore(args.join(' '));

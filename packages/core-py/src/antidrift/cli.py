@@ -205,6 +205,12 @@ Usage:
   antidrift connect pipedrive             Connect Pipedrive CRM
   antidrift connect pipedrive --cowork    Connect to Claude Desktop / Cowork
   antidrift connect pipedrive --all       Connect to all detected platforms
+  antidrift connect vercel                Connect Vercel (projects, deployments, domains, env vars)
+  antidrift connect vercel --cowork       Connect to Claude Desktop / Cowork
+  antidrift connect vercel --all          Connect to all detected platforms
+  antidrift connect netlify               Connect Netlify (sites, deploys, env vars, forms)
+  antidrift connect netlify --cowork      Connect to Claude Desktop / Cowork
+  antidrift connect netlify --all         Connect to all detected platforms
 
   antidrift version                       Show version
   antidrift help                          Show this message
@@ -415,7 +421,7 @@ def main():
         skills_delegate()
     elif command == "connect":
         service = sys.argv[2] if len(sys.argv) > 2 else None
-        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github", "clickup": "mcp-clickup", "aws": "mcp-aws", "jira": "mcp-jira", "notion": "mcp-notion", "hubspot-crm": "mcp-hubspot-crm", "hubspot-marketing": "mcp-hubspot-marketing", "linear": "mcp-linear", "pipedrive": "mcp-pipedrive"}
+        mcp_packages = {"google": "mcp-google", "gmail": "mcp-gmail", "drive": "mcp-drive", "calendar": "mcp-calendar", "attio": "mcp-attio", "stripe": "mcp-stripe", "github": "mcp-github", "clickup": "mcp-clickup", "aws": "mcp-aws", "jira": "mcp-jira", "notion": "mcp-notion", "hubspot-crm": "mcp-hubspot-crm", "hubspot-marketing": "mcp-hubspot-marketing", "linear": "mcp-linear", "pipedrive": "mcp-pipedrive", "vercel": "mcp-vercel", "netlify": "mcp-netlify"}
         if service and service in mcp_packages:
             npx_delegate(mcp_packages[service], sys.argv[3:])
         else:
@@ -435,6 +441,8 @@ def main():
             print("    antidrift connect hubspot-marketing  HubSpot Marketing (emails, campaigns, forms, pages, blog)")
             print("    antidrift connect linear    Linear (issues, projects, cycles, teams, comments)")
             print("    antidrift connect pipedrive Pipedrive CRM (deals, contacts, organizations, activities)")
+            print("    antidrift connect vercel    Vercel (projects, deployments, domains, env vars)")
+            print("    antidrift connect netlify   Netlify (sites, deploys, env vars, forms)")
             print("\n  Flags: --claude-code, --cowork, --all\n")
     elif command == "cross-compile":
         npx_delegate("core", sys.argv[1:])
