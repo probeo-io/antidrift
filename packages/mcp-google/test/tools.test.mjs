@@ -81,7 +81,7 @@ describe('sheets tools', () => {
 
 describe('docs tools', () => {
   it('has correct count', () => {
-    assert.equal(EXPECTED_DOCS.length, 7);
+    assert.equal(EXPECTED_DOCS.length, 6);
   });
 });
 

@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2026-03-31
+
+### Added
+
+- **Linear MCP** — `@antidrift/mcp-linear` (12 tools: issues, projects, cycles, teams)
+- **Pipedrive MCP** — `@antidrift/mcp-pipedrive` (15 tools: deals, contacts, organizations, activities)
+- **Netlify MCP** — `@antidrift/mcp-netlify` (10 tools: sites, deploys, forms, DNS, env vars)
+- **Vercel MCP** — `@antidrift/mcp-vercel` (9 tools: projects, deployments, domains, env vars)
+- **Cloudflare MCP** — `@antidrift/mcp-cloudflare` (12 tools: DNS, Pages, Workers, R2)
+- **Comprehensive test coverage** — 1,339 tests across all 18 connectors. Every connector now has tools, handlers, and edge-case tests covering happy paths, error handling (401/404/429/500), pagination, missing params, special characters, and empty results.
+
+### Fixed
+
+- `mcp-google` tools.test.mjs expected 7 docs tools but only 6 exist
+
 ## [0.8.5] - 2026-03-27
 
 ### Fixed
