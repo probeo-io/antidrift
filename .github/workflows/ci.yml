@@ -38,12 +38,10 @@ jobs:
 
       - name: Test MCP packages (no external deps)
         run: |
-          for pkg in mcp-github mcp-attio mcp-clickup mcp-notion; do
+          for pkg in mcp-github mcp-attio mcp-clickup mcp-notion mcp-cloudflare mcp-linear mcp-netlify mcp-pipedrive mcp-vercel mcp-hubspot-crm mcp-hubspot-marketing mcp-jira mcp-aws; do
             echo "--- $pkg ---"
             cd packages/$pkg
-            for f in test/tools.test.mjs test/handlers.test.mjs; do
-              [ -f "$f" ] && node --test "$f"
-            done
+            node --experimental-test-module-mocks --test test/*.mjs
             cd ../..
           done
 
@@ -53,12 +51,10 @@ jobs:
             echo "--- $pkg ---"
             cd packages/$pkg
             npm install --ignore-scripts 2>/dev/null
-            for f in test/tools.test.mjs test/handlers.test.mjs; do
-              [ -f "$f" ] && node --test "$f"
-            done
+            node --experimental-test-module-mocks --test test/*.mjs
             cd ../..
           done
 
       - name: Test MCP Stripe (needs stripe dep)
         working-directory: packages/mcp-stripe
-        run: npm install --ignore-scripts && node --test test/tools.test.mjs
+        run: npm install --ignore-scripts && node --experimental-test-module-mocks --test test/*.mjs
