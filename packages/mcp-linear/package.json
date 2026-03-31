@@ -1,0 +1,39 @@
+{
+  "name": "@antidrift/mcp-linear",
+  "version": "0.11.0",
+  "description": "Linear connector for antidrift — issues, projects, cycles, teams",
+  "main": "server.mjs",
+  "bin": {
+    "antidrift-mcp-linear": "bin/cli.mjs"
+  },
+  "files": [
+    "server.mjs",
+    "connectors/",
+    "bin/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "claude-code",
+    "codex",
+    "cursor",
+    "antigravity",
+    "ai-agents",
+    "openai-codex",
+    "google-antigravity",
+    "linear",
+    "project-management",
+    "issue-tracker"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-linear"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}
