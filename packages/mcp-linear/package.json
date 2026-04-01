@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-linear",
-  "version": "0.12.2",
+  "version": "0.12.4",
   "description": "Linear connector for antidrift — issues, projects, cycles, teams",
   "main": "server.mjs",
   "bin": {
