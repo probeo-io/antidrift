@@ -11,7 +11,7 @@ before(async () => {
 });
 
 const EXPECTED_DRIVE = ['drive_list_files', 'drive_list_folders', 'drive_get_file_info', 'drive_download', 'drive_share', 'drive_create_folder', 'drive_move_file'];
-const EXPECTED_SHEETS = ['list_spreadsheets', 'read_sheet', 'write_sheet', 'append_sheet', 'get_sheet_info'];
+const EXPECTED_SHEETS = ['list_spreadsheets', 'read_sheet', 'write_sheet', 'append_sheet', 'create_spreadsheet', 'add_sheet', 'get_sheet_info'];
 const EXPECTED_DOCS = ['create_doc', 'read_doc', 'append_to_doc', 'write_doc', 'list_docs', 'share_doc'];
 const ALL_EXPECTED = [...EXPECTED_DRIVE, ...EXPECTED_SHEETS, ...EXPECTED_DOCS];
 

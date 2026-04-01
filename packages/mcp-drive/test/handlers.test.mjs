@@ -32,6 +32,8 @@ const fakeDocs = () => ({
 const fakeSheets = () => ({
   spreadsheets: {
     get: (...a) => mockSheetsSpreadsheets.get(...a),
+    create: (...a) => mockSheetsSpreadsheets.create(...a),
+    batchUpdate: (...a) => mockSheetsSpreadsheets.batchUpdate(...a),
     values: {
       get: (...a) => mockSheetsSpreadsheets.values.get(...a),
       update: (...a) => mockSheetsSpreadsheets.values.update(...a),
@@ -454,6 +456,96 @@ describe('get_sheet_info handler', () => {
     assert.equal(result.sheets.length, 1);
     assert.equal(result.sheets[0].title, 'Sheet1');
     assert.equal(result.sheets[0].rowCount, 100);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Sheets: create_spreadsheet
+// ---------------------------------------------------------------------------
+describe('create_spreadsheet handler', () => {
+  it('creates spreadsheet and returns metadata', async () => {
+    mockSheetsSpreadsheets = {
+      values: { get: async () => ({}), update: async () => ({}), append: async () => ({}) },
+      get: async () => ({}),
+      create: async () => ({
+        data: {
+          spreadsheetId: 'sp1',
+          properties: { title: 'Budget 2026' },
+          spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/sp1',
+          sheets: [{ properties: { title: 'Sheet1' } }]
+        }
+      }),
+      batchUpdate: async () => ({})
+    };
+    const result = await getTool('create_spreadsheet').handler({ title: 'Budget 2026' });
+    assert.equal(result.spreadsheetId, 'sp1');
+    assert.equal(result.title, 'Budget 2026');
+    assert.ok(result.url.includes('sp1'));
+    assert.deepEqual(result.sheets, ['Sheet1']);
+  });
+
+  it('passes custom sheet names to API', async () => {
+    let captured;
+    mockSheetsSpreadsheets = {
+      values: { get: async () => ({}), update: async () => ({}), append: async () => ({}) },
+      get: async () => ({}),
+      create: async (args) => {
+        captured = args;
+        return {
+          data: {
+            spreadsheetId: 'sp2',
+            properties: { title: 'Multi' },
+            spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/sp2',
+            sheets: [{ properties: { title: 'Revenue' } }, { properties: { title: 'Expenses' } }]
+          }
+        };
+      },
+      batchUpdate: async () => ({})
+    };
+    const result = await getTool('create_spreadsheet').handler({ title: 'Multi', sheets: ['Revenue', 'Expenses'] });
+    assert.equal(captured.resource.sheets.length, 2);
+    assert.equal(captured.resource.sheets[0].properties.title, 'Revenue');
+    assert.deepEqual(result.sheets, ['Revenue', 'Expenses']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Sheets: add_sheet
+// ---------------------------------------------------------------------------
+describe('add_sheet handler', () => {
+  it('adds sheet and returns properties', async () => {
+    mockSheetsSpreadsheets = {
+      values: { get: async () => ({}), update: async () => ({}), append: async () => ({}) },
+      get: async () => ({}),
+      create: async () => ({}),
+      batchUpdate: async () => ({
+        data: {
+          replies: [{ addSheet: { properties: { sheetId: 123, title: 'Q2 Data', index: 1 } } }]
+        }
+      })
+    };
+    const result = await getTool('add_sheet').handler({ spreadsheetId: 'sp1', title: 'Q2 Data' });
+    assert.equal(result.sheetId, 123);
+    assert.equal(result.title, 'Q2 Data');
+    assert.equal(result.index, 1);
+  });
+
+  it('sends correct batchUpdate request', async () => {
+    let captured;
+    mockSheetsSpreadsheets = {
+      values: { get: async () => ({}), update: async () => ({}), append: async () => ({}) },
+      get: async () => ({}),
+      create: async () => ({}),
+      batchUpdate: async (args) => {
+        captured = args;
+        return {
+          data: { replies: [{ addSheet: { properties: { sheetId: 456, title: 'New Tab', index: 2 } } }] }
+        };
+      }
+    };
+    await getTool('add_sheet').handler({ spreadsheetId: 'sp1', title: 'New Tab' });
+    assert.equal(captured.spreadsheetId, 'sp1');
+    assert.deepEqual(captured.resource.requests, [{ addSheet: { properties: { title: 'New Tab' } } }]);
   });
 });
 

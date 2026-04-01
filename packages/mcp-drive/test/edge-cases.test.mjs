@@ -32,6 +32,8 @@ const fakeDocs = () => ({
 const fakeSheets = () => ({
   spreadsheets: {
     get: (...a) => mockSheetsSpreadsheets.get(...a),
+    create: (...a) => mockSheetsSpreadsheets.create(...a),
+    batchUpdate: (...a) => mockSheetsSpreadsheets.batchUpdate(...a),
     values: {
       get: (...a) => mockSheetsSpreadsheets.values.get(...a),
       update: (...a) => mockSheetsSpreadsheets.values.update(...a),
@@ -83,6 +85,26 @@ describe('missing required parameters', () => {
   it('read_doc rejects when documentId is invalid', async () => {
     mockDocsDocuments = { get: async () => { throw new Error('Not Found'); } };
     await assert.rejects(() => getTool('read_doc').handler({ documentId: '' }));
+  });
+
+  it('create_spreadsheet rejects when API throws', async () => {
+    mockSheetsSpreadsheets = {
+      values: { get: async () => ({}), update: async () => ({}), append: async () => ({}) },
+      get: async () => ({}),
+      create: async () => { throw new Error('API 400'); },
+      batchUpdate: async () => ({})
+    };
+    await assert.rejects(() => getTool('create_spreadsheet').handler({ title: '' }));
+  });
+
+  it('add_sheet rejects when API throws', async () => {
+    mockSheetsSpreadsheets = {
+      values: { get: async () => ({}), update: async () => ({}), append: async () => ({}) },
+      get: async () => ({}),
+      create: async () => ({}),
+      batchUpdate: async () => { throw new Error('Not Found'); }
+    };
+    await assert.rejects(() => getTool('add_sheet').handler({ spreadsheetId: 'bad', title: 'Tab' }));
   });
 
   it('read_sheet rejects when spreadsheetId is invalid', async () => {
@@ -145,6 +167,28 @@ describe('optional parameters omitted', () => {
     assert.ok(createCalled);
     assert.ok(!batchCalled);
     assert.ok(!updateCalled);
+  });
+
+  it('create_spreadsheet without sheets param uses default', async () => {
+    let captured;
+    mockSheetsSpreadsheets = {
+      values: { get: async () => ({}), update: async () => ({}), append: async () => ({}) },
+      get: async () => ({}),
+      create: async (args) => {
+        captured = args;
+        return {
+          data: {
+            spreadsheetId: 'sp1',
+            properties: { title: 'Test' },
+            spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/sp1',
+            sheets: [{ properties: { title: 'Sheet1' } }]
+          }
+        };
+      },
+      batchUpdate: async () => ({})
+    };
+    await getTool('create_spreadsheet').handler({ title: 'Test' });
+    assert.equal(captured.resource.sheets, undefined);
   });
 
   it('list_spreadsheets uses default limit=20', async () => {
@@ -265,6 +309,29 @@ describe('special characters in inputs', () => {
     };
     await getTool('write_sheet').handler({ spreadsheetId: 's1', range: 'A1', values: [['=SUM(A1:A10)', '<html>&amp;']] });
     assert.deepEqual(captured.resource.values, [['=SUM(A1:A10)', '<html>&amp;']]);
+  });
+
+  it('create_spreadsheet with special chars in sheet names', async () => {
+    let captured;
+    mockSheetsSpreadsheets = {
+      values: { get: async () => ({}), update: async () => ({}), append: async () => ({}) },
+      get: async () => ({}),
+      create: async (args) => {
+        captured = args;
+        return {
+          data: {
+            spreadsheetId: 'sp3',
+            properties: { title: 'Q1 & Q2' },
+            spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/sp3',
+            sheets: [{ properties: { title: "Jan's Data" } }, { properties: { title: 'Feb <raw>' } }]
+          }
+        };
+      },
+      batchUpdate: async () => ({})
+    };
+    const result = await getTool('create_spreadsheet').handler({ title: 'Q1 & Q2', sheets: ["Jan's Data", 'Feb <raw>'] });
+    assert.equal(captured.resource.sheets[0].properties.title, "Jan's Data");
+    assert.deepEqual(result.sheets, ["Jan's Data", 'Feb <raw>']);
   });
 
   it('drive_create_folder handles special chars in name', async () => {

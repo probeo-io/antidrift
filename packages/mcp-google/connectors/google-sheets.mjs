@@ -99,6 +99,61 @@ export const tools = [
     }
   },
   {
+    name: 'create_spreadsheet',
+    description: 'Create a new Google Spreadsheet. Optionally provide initial sheet names.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'Spreadsheet title' },
+        sheets: { type: 'array', description: 'List of sheet/tab names to create (default: one sheet named Sheet1)', items: { type: 'string' } }
+      },
+      required: ['title']
+    },
+    handler: async ({ title, sheets }) => {
+      const sheetsList = (sheets && sheets.length > 0)
+        ? sheets.map((name, i) => ({ properties: { title: name, index: i } }))
+        : undefined;
+      const res = await (await getSheets()).spreadsheets.create({
+        resource: {
+          properties: { title },
+          ...(sheetsList ? { sheets: sheetsList } : {})
+        }
+      });
+      return {
+        spreadsheetId: res.data.spreadsheetId,
+        title: res.data.properties.title,
+        url: res.data.spreadsheetUrl,
+        sheets: res.data.sheets.map(s => s.properties.title)
+      };
+    }
+  },
+  {
+    name: 'add_sheet',
+    description: 'Add a new sheet/tab to an existing Google Spreadsheet.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        spreadsheetId: { type: 'string', description: 'The spreadsheet ID' },
+        title: { type: 'string', description: 'Name for the new sheet/tab' }
+      },
+      required: ['spreadsheetId', 'title']
+    },
+    handler: async ({ spreadsheetId, title }) => {
+      const res = await (await getSheets()).spreadsheets.batchUpdate({
+        spreadsheetId,
+        resource: {
+          requests: [{ addSheet: { properties: { title } } }]
+        }
+      });
+      const added = res.data.replies[0].addSheet.properties;
+      return {
+        sheetId: added.sheetId,
+        title: added.title,
+        index: added.index
+      };
+    }
+  },
+  {
     name: 'get_sheet_info',
     description: 'Get spreadsheet metadata — title, sheets/tabs, row counts.',
     inputSchema: {
