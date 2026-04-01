@@ -8,6 +8,7 @@ import { homedir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const { version } = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
 const configDir = join(homedir(), '.antidrift');
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -31,7 +32,7 @@ async function main() {
 }
 
 async function setup() {
-  console.log(`\n  ┌─────────────────────────────────────┐\n  │  antidrift                          │\n  │  Netlify                            │\n  │                                     │\n  │  https://antidrift.io               │\n  │  github.com/probeo-io/antidrift     │\n  │  MIT License                        │\n  └─────────────────────────────────────┘\n`);
+  console.log(`\n  ┌─────────────────────────────────────┐\n  │  antidrift v${version.padEnd(24)}│\n  │  Netlify                            │\n  │                                     │\n  │  https://antidrift.io               │\n  │  github.com/probeo-io/antidrift     │\n  │  MIT License                        │\n  └─────────────────────────────────────┘\n`);
   console.log('  By installing this connector, you acknowledge that data accessed');
   console.log('  through it will be sent to your AI model provider. Press Ctrl+C to cancel.\n');
 

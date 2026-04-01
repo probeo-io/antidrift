@@ -8,6 +8,7 @@ import { homedir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const { version } = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
 const configDir = join(homedir(), '.antidrift');
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -60,7 +61,7 @@ Usage:
 async function setup() {
   console.log(`
   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510
-  \u2502  antidrift                  \u2502
+  \u2502  antidrift v${version.padEnd(16)}\u2502
   \u2502  Jira                       \u2502
   \u2502                             \u2502
   \u2502  https://antidrift.io       \u2502

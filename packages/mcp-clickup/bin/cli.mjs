@@ -8,6 +8,7 @@ import { homedir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const { version } = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
 const configDir = join(homedir(), '.antidrift');
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -64,7 +65,7 @@ Usage:
 async function setup() {
   console.log(`
     ┌─────────────────────────────────────┐
-  │  antidrift                          │
+  │  antidrift v${version.padEnd(24)}│
   │  ClickUp                             │
   │                                     │
   │  https://antidrift.io               │

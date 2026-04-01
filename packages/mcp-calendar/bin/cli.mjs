@@ -8,6 +8,7 @@ import { homedir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const { version } = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
 const credsDir = join(homedir(), '.antidrift', 'credentials', 'google');
 
 
@@ -37,7 +38,7 @@ Usage:
 async function setup() {
   console.log(`
     ┌─────────────────────────────────────┐
-  │  antidrift                          │
+  │  antidrift v${version.padEnd(24)}│
   │  Google Calendar                     │
   │                                     │
   │  https://antidrift.io               │
