@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-netlify",
-  "version": "0.11.0",
+  "version": "0.12.2",
   "description": "Netlify connector for antidrift — sites, deploys, environment variables, forms",
   "main": "server.mjs",
   "bin": {

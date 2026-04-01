@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-pipedrive",
-  "version": "0.11.0",
+  "version": "0.12.2",
   "description": "Pipedrive CRM connector for antidrift — deals, persons, organizations, activities, notes",
   "main": "server.mjs",
   "bin": {

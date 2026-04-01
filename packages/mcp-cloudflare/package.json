@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-cloudflare",
-  "version": "0.11.0",
+  "version": "0.12.2",
   "description": "Cloudflare connector for antidrift — DNS, Pages, Workers, R2",
   "main": "server.mjs",
   "bin": {
