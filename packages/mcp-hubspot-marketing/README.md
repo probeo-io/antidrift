@@ -1,36 +1,25 @@
 # @antidrift/mcp-hubspot-marketing
 
-HubSpot Marketing connector for [antidrift](https://antidrift.io) — emails, campaigns, forms, landing pages, and blog posts for your AI agents.
+HubSpot Marketing MCP server for [antidrift](https://antidrift.io) — emails, campaigns, forms, landing pages, and blog posts from Claude Code, Codex, and other AI agents.
 
-## Install
+> For CRM tools (contacts, companies, deals), see [`@antidrift/mcp-hubspot-crm`](https://www.npmjs.com/package/@antidrift/mcp-hubspot-crm). Both share the same credentials.
 
-```bash
-npx antidrift connect hubspot-marketing
-```
-
-Or with platform targeting:
+## Setup
 
 ```bash
-npx @antidrift/mcp-hubspot-marketing --claude-code
-npx @antidrift/mcp-hubspot-marketing --cowork
-npx @antidrift/mcp-hubspot-marketing --all
+antidrift connect hubspot-marketing
 ```
 
-## Authentication
-
-This connector shares credentials with `@antidrift/mcp-hubspot-crm`. Both use `~/.antidrift/hubspot.json`.
+You'll need a HubSpot private app access token:
 
 1. Go to **HubSpot > Settings > Integrations > Private Apps**
 2. Create a private app (or use your existing one from hubspot-crm)
-3. Under **Scopes**, add:
-   - `marketing-email`
-   - `marketing.campaigns.read`
-   - `marketing.campaigns.write`
+3. Under **Scopes**, add: `marketing-email`, `marketing.campaigns.read`, `marketing.campaigns.write`
 4. Copy the access token
 
-The token is stored in `~/.antidrift/hubspot.json`.
+Credentials are stored locally at `~/.antidrift/hubspot.json`.
 
-## Tools
+## Tools (10)
 
 | Tool | Description |
 |---|---|
@@ -45,20 +34,18 @@ The token is stored in `~/.antidrift/hubspot.json`.
 | `hubspot_list_blog_posts` | List blog posts |
 | `hubspot_get_blog_post` | Get blog post details by ID |
 
-## Commands
+## Platform support
 
 ```bash
-antidrift connect hubspot-marketing            # Connect
-antidrift connect hubspot-marketing status     # Check status
-antidrift connect hubspot-marketing reset      # Clear credentials
+antidrift connect hubspot-marketing         # Claude Code (default)
+antidrift connect hubspot-marketing --cowork # Claude Desktop / Cowork
+antidrift connect hubspot-marketing --all   # All detected platforms
 ```
 
 ## Privacy
 
-By installing this connector, you acknowledge that data accessed through it will be sent to your AI model provider (Anthropic, OpenAI, Google, etc.) as part of your conversation.
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/hubspot.json`.
 
-## API
+## License
 
-Uses HubSpot Marketing API v3 and CMS API v3. No external dependencies — pure `fetch`.
-
-Built by [Probeo.io](https://probeo.io) — https://antidrift.io
+MIT — [antidrift.io](https://antidrift.io)

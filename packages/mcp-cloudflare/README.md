@@ -1,39 +1,63 @@
 # @antidrift/mcp-cloudflare
 
-Cloudflare connector for [antidrift](https://antidrift.io) — DNS, Pages, Workers, R2.
+Cloudflare MCP server for [antidrift](https://antidrift.io) — DNS, Pages, Workers, and R2 from Claude Code, Codex, and other AI agents.
 
-## Install
+## Setup
 
 ```bash
-npx @antidrift/cli connect cloudflare
+antidrift connect cloudflare
 ```
+
+You'll be prompted for your Cloudflare API token. Create one at [Cloudflare Dashboard > Profile > API Tokens](https://dash.cloudflare.com/profile/api-tokens).
+
+Credentials are stored locally at `~/.antidrift/cloudflare.json`.
 
 ## Tools (12)
 
-### DNS
-- `cf_list_zones` — list domains/zones
-- `cf_list_dns_records` — list records with type filter
-- `cf_create_dns_record` — create A, CNAME, MX, TXT, etc.
-- `cf_delete_dns_record` — delete a record
+### DNS (4)
 
-### Pages
-- `cf_list_pages_projects` — list Pages projects
-- `cf_get_pages_project` — details, build config, domains, latest deploy
-- `cf_list_pages_deployments` — recent deployments with commit messages
+| Tool | Description |
+|---|---|
+| `cf_list_zones` | List domains/zones |
+| `cf_list_dns_records` | List records with type filter |
+| `cf_create_dns_record` | Create A, CNAME, MX, TXT, etc. |
+| `cf_delete_dns_record` | Delete a record |
 
-### Workers
-- `cf_list_workers` — list Worker scripts
-- `cf_get_worker` — metadata, bindings, compat date
+### Pages (3)
 
-### R2
-- `cf_list_r2_buckets` — list storage buckets
-- `cf_create_r2_bucket` — create a bucket with location hint
-- `cf_delete_r2_bucket` — delete an empty bucket
+| Tool | Description |
+|---|---|
+| `cf_list_pages_projects` | List Pages projects |
+| `cf_get_pages_project` | Details, build config, domains, latest deploy |
+| `cf_list_pages_deployments` | Recent deployments with commit messages |
 
-## Auth
+### Workers (2)
 
-API token. Create one at https://dash.cloudflare.com/profile/api-tokens.
+| Tool | Description |
+|---|---|
+| `cf_list_workers` | List Worker scripts |
+| `cf_get_worker` | Metadata, bindings, compat date |
+
+### R2 (3)
+
+| Tool | Description |
+|---|---|
+| `cf_list_r2_buckets` | List storage buckets |
+| `cf_create_r2_bucket` | Create a bucket with location hint |
+| `cf_delete_r2_bucket` | Delete an empty bucket |
+
+## Platform support
+
+```bash
+antidrift connect cloudflare          # Claude Code (default)
+antidrift connect cloudflare --cowork # Claude Desktop / Cowork
+antidrift connect cloudflare --all    # All detected platforms
+```
+
+## Privacy
+
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/cloudflare.json`.
 
 ## License
 
-MIT
+MIT — [antidrift.io](https://antidrift.io)

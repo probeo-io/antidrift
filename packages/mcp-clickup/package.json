@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-clickup",
-  "version": "0.12.4",
+  "version": "0.12.5",
   "description": "ClickUp connector for antidrift — workspaces, spaces, tasks, comments",
   "main": "server.mjs",
   "bin": {

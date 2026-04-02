@@ -1,16 +1,20 @@
 # @antidrift/mcp-stripe
 
-Stripe MCP server for antidrift. Gives your AI agent live access to customers, invoices, subscriptions, charges, products, and payment links.
+Stripe MCP server for [antidrift](https://antidrift.io) — customers, invoices, subscriptions, charges, products, and payment links from Claude Code, Codex, and other AI agents.
 
-**Important:** This connector uses the Stripe API with your secret key. It can create invoices, modify customers, and cancel subscriptions. Use a restricted key with only the permissions you need. Never use this in a PCI-sensitive context or to process raw card numbers.
+> **Heads up:** This connector can create invoices, modify customers, and cancel subscriptions. Use a restricted key with only the permissions you need. Never use this in a PCI-sensitive context or to process raw card numbers.
 
-## Install
+## Setup
 
 ```bash
 antidrift connect stripe
 ```
 
-You will be prompted for your Stripe API key. The key is stored at `~/.antidrift/stripe.json`.
+You'll be prompted for your Stripe API key. Get one from [Stripe Dashboard > Developers > API keys](https://dashboard.stripe.com/apikeys).
+
+Recommended restricted key permissions: Customers (read/write), Invoices (read/write), Products (read), Prices (read), Subscriptions (read/write), Charges (read), Balance (read), Payment Links (write).
+
+Credentials are stored locally at `~/.antidrift/stripe.json`.
 
 ## Tools (17)
 
@@ -30,24 +34,22 @@ You will be prompted for your Stripe API key. The key is stored at `~/.antidrift
 | `stripe_void_invoice` | Void an invoice |
 | `stripe_list_subscriptions` | List subscriptions, optional customer/status filter |
 | `stripe_cancel_subscription` | Cancel a subscription (at period end by default) |
-| `stripe_get_balance` | Get the current Stripe account balance |
+| `stripe_get_balance` | Get the current account balance |
 | `stripe_list_charges` | List charges, optional customer filter |
 | `stripe_create_payment_link` | Create a payment link for a price |
-
-## Auth
-
-Provide a Stripe secret key or restricted key. Get one from [Stripe Dashboard > Developers > API keys](https://dashboard.stripe.com/apikeys).
-
-Recommended restricted key permissions: Customers (read/write), Invoices (read/write), Products (read), Prices (read), Subscriptions (read/write), Charges (read), Balance (read), Payment Links (write).
 
 ## Platform support
 
 ```bash
-antidrift connect stripe                # Claude Code (default)
-antidrift connect stripe --cowork       # Claude Cowork / Desktop
-antidrift connect stripe --all          # All detected platforms
+antidrift connect stripe              # Claude Code (default)
+antidrift connect stripe --cowork     # Claude Desktop / Cowork
+antidrift connect stripe --all        # All detected platforms
 ```
 
-## Learn more
+## Privacy
 
-[antidrift.io](https://antidrift.io)
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/stripe.json`.
+
+## License
+
+MIT — [antidrift.io](https://antidrift.io)

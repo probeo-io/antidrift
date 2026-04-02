@@ -1,56 +1,86 @@
 # @antidrift/mcp-aws
 
-AWS connector for [antidrift](https://antidrift.io) — access AWS services from Claude, Codex, and other AI agents via MCP.
+AWS MCP server for [antidrift](https://antidrift.io) — S3, Lambda, ECS, CloudWatch, SQS, and cost tracking from Claude Code, Codex, and other AI agents.
 
-**No API key needed** — uses your existing AWS CLI credentials.
-
-## Prerequisites
-
-1. **AWS CLI** installed: https://aws.amazon.com/cli/
-2. **AWS CLI configured**: run `aws configure` to set up credentials and default region
+> **No API key needed** — uses your existing AWS CLI credentials. Zero dependencies.
 
 ## Setup
 
 ```bash
-npx antidrift connect aws
+antidrift connect aws
 ```
 
-The setup wizard will:
-- Verify `aws` CLI is installed
-- Check your credentials via `aws sts get-caller-identity`
-- Detect or ask for your default region
-- Write the MCP server config
+### Prerequisites
 
-## Tools
+1. [AWS CLI](https://aws.amazon.com/cli/) installed
+2. Credentials configured via `aws configure`
+
+The setup wizard verifies your CLI is installed, checks credentials via `aws sts get-caller-identity`, and detects your default region. No credentials are stored by antidrift — the connector calls the `aws` CLI directly.
+
+## Tools (15)
+
+### Identity (1)
 
 | Tool | Description |
-|------|-------------|
+|---|---|
 | `aws_whoami` | Show current AWS identity (account, ARN) |
-| `aws_s3_list_buckets` | List all S3 buckets |
+
+### S3 (3)
+
+| Tool | Description |
+|---|---|
+| `aws_s3_list_buckets` | List all buckets |
 | `aws_s3_list_objects` | List objects in a bucket (with prefix/limit) |
 | `aws_s3_get_object` | Read a text file from S3 |
-| `aws_lambda_list_functions` | List Lambda functions |
-| `aws_lambda_get_function` | Get Lambda function configuration |
-| `aws_lambda_invoke` | Invoke a Lambda function |
-| `aws_ecs_list_clusters` | List ECS clusters |
+
+### Lambda (3)
+
+| Tool | Description |
+|---|---|
+| `aws_lambda_list_functions` | List functions |
+| `aws_lambda_get_function` | Get function configuration |
+| `aws_lambda_invoke` | Invoke a function |
+
+### ECS (3)
+
+| Tool | Description |
+|---|---|
+| `aws_ecs_list_clusters` | List clusters |
 | `aws_ecs_list_services` | List services in a cluster |
 | `aws_ecs_describe_service` | Service details (running/desired count, events) |
-| `aws_logs_list_groups` | List CloudWatch log groups |
+
+### CloudWatch Logs (2)
+
+| Tool | Description |
+|---|---|
+| `aws_logs_list_groups` | List log groups |
 | `aws_logs_tail` | Get recent log events from a log group |
-| `aws_sqs_list_queues` | List SQS queues |
+
+### SQS (2)
+
+| Tool | Description |
+|---|---|
+| `aws_sqs_list_queues` | List queues |
 | `aws_sqs_get_queue_attributes` | Queue depth, messages in flight |
+
+### Cost (1)
+
+| Tool | Description |
+|---|---|
 | `aws_cost_today` | Today's estimated AWS cost |
+
+## Platform support
+
+```bash
+antidrift connect aws                 # Claude Code (default)
+antidrift connect aws --cowork        # Claude Desktop / Cowork
+antidrift connect aws --all           # All detected platforms
+```
 
 ## Privacy
 
-By installing this connector, you acknowledge that data accessed through it will be sent to your AI model provider (Anthropic, OpenAI, Google, etc.) as part of your conversation.
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No credentials are stored by antidrift — the connector shells out to the `aws` CLI using your existing configuration. All inputs are sanitized and commands have a 30-second timeout.
 
-No credentials are stored by antidrift — the connector shells out to the `aws` CLI which uses your existing AWS configuration.
+## License
 
-## How it works
-
-This connector has **zero dependencies**. It uses Node.js `child_process.execSync` to call the `aws` CLI with `--output json`. All user inputs are sanitized before being passed to the shell. Commands have a 30-second timeout.
-
----
-
-[antidrift.io](https://antidrift.io) — Built by [Probeo.io](https://probeo.io)
+MIT — [antidrift.io](https://antidrift.io)

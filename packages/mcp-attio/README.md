@@ -1,24 +1,28 @@
 # @antidrift/mcp-attio
 
-Attio CRM MCP server for antidrift. Gives your AI agent live access to people, companies, deals, tasks, and notes.
+Attio CRM MCP server for [antidrift](https://antidrift.io) — manage people, companies, deals, tasks, and notes from Claude Code, Codex, and other AI agents.
 
-## Install
+## Setup
 
 ```bash
 antidrift connect attio
 ```
 
-You will be prompted for your Attio API key. The key is stored at `~/.antidrift/attio.json`.
+You'll be prompted for your Attio API key. Get one from [Attio Settings > Developers > API keys](https://app.attio.com/settings/developers).
+
+Required scopes: `record_permission:read_write`, `task_permission:read_write`, `note_permission:read_write`.
+
+Credentials are stored locally at `~/.antidrift/attio.json`.
 
 ## Tools (14)
 
 | Tool | Description |
 |---|---|
-| `attio_list_people` | List people in the CRM |
+| `attio_list_people` | List people |
 | `attio_search_people` | Search people by name or email |
 | `attio_get_person` | Get full details for a person |
 | `attio_create_person` | Create a new person |
-| `attio_list_companies` | List companies in the CRM |
+| `attio_list_companies` | List companies |
 | `attio_search_companies` | Search companies by name or domain |
 | `attio_create_company` | Create a new company |
 | `attio_list_deals` | List deals in the pipeline |
@@ -29,20 +33,18 @@ You will be prompted for your Attio API key. The key is stored at `~/.antidrift/
 | `attio_complete_task` | Mark a task as completed |
 | `attio_add_note` | Add a note to a person or company |
 
-## Auth
-
-Provide an Attio API key. Get one from [Attio Settings > Developers > API keys](https://app.attio.com/settings/developers).
-
-Required scopes: `record_permission:read_write`, `task_permission:read_write`, `note_permission:read_write`.
-
 ## Platform support
 
 ```bash
-antidrift connect attio                 # Claude Code (default)
-antidrift connect attio --cowork        # Claude Cowork / Desktop
-antidrift connect attio --all           # All detected platforms
+antidrift connect attio               # Claude Code (default)
+antidrift connect attio --cowork      # Claude Desktop / Cowork
+antidrift connect attio --all         # All detected platforms
 ```
 
-## Learn more
+## Privacy
 
-[antidrift.io](https://antidrift.io)
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/attio.json`.
+
+## License
+
+MIT — [antidrift.io](https://antidrift.io)

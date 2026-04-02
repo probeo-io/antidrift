@@ -1,8 +1,8 @@
 # @antidrift/skills
 
-Community skill registry for antidrift brains. Works with Claude Code, Codex, Cursor, and Antigravity.
+Community skill registry for [antidrift](https://antidrift.io) brains. Works with Claude Code, Codex, Cursor, and Antigravity.
 
-## Browse available skills
+## Browse
 
 ```bash
 antidrift skills list
@@ -16,7 +16,7 @@ antidrift skills add engineering        # review, spec, changelog, standards, tp
 antidrift skills add customer-research  # icp, voc, twins
 antidrift skills add email              # inbox (classify, move, archive, clean)
 antidrift skills add legal              # legal document generator
-antidrift skills add all              # everything
+antidrift skills add all                # everything
 ```
 
 ## Install individual skills
@@ -41,6 +41,6 @@ Built a useful skill? Share it with the community:
 
 This opens a PR to the [community registry](https://github.com/probeo-io/antidrift-skills).
 
-## Learn more
+## License
 
-[antidrift.io](https://antidrift.io)
+MIT — [antidrift.io](https://antidrift.io)

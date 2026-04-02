@@ -1,76 +1,62 @@
 # @antidrift/mcp-hubspot-crm
 
-HubSpot CRM connector for [antidrift](https://antidrift.io) — contacts, companies, deals, and notes for your AI agents.
+HubSpot CRM MCP server for [antidrift](https://antidrift.io) — contacts, companies, deals, leads, and notes from Claude Code, Codex, and other AI agents.
 
-## Install
+> For marketing tools (emails, campaigns, forms, landing pages), see [`@antidrift/mcp-hubspot-marketing`](https://www.npmjs.com/package/@antidrift/mcp-hubspot-marketing). Both share the same credentials.
 
-```bash
-npx antidrift connect hubspot-crm
-```
-
-Or with platform targeting:
+## Setup
 
 ```bash
-npx @antidrift/mcp-hubspot-crm --claude-code
-npx @antidrift/mcp-hubspot-crm --cowork
-npx @antidrift/mcp-hubspot-crm --all
+antidrift connect hubspot-crm
 ```
 
-## Authentication
+You'll need a HubSpot private app access token:
 
-1. Go to **HubSpot → Settings → Integrations → Private Apps**
+1. Go to **HubSpot > Settings > Integrations > Private Apps**
 2. Create a private app
-3. Under **Scopes**, add:
-   - `crm.objects.contacts.read`
-   - `crm.objects.contacts.write`
-   - `crm.objects.companies.read`
-   - `crm.objects.companies.write`
-   - `crm.objects.deals.read`
-   - `crm.objects.deals.write`
+3. Under **Scopes**, add: `crm.objects.contacts.read`, `crm.objects.contacts.write`, `crm.objects.companies.read`, `crm.objects.companies.write`, `crm.objects.deals.read`, `crm.objects.deals.write`
 4. Copy the access token
 
-The token is stored in `~/.antidrift/hubspot.json`.
+Credentials are stored locally at `~/.antidrift/hubspot.json`.
 
-## Tools
+## Tools (21)
 
 | Tool | Description |
 |---|---|
 | `hubspot_list_contacts` | List contacts, optionally search by query |
-| `hubspot_get_contact` | Get full contact details by ID |
+| `hubspot_get_contact` | Get contact details by ID |
 | `hubspot_create_contact` | Create a new contact |
 | `hubspot_update_contact` | Update contact properties |
 | `hubspot_list_companies` | List companies, optionally search by query |
-| `hubspot_get_company` | Get full company details by ID |
+| `hubspot_get_company` | Get company details by ID |
 | `hubspot_create_company` | Create a new company |
 | `hubspot_update_company` | Update company properties |
 | `hubspot_list_deals` | List deals, optionally search by query |
-| `hubspot_get_deal` | Get full deal details by ID |
+| `hubspot_get_deal` | Get deal details by ID |
 | `hubspot_create_deal` | Create a new deal |
 | `hubspot_update_deal` | Update deal properties |
 | `hubspot_add_note` | Add a note to a contact, company, or deal |
 | `hubspot_list_activities` | List recent notes for a record |
 | `hubspot_search` | Search across contacts, companies, or deals |
 | `hubspot_list_leads` | List leads |
-| `hubspot_get_lead` | Get full lead details by ID |
+| `hubspot_get_lead` | Get lead details by ID |
 | `hubspot_create_lead` | Create a new lead |
 | `hubspot_update_lead` | Update lead properties |
 | `hubspot_list_forecasts` | List forecasts |
 | `hubspot_list_line_items` | List line items |
 
-## Commands
+## Platform support
 
 ```bash
-antidrift connect hubspot-crm            # Connect
-antidrift connect hubspot-crm status     # Check status
-antidrift connect hubspot-crm reset      # Clear credentials
+antidrift connect hubspot-crm         # Claude Code (default)
+antidrift connect hubspot-crm --cowork # Claude Desktop / Cowork
+antidrift connect hubspot-crm --all   # All detected platforms
 ```
 
 ## Privacy
 
-By installing this connector, you acknowledge that data accessed through it will be sent to your AI model provider (Anthropic, OpenAI, Google, etc.) as part of your conversation.
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/hubspot.json`.
 
-## API
+## License
 
-Uses HubSpot API v3 for CRM objects and v4 for associations. No external dependencies — pure `fetch`.
-
-Built by [Probeo.io](https://probeo.io) — https://antidrift.io
+MIT — [antidrift.io](https://antidrift.io)

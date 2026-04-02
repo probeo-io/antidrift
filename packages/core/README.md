@@ -1,35 +1,14 @@
 # @antidrift/core
 
-Company brain for AI coding agents (Claude Code, Codex, Cursor, Antigravity). One repo your whole team shares — context, skills, and connected services.
+Core library for [antidrift](https://antidrift.io) — the open source company brain for AI coding tools. Handles brain initialization, skill compilation, cross-platform sync, and MCP configuration.
+
+> Most users should install `@antidrift/cli` instead. This package is the library that powers the CLI.
 
 ## Install
 
 ```bash
-npm install -g @antidrift/cli
+npm install @antidrift/core
 ```
-
-## Quick start
-
-```bash
-antidrift init
-```
-
-## Join an existing brain
-
-```bash
-antidrift join <org/repo>
-```
-
-## Commands
-
-| Command | What it does |
-|---|---|
-| `antidrift init` | Start a new brain |
-| `antidrift join <repo>` | Clone and join an existing brain |
-| `antidrift update` | Update core skills, compile community skills, sync brain files |
-| `antidrift skills list` | Browse community skills by pack |
-| `antidrift skills add <name\|pack>` | Install skills (essentials, engineering, customer-research, legal) |
-| `antidrift cross-compile <path> --to <claude\|codex>` | Convert skills between platforms |
 
 ## Core skills
 
@@ -54,25 +33,6 @@ antidrift skills add customer-research  # icp, voc, twins
 antidrift skills add legal              # legal document generator
 ```
 
-## Connect services
+## License
 
-```bash
-antidrift connect google                # Google Workspace — all-in-one
-antidrift connect gmail                 # Gmail only (14 tools)
-antidrift connect drive                 # Drive, Docs, Sheets (19 tools)
-antidrift connect calendar              # Calendar only (4 tools)
-antidrift connect stripe                # Stripe (invoices, customers, subscriptions, charges)
-antidrift connect attio                 # Attio CRM (people, companies, deals, tasks, notes)
-antidrift connect github                # GitHub (repos, issues, PRs, actions, releases)
-```
-
-Platform targeting:
-
-```bash
-antidrift connect google --cowork       # Claude Cowork / Desktop
-antidrift connect google --all          # All detected platforms
-```
-
-## Learn more
-
-[antidrift.io](https://antidrift.io)
+MIT — [antidrift.io](https://antidrift.io)

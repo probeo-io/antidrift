@@ -1,6 +1,6 @@
 # antidrift
 
-Company brain for you and your AI agents. Shared knowledge, shared skills, no more passing files around.
+Open source company brain for AI coding tools. One repo your whole team shares — context, skills, and connected services.
 
 Works with Claude Code, Claude Cowork / Desktop, OpenAI Codex, Cursor, and Google Antigravity.
 
@@ -16,7 +16,7 @@ Or via Python:
 pip install antidrift
 ```
 
-## Quick Start
+## Quick start
 
 ```bash
 antidrift init
@@ -24,36 +24,21 @@ antidrift init
 
 ## Commands
 
-```bash
-antidrift init                          Start a new brain
-antidrift join <repo>                   Join an existing brain
-antidrift update                        Update core skills + sync brain files
+| Command | What it does |
+|---|---|
+| `antidrift init` | Start a new brain |
+| `antidrift join <repo>` | Join an existing brain |
+| `antidrift update` | Update core skills and sync brain files |
+| `antidrift skills list` | Browse community skills by pack |
+| `antidrift skills add <name\|pack>` | Install skills |
+| `antidrift skills add --all` | Install all community skills |
+| `antidrift skills remove <name>` | Remove a skill |
+| `antidrift cross-compile <path> --to <claude\|codex>` | Convert skills between platforms |
+| `antidrift connect <service>` | Connect an MCP service |
+| `antidrift version` | Show version |
+| `antidrift help` | Show help |
 
-antidrift skills list                   Browse community skills (by pack)
-antidrift skills add <name|pack>        Add skills
-antidrift skills add --all              Add all community skills
-antidrift skills remove <name>          Remove a skill
-
-antidrift cross-compile <path> --to <claude|codex>
-
-antidrift connect google                Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)
-antidrift connect stripe                Stripe (invoices, customers, subscriptions)
-antidrift connect attio                 Attio CRM (people, companies, deals, tasks)
-antidrift connect github                GitHub (repos, issues, PRs, actions)
-
-antidrift version                       Show version
-antidrift help                          Show help
-```
-
-### Platform targeting
-
-```bash
-antidrift connect google --cowork       Claude Cowork / Desktop
-antidrift connect google --all          All detected platforms
-antidrift connect google --claude-code  Claude Code (default)
-```
-
-## Skill Packs
+## Skill packs
 
 ```bash
 antidrift skills add essentials         # decision, recap, write, prep, followup, status, search
@@ -63,7 +48,37 @@ antidrift skills add security           # audit, threat-model, pentest-prep, inc
 antidrift skills add legal              # legal document generator
 ```
 
-## Supported Platforms
+## Connect services
+
+```bash
+antidrift connect google                # Google Workspace (Sheets, Docs, Drive, Gmail, Calendar)
+antidrift connect gmail                 # Gmail only (14 tools)
+antidrift connect drive                 # Drive, Docs, Sheets (19 tools)
+antidrift connect calendar              # Calendar only (4 tools)
+antidrift connect stripe                # Stripe (17 tools)
+antidrift connect attio                 # Attio CRM (14 tools)
+antidrift connect github                # GitHub (15 tools)
+antidrift connect hubspot-crm           # HubSpot CRM (21 tools)
+antidrift connect hubspot-marketing     # HubSpot Marketing (10 tools)
+antidrift connect jira                  # Jira (15 tools)
+antidrift connect linear                # Linear (12 tools)
+antidrift connect clickup               # ClickUp (12 tools)
+antidrift connect notion                # Notion (9 tools)
+antidrift connect pipedrive             # Pipedrive (15 tools)
+antidrift connect aws                   # AWS (15 tools)
+antidrift connect cloudflare            # Cloudflare (12 tools)
+antidrift connect vercel                # Vercel (9 tools)
+antidrift connect netlify               # Netlify (10 tools)
+```
+
+Platform targeting:
+
+```bash
+antidrift connect google --cowork       # Claude Cowork / Desktop
+antidrift connect google --all          # All detected platforms
+```
+
+## Supported platforms
 
 | Platform | Brain File | Config |
 |---|---|---|
@@ -73,8 +88,6 @@ antidrift skills add legal              # legal document generator
 | Cursor | AGENTS.md | — |
 | Google Antigravity | GEMINI.md | — |
 
-## Learn More
+## License
 
-[antidrift.io](https://antidrift.io)
-
-Built by [Probeo.io](https://probeo.io)
+MIT — [antidrift.io](https://antidrift.io)

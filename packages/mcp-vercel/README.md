@@ -1,36 +1,60 @@
 # @antidrift/mcp-vercel
 
-Vercel connector for [antidrift](https://antidrift.io) — deployments, projects, domains, environment variables.
+Vercel MCP server for [antidrift](https://antidrift.io) — projects, deployments, domains, and environment variables from Claude Code, Codex, and other AI agents.
 
-## Install
+## Setup
 
 ```bash
-npx @antidrift/cli connect vercel
+antidrift connect vercel
 ```
+
+You'll be prompted for your Vercel personal access token. Create one at [Vercel Account Settings > Tokens](https://vercel.com/account/tokens).
+
+Credentials are stored locally at `~/.antidrift/vercel.json`.
 
 ## Tools (9)
 
-### Projects
-- `vercel_list_projects` — all projects with framework
-- `vercel_get_project` — details, repo link, production URL
+### Projects (2)
 
-### Deployments
-- `vercel_list_deployments` — recent deploys with status and commit message
-- `vercel_get_deployment` — full deploy details
-- `vercel_redeploy` — trigger a redeployment
-- `vercel_get_deployment_events` — build logs
+| Tool | Description |
+|---|---|
+| `vercel_list_projects` | All projects with framework |
+| `vercel_get_project` | Details, repo link, production URL |
 
-### Domains
-- `vercel_list_domains` — domains for a project
+### Deployments (4)
 
-### Environment Variables
-- `vercel_list_env_vars` — list env vars with targets
-- `vercel_create_env_var` — create/update env var for production/preview/dev
+| Tool | Description |
+|---|---|
+| `vercel_list_deployments` | Recent deploys with status and commit message |
+| `vercel_get_deployment` | Full deploy details |
+| `vercel_redeploy` | Trigger a redeployment |
+| `vercel_get_deployment_events` | Build logs |
 
-## Auth
+### Domains (1)
 
-Personal access token. Create one at https://vercel.com/account/tokens.
+| Tool | Description |
+|---|---|
+| `vercel_list_domains` | Domains for a project |
+
+### Environment Variables (2)
+
+| Tool | Description |
+|---|---|
+| `vercel_list_env_vars` | List env vars with targets |
+| `vercel_create_env_var` | Create/update env var for production/preview/dev |
+
+## Platform support
+
+```bash
+antidrift connect vercel              # Claude Code (default)
+antidrift connect vercel --cowork     # Claude Desktop / Cowork
+antidrift connect vercel --all        # All detected platforms
+```
+
+## Privacy
+
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/vercel.json`.
 
 ## License
 
-MIT
+MIT — [antidrift.io](https://antidrift.io)

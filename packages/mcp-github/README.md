@@ -1,54 +1,55 @@
 # @antidrift/mcp-github
 
-GitHub MCP server for antidrift. Gives your AI agent live access to repositories, issues, pull requests, actions, releases, and more.
+GitHub MCP server for [antidrift](https://antidrift.io) — repos, issues, pull requests, Actions, releases, and traffic from Claude Code, Codex, and other AI agents.
 
-## Install
+## Setup
 
 ```bash
 antidrift connect github
 ```
 
-You will be prompted for a GitHub Personal Access Token (PAT). The token is stored at `~/.antidrift/github.json`.
+You'll be prompted for a GitHub Personal Access Token (PAT).
+
+**Classic token** — select scopes: `repo`, `read:org`, `workflow`.
+
+**Fine-grained token** — grant repository access and permissions: Contents (read), Issues (read/write), Pull requests (read), Actions (read), Metadata (read).
+
+Get one from [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens).
+
+Credentials are stored locally at `~/.antidrift/github.json`.
 
 ## Tools (15)
 
 | Tool | Description |
 |---|---|
 | `github_user` | Get the authenticated user's info |
-| `github_list_repos` | List repos for the authenticated user or an org |
+| `github_list_repos` | List repos for a user or org |
 | `github_search_repos` | Search GitHub repositories |
-| `github_get_repo` | Get detailed info about a repository |
-| `github_list_issues` | List issues for a repository |
+| `github_get_repo` | Get repository details |
+| `github_list_issues` | List issues for a repo |
 | `github_get_issue` | Get issue details and comments |
 | `github_create_issue` | Create a new issue |
-| `github_list_prs` | List pull requests for a repository |
+| `github_list_prs` | List pull requests for a repo |
 | `github_get_pr` | Get PR details and files changed |
 | `github_pr_diff` | Get the diff for a pull request |
 | `github_list_runs` | List recent workflow runs (Actions) |
 | `github_get_file` | Read a file from a repository |
-| `github_list_branches` | List branches for a repository |
-| `github_list_releases` | List releases for a repository |
+| `github_list_branches` | List branches |
+| `github_list_releases` | List releases |
 | `github_repo_traffic` | Get clone and view traffic (requires push access) |
-
-## Auth
-
-Create a GitHub Personal Access Token (classic or fine-grained):
-
-1. Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
-2. Click "Generate new token"
-3. Select scopes: `repo`, `read:org`, `workflow` (for Actions access)
-4. Copy the token and paste it when prompted by `antidrift connect github`
-
-For fine-grained tokens, grant repository access and the following permissions: Contents (read), Issues (read/write), Pull requests (read), Actions (read), Metadata (read).
 
 ## Platform support
 
 ```bash
-antidrift connect github                # Claude Code (default)
-antidrift connect github --cowork       # Claude Cowork / Desktop
-antidrift connect github --all          # All detected platforms
+antidrift connect github              # Claude Code (default)
+antidrift connect github --cowork     # Claude Desktop / Cowork
+antidrift connect github --all        # All detected platforms
 ```
 
-## Learn more
+## Privacy
 
-[antidrift.io](https://antidrift.io)
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/github.json`.
+
+## License
+
+MIT — [antidrift.io](https://antidrift.io)

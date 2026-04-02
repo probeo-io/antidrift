@@ -1,42 +1,38 @@
 # @antidrift/mcp-calendar
 
-Google Calendar MCP server for antidrift. Gives your AI agent access to your calendar for viewing, searching, and creating events.
+Google Calendar MCP server for [antidrift](https://antidrift.io) — view, search, and create calendar events from Claude Code, Codex, and other AI agents.
 
-## Install
+## Setup
 
 ```bash
 antidrift connect calendar
 ```
 
-## Tools
-
-| Tool | Description |
-|---|---|
-| `calendar_upcoming` | List upcoming calendar events |
-| `calendar_search` | Search calendar events by query |
-| `calendar_create` | Create a calendar event |
-| `calendar_today` | List today's calendar events |
-
-4 tools total.
-
-## Auth
-
-Google OAuth with loopback redirect. When you run `antidrift connect calendar`, a browser window opens for Google sign-in. The token is stored at `~/.antidrift/google.json`.
+A browser window opens for Google sign-in. The OAuth token is stored locally at `~/.antidrift/google.json`.
 
 Required scope: Calendar (read/write).
 
-## Privacy
+## Tools (4)
 
-This MCP server accesses your Google Calendar. Event details are only read when you explicitly request them. No data is sent to third parties — all processing happens locally through the MCP protocol.
+| Tool | Description |
+|---|---|
+| `calendar_today` | List today's events |
+| `calendar_upcoming` | List upcoming events |
+| `calendar_search` | Search events by query |
+| `calendar_create` | Create a new event |
 
 ## Platform support
 
 ```bash
-antidrift connect calendar              # Claude Code (default)
-antidrift connect calendar --cowork     # Claude Cowork / Desktop
-antidrift connect calendar --all        # All detected platforms
+antidrift connect calendar            # Claude Code (default)
+antidrift connect calendar --cowork   # Claude Desktop / Cowork
+antidrift connect calendar --all      # All detected platforms
 ```
 
-## Learn more
+## Privacy
 
-[antidrift.io](https://antidrift.io)
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/google.json`.
+
+## License
+
+MIT — [antidrift.io](https://antidrift.io)

@@ -1,11 +1,18 @@
 # antidrift
 
-Company brain for AI agents (Claude Code, Codex, Cursor, Antigravity). One repo your whole team shares — context, skills, and connected services.
+Python package for [antidrift](https://antidrift.io) — the open source company brain for AI coding tools. One repo your whole team shares — context, skills, and connected services.
+
+Works with Claude Code, Codex, Cursor, and Antigravity.
+
+## Install
+
+```bash
+pip install antidrift
+```
 
 ## Quick start
 
 ```bash
-pip install antidrift
 antidrift init
 ```
 
@@ -39,14 +46,12 @@ Every brain ships with these slash commands:
 
 ## Community skills
 
-Browse and install extras from the community registry:
-
 ```bash
 pip install antidrift-skills
 antidrift-skills list
 antidrift-skills add <name>
 ```
 
-## Learn more
+## License
 
-[antidrift.io](https://antidrift.io)
+MIT — [antidrift.io](https://antidrift.io)

@@ -1,30 +1,26 @@
 # @antidrift/mcp-notion
 
-Read-only Notion connector for [antidrift](https://antidrift.io). Access your Notion pages, databases, and blocks from Claude Code, Codex, Cursor, and other AI agents.
+Notion MCP server for [antidrift](https://antidrift.io) — search pages, query databases, and read content from Claude Code, Codex, and other AI agents.
 
-**This connector is read-only** — it cannot create, update, or delete anything in Notion.
+> **Read-only** — this connector cannot create, update, or delete anything in Notion.
 
-## Install
+## Setup
 
 ```bash
 antidrift connect notion
 ```
 
-Or directly:
+You'll need a Notion Internal Integration Token:
 
-```bash
-npx @antidrift/mcp-notion
-```
-
-## Setup
-
-1. Go to [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations)
+1. Go to [My Integrations](https://www.notion.so/my-integrations)
 2. Create a new integration
 3. Copy the Internal Integration Token
-4. Run `antidrift connect notion` and paste it
+4. Paste it when prompted during setup
 5. In Notion, share the pages/databases you want accessible with your integration
 
-## Tools
+Credentials are stored locally at `~/.antidrift/notion.json`.
+
+## Tools (9)
 
 | Tool | Description |
 |---|---|
@@ -38,12 +34,18 @@ npx @antidrift/mcp-notion
 | `notion_get_block` | Get a specific block |
 | `notion_get_block_children` | Get children of a block |
 
+## Platform support
+
+```bash
+antidrift connect notion              # Claude Code (default)
+antidrift connect notion --cowork     # Claude Desktop / Cowork
+antidrift connect notion --all        # All detected platforms
+```
+
 ## Privacy
 
-By installing this connector, you acknowledge that data accessed through it will be sent to your AI model provider (Anthropic, OpenAI, Google, etc.) as part of your conversation.
+Data accessed through this connector is sent to your AI model provider (Anthropic, OpenAI, etc.) as part of your conversation. No data is stored or sent to antidrift. Credentials are saved locally in `~/.antidrift/notion.json`.
 
-No data is stored or transmitted to antidrift servers. Credentials are saved locally in `~/.antidrift/notion.json`.
+## License
 
-## No dependencies
-
-This package uses pure `fetch` with zero external dependencies.
+MIT — [antidrift.io](https://antidrift.io)
