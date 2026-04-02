@@ -1,0 +1,75 @@
+import { readFileSync } from 'fs';
+import { readFile as readFileAsync } from 'fs/promises';
+export function resolveToolSources(tools) {
+    if (!tools)
+        return [{ path: './tools' }];
+    if (typeof tools === 'string')
+        return [{ path: tools }];
+    return tools.map(t => typeof t === 'string' ? { path: t } : t);
+}
+export function resolveTransports(config) {
+    if (!config.transport)
+        return [{ type: 'stdio' }];
+    if (Array.isArray(config.transport))
+        return config.transport;
+    return [config.transport];
+}
+export function resolveCredentials(source) {
+    if (source.env) {
+        const value = process.env[source.env];
+        if (!value) {
+            console.error(`[zeromcp] Warning: environment variable ${source.env} not set`);
+            return undefined;
+        }
+        // Try parsing as JSON, otherwise return raw string
+        try {
+            return JSON.parse(value);
+        }
+        catch {
+            return value;
+        }
+    }
+    if (source.file) {
+        const path = source.file.replace(/^~/, process.env.HOME || '');
+        try {
+            const raw = readFileSync(path, 'utf8');
+            try {
+                return JSON.parse(raw);
+            }
+            catch {
+                return raw;
+            }
+        }
+        catch (err) {
+            console.error(`[zeromcp] Warning: cannot read credential file ${path}`);
+            return undefined;
+        }
+    }
+    return undefined;
+}
+export async function loadConfig(configPath) {
+    try {
+        const raw = await readFileAsync(configPath, 'utf8');
+        return JSON.parse(raw);
+    }
+    catch (err) {
+        if (err.code === 'ENOENT') {
+            return {};
+        }
+        throw err;
+    }
+}
+export function resolveAuth(auth) {
+    if (!auth)
+        return undefined;
+    if (auth.startsWith('env:')) {
+        const envVar = auth.slice(4);
+        const value = process.env[envVar];
+        if (!value) {
+            console.error(`[zeromcp] Warning: environment variable ${envVar} not set`);
+        }
+        return value;
+    }
+    return auth;
+}
+//# sourceMappingURL=config.js.map
