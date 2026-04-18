@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { existsSync, mkdirSync, cpSync, readdirSync, writeFileSync, readFileSync, statSync } from 'fs';
-import { join, basename } from 'path';
+import { join, basename, dirname } from 'path';
 import { createInterface } from 'readline';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { homedir } from 'os';
 import { syncBrainFiles } from '../lib/sync.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -246,7 +246,10 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
   writeFileSync(join(targetDir, 'GEMINI.md'), claudeMd);
   console.log('  Created CLAUDE.md + AGENTS.md + GEMINI.md');
 
-  // Step 6: Commit
+  // Step 6: zeromcp server
+  installZeroMcp();
+
+  // Step 7: Commit
   try {
     execSync('git add -A && git commit -m "Initial brain — antidrift"', {
       cwd: targetDir, stdio: 'pipe'
@@ -269,33 +272,27 @@ Each directory has a \`CLAUDE.md\` that Claude reads automatically. Add departme
       if (pick === '1' || pick.toLowerCase().includes('google')) {
         console.log('');
         try {
-          execSync('npm install @antidrift/mcp-google', { cwd: targetDir, stdio: 'pipe' });
-          console.log('  Installed @antidrift/mcp-google');
-          execSync('npx @antidrift/mcp-google', { cwd: targetDir, stdio: 'inherit' });
+          execSync('npx --yes @antidrift/mcp-google@latest -g', { stdio: 'inherit' });
         } catch {
-          console.log('  Skipped Google — run `antidrift connect google` later to set up.');
+          console.log('  Skipped Google — run `antidrift connect google -g` later to set up.');
         }
       }
 
       if (pick === '2' || pick.toLowerCase().includes('stripe')) {
         console.log('');
         try {
-          execSync('npm install @antidrift/mcp-stripe', { cwd: targetDir, stdio: 'pipe' });
-          console.log('  Installed @antidrift/mcp-stripe');
-          execSync('npx @antidrift/mcp-stripe', { cwd: targetDir, stdio: 'inherit' });
+          execSync('npx --yes @antidrift/mcp-stripe@latest -g', { stdio: 'inherit' });
         } catch {
-          console.log('  Skipped Stripe — run `antidrift connect stripe` later to set up.');
+          console.log('  Skipped Stripe — run `antidrift connect stripe -g` later to set up.');
         }
       }
 
       if (pick === '3' || pick.toLowerCase().includes('attio')) {
         console.log('');
         try {
-          execSync('npm install @antidrift/mcp-attio', { cwd: targetDir, stdio: 'pipe' });
-          console.log('  Installed @antidrift/mcp-attio');
-          execSync('npx @antidrift/mcp-attio', { cwd: targetDir, stdio: 'inherit' });
+          execSync('npx --yes @antidrift/mcp-attio@latest -g', { stdio: 'inherit' });
         } catch {
-          console.log('  Skipped Attio — run `antidrift connect attio` later to set up.');
+          console.log('  Skipped Attio — run `antidrift connect attio -g` later to set up.');
         }
       }
     }
@@ -364,8 +361,132 @@ async function update() {
     console.log('    All brain files in sync');
   }
 
+  // Step 4: zeromcp server
+  console.log('  Step 4: zeromcp server');
+  installZeroMcp();
+
+  // Step 5: MCP connectors — migrate old entries + update all installed
+  console.log('  Step 5: Connectors');
+  await migrateAndUpdateConnectors();
+
   console.log('\n  ✓ Brain updated.');
   console.log('  Browse community skills: antidrift skills list\n');
+}
+
+// Map of service name → credential file (relative to ~/.antidrift/)
+const CONNECTOR_CRED = {
+  github:              'github.json',
+  linear:              'linear.json',
+  attio:               'attio.json',
+  clickup:             'clickup.json',
+  cloudflare:          'cloudflare.json',
+  vercel:              'vercel.json',
+  netlify:             'netlify.json',
+  pipedrive:           'pipedrive.json',
+  'hubspot-crm':       'hubspot.json',
+  'hubspot-marketing': 'hubspot.json',
+  jira:                'jira.json',
+  notion:              'notion.json',
+  stripe:              'stripe.json',
+  aws:                 'aws.json',
+  'aws-s3':            'aws-s3.json',
+  'aws-spot':          'aws-spot.json',
+  calendar:            join('credentials', 'google', 'token.json'),
+  drive:               join('credentials', 'google', 'token.json'),
+  gmail:               join('credentials', 'google', 'token.json'),
+  google:              join('credentials', 'google', 'token.json'),
+};
+
+async function migrateAndUpdateConnectors() {
+  const antidriftDir = join(homedir(), '.antidrift');
+  const settingsPath = join(homedir(), '.claude', 'settings.json');
+  const zeroConfigPath = join(antidriftDir, 'zeromcp.config.json');
+  const localMcpPath = join(process.cwd(), '.mcp.json');
+
+  // Collect connector names from zeromcp.config.json
+  let zeroConfig = { tools: [], credentials: {} };
+  if (existsSync(zeroConfigPath)) {
+    try { zeroConfig = JSON.parse(readFileSync(zeroConfigPath, 'utf8')); } catch {}
+  }
+  const zeromcpNames = new Set(Object.keys(zeroConfig.credentials || {}));
+
+  // Collect old-style entries from ~/.claude/settings.json
+  let globalSettings = {};
+  if (existsSync(settingsPath)) {
+    try { globalSettings = JSON.parse(readFileSync(settingsPath, 'utf8')); } catch {}
+  }
+  const oldGlobal = Object.keys(globalSettings.mcpServers || {})
+    .filter(k => k.startsWith('antidrift-') && k !== 'antidrift-zeromcp-server')
+    .map(k => k.replace(/^antidrift-/, ''));
+
+  // Collect old-style entries from .mcp.json (project-local)
+  let localConfig = {};
+  if (existsSync(localMcpPath)) {
+    try { localConfig = JSON.parse(readFileSync(localMcpPath, 'utf8')); } catch {}
+  }
+  const oldLocal = Object.keys(localConfig.mcpServers || {})
+    .filter(k => k.startsWith('antidrift-'))
+    .map(k => k.replace(/^antidrift-/, ''));
+
+  // Union all detected connector names
+  const detected = new Set([...zeromcpNames, ...oldGlobal, ...oldLocal]);
+
+  // Filter to connectors that actually have credentials
+  const toUpdate = [...detected].filter(name => {
+    const credFile = CONNECTOR_CRED[name];
+    return credFile && existsSync(join(antidriftDir, credFile));
+  });
+
+  if (toUpdate.length === 0 && detected.size === 0) {
+    console.log('    No connectors installed');
+  } else {
+    // Migrate / update each connector
+    for (const name of toUpdate) {
+      try {
+        execSync(`npx --yes @antidrift/mcp-${name}@latest -g`, { stdio: 'pipe' });
+        const tag = zeromcpNames.has(name) ? 'updated' : 'migrated';
+        console.log(`    ✓ ${name} ${tag}`);
+      } catch {
+        console.log(`    ⚠ ${name} update failed`);
+      }
+    }
+
+    // Remove old individual entries from ~/.claude/settings.json
+    let removedGlobal = 0;
+    for (const name of oldGlobal) {
+      if (globalSettings.mcpServers?.[`antidrift-${name}`]) {
+        delete globalSettings.mcpServers[`antidrift-${name}`];
+        removedGlobal++;
+      }
+    }
+    if (removedGlobal > 0) {
+      writeFileSync(settingsPath, JSON.stringify(globalSettings, null, 2));
+      console.log(`    Removed ${removedGlobal} old server entry(s) from ~/.claude/settings.json`);
+    }
+
+    // Remove old entries from .mcp.json
+    let removedLocal = 0;
+    for (const name of oldLocal) {
+      if (localConfig.mcpServers?.[`antidrift-${name}`]) {
+        delete localConfig.mcpServers[`antidrift-${name}`];
+        removedLocal++;
+      }
+    }
+    if (removedLocal > 0) {
+      writeFileSync(localMcpPath, JSON.stringify(localConfig, null, 2));
+      console.log(`    Removed ${removedLocal} old server entry(s) from .mcp.json`);
+    }
+  }
+
+  // Print status table for all 20 connectors
+  console.log('');
+  console.log('    Connectors:');
+  for (const [name, credFile] of Object.entries(CONNECTOR_CRED)) {
+    const connected = existsSync(join(antidriftDir, credFile));
+    const icon = connected ? '✓' : '○';
+    console.log(`      ${icon} ${name}`);
+  }
+  console.log('');
 }
 
 async function compileInstalledSkills(skillsDir) {
@@ -498,6 +619,47 @@ async function joinBrain() {
   Say "I'm new here" to get walked through everything.
 `);
   }
+}
+
+function installZeroMcp() {
+  const antidriftDir = join(homedir(), '.antidrift');
+  const serverDir = join(antidriftDir, 'mcp-server');
+  const zeroConfigPath = join(antidriftDir, 'zeromcp.config.json');
+  const settingsPath = join(homedir(), '.claude', 'settings.json');
+
+  // Check if already registered globally
+  let settings = {};
+  if (existsSync(settingsPath)) {
+    try { settings = JSON.parse(readFileSync(settingsPath, 'utf8')); } catch {}
+  }
+  if (settings.mcpServers?.['antidrift-zeromcp-server']) {
+    console.log('    zeromcp already installed globally');
+    return;
+  }
+
+  // Install zeromcp to ~/.antidrift/mcp-server/
+  mkdirSync(serverDir, { recursive: true });
+  writeFileSync(join(serverDir, 'package.json'), JSON.stringify({ type: 'module' }, null, 2));
+  console.log('    Installing zeromcp...');
+  execSync('npm install @antidrift/zeromcp@latest --silent', { cwd: serverDir, stdio: 'pipe' });
+
+  // Create ~/.antidrift/zeromcp.config.json if it doesn't exist
+  if (!existsSync(zeroConfigPath)) {
+    const toolsRoot = join(antidriftDir, 'tools');
+    writeFileSync(zeroConfigPath, JSON.stringify({ tools: [toolsRoot], credentials: {} }, null, 2));
+  }
+
+  // Register in ~/.claude/settings.json with --config pointing to zeromcp.config.json
+  const serverBin = join(serverDir, 'node_modules', '@antidrift', 'zeromcp', 'bin', 'mcp.js');
+  mkdirSync(dirname(settingsPath), { recursive: true });
+  if (!settings.mcpServers) settings.mcpServers = {};
+  settings.mcpServers['antidrift-zeromcp-server'] = {
+    command: 'node',
+    args: [serverBin, 'serve', '--config', zeroConfigPath]
+  };
+  writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+  console.log('  ✓ Installed zeromcp to ~/.antidrift/mcp-server/');
+  console.log('  ✓ Registered antidrift-zeromcp-server in ~/.claude/settings.json');
 }
 
 function installCoreSkills(targetDir) {

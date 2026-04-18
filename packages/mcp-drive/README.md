@@ -14,7 +14,7 @@ A browser window opens for Google sign-in. The OAuth token is stored locally at 
 
 Required scopes: Drive (read/write), Docs, Sheets.
 
-## Tools (19)
+## Tools (20)
 
 ### Drive (7)
 
@@ -39,15 +39,17 @@ Required scopes: Drive (read/write), Docs, Sheets.
 | `append_to_doc` | Append content to a Doc |
 | `share_doc` | Share a Doc with a user |
 
-### Sheets (5)
+### Sheets (6)
 
 | Tool | Description |
 |---|---|
 | `list_spreadsheets` | List spreadsheets |
+| `create_spreadsheet` | Create a new spreadsheet |
 | `get_sheet_info` | Get spreadsheet metadata and sheet names |
 | `read_sheet` | Read data from a range |
 | `write_sheet` | Write data to a range |
 | `append_sheet` | Append rows |
+| `add_sheet` | Add a new sheet/tab to an existing spreadsheet |
 
 ## Platform support
 

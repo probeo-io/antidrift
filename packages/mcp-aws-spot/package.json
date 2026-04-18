@@ -1,0 +1,45 @@
+{
+  "name": "@antidrift/mcp-aws-spot",
+  "version": "0.20.0",
+  "description": "AWS Spot Instance connector for antidrift — prices, AZ comparison, region comparison, placement scores",
+  "type": "module",
+  "bin": {
+    "antidrift-mcp-aws-spot": "bin/cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "connectors/",
+    "server.mjs",
+    "README.md",
+    "tools/",
+    "lib/"
+  ],
+  "keywords": [
+    "antidrift",
+    "mcp",
+    "claude-code",
+    "codex",
+    "cursor",
+    "antigravity",
+    "ai-agents",
+    "cowork",
+    "aws",
+    "spot",
+    "ec2",
+    "pricing"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/probeo-io/antidrift.git",
+    "directory": "packages/mcp-aws-spot"
+  },
+  "author": "Probeo <hello@probeo.io>",
+  "homepage": "https://antidrift.io",
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.800.0"
+  },
+  "scripts": {
+    "test": "node --experimental-test-module-mocks --test test/*.test.mjs"
+  }
+}

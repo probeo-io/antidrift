@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-vercel",
-  "version": "0.12.5",
+  "version": "0.20.0",
   "description": "Vercel connector for antidrift — deployments, projects, domains, environment variables",
   "main": "server.mjs",
   "bin": {
@@ -9,7 +9,9 @@
   "files": [
     "server.mjs",
     "connectors/",
-    "bin/"
+    "bin/",
+    "tools/",
+    "lib/"
   ],
   "keywords": [
     "antidrift",

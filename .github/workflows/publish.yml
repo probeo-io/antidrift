@@ -18,6 +18,20 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
+      - name: Set version 0.20.${{ github.run_number }}
+        run: |
+          BUILD=${{ github.run_number }}
+          for dir in packages/cli packages/core packages/skills \
+            packages/mcp-google packages/mcp-gmail packages/mcp-drive packages/mcp-calendar \
+            packages/mcp-attio packages/mcp-stripe packages/mcp-github packages/mcp-clickup \
+            packages/mcp-aws packages/mcp-aws-s3 packages/mcp-aws-spot \
+            packages/mcp-jira packages/mcp-notion \
+            packages/mcp-hubspot-crm packages/mcp-hubspot-marketing \
+            packages/mcp-cloudflare packages/mcp-linear packages/mcp-netlify \
+            packages/mcp-pipedrive packages/mcp-vercel; do
+            npm version "0.20.${BUILD}" --no-git-tag-version --prefix "$dir" || true
+          done
+
       - name: Publish antidrift (CLI)
         working-directory: packages/cli
         run: npm publish --access public --provenance || echo "Already published, skipping"
@@ -86,6 +100,18 @@ jobs:
 
       - name: Publish @antidrift/mcp-aws
         working-directory: packages/mcp-aws
+        run: npm publish --access public --provenance || echo "Already published, skipping"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @antidrift/mcp-aws-s3
+        working-directory: packages/mcp-aws-s3
+        run: npm publish --access public --provenance || echo "Already published, skipping"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @antidrift/mcp-aws-spot
+        working-directory: packages/mcp-aws-spot
         run: npm publish --access public --provenance || echo "Already published, skipping"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -159,6 +185,10 @@ jobs:
       - name: Install build tools
         run: pip install build
 
+      - name: Set version 0.20.${{ github.run_number }}
+        working-directory: packages/core-py
+        run: sed -i "s/^version = .*/version = \"0.20.${{ github.run_number }}\"/" pyproject.toml
+
       - name: Build
         working-directory: packages/core-py
         run: python -m build
@@ -169,4 +199,3 @@ jobs:
           packages-dir: packages/core-py/dist/
           attestations: false
           verbose: true
-

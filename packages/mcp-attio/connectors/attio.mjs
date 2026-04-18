@@ -232,6 +232,44 @@ export const tools = [
     }
   },
   {
+    name: 'attio_create_deal',
+    description: 'Create a new deal in Attio.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Deal name' },
+        stage: { type: 'string', description: 'Pipeline stage (e.g. "Qualified", "Proposal", "Closed Won")' },
+        value: { type: 'number', description: 'Deal value in currency units (optional)' },
+        linkedCompanyId: { type: 'string', description: 'Company record ID to associate with the deal (optional)' }
+      },
+      required: ['name']
+    },
+    handler: async ({ name, stage, value, linkedCompanyId }) => {
+      const values = { name: [{ value: name }] };
+      if (stage) values.stage = [{ status: { title: stage } }];
+      if (value != null) values.value = [{ currency_value: value }];
+      if (linkedCompanyId) values.associated_company = [{ target_object: 'companies', target_record_id: linkedCompanyId }];
+
+      const res = await attio('POST', '/objects/deals/records', { data: { values } });
+      return `✅ Created deal "${name}"  [id: ${res.data.id.record_id}]`;
+    }
+  },
+  {
+    name: 'attio_delete_deal',
+    description: 'Delete a deal from Attio by record ID.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        recordId: { type: 'string', description: 'The deal record ID to delete' }
+      },
+      required: ['recordId']
+    },
+    handler: async ({ recordId }) => {
+      await attio('DELETE', `/objects/deals/records/${recordId}`);
+      return `✅ Deal ${recordId} deleted`;
+    }
+  },
+  {
     name: 'attio_move_deal',
     description: 'Move a deal to a different pipeline stage in Attio.',
     inputSchema: {

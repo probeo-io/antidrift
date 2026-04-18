@@ -15,7 +15,7 @@ const credsDir = join(homedir(), '.antidrift', 'credentials', 'google');
 
 
 async function main() {
-  const command = process.argv[2];
+  const command = process.argv[2]?.startsWith('-') ? null : process.argv[2];
 
   if (command === 'add' || command === 'setup' || !command) {
     await setup();
@@ -90,18 +90,10 @@ function reset() {
 
 function parsePlatformFlags() {
   const argv = process.argv;
-  const hasClaudeCode = argv.includes('--claude-code');
-  const hasCowork = argv.includes('--cowork');
-  const hasAll = argv.includes('--all');
-
-  if (hasAll) return { claudeCode: true, cowork: true };
-  if (hasClaudeCode && !hasCowork) return { claudeCode: true, cowork: false };
-  if (hasCowork && !hasClaudeCode) return { claudeCode: false, cowork: true };
-
-  // Auto-detect: always write .mcp.json; write Desktop config if it exists
+  const isGlobal = argv.includes('--global') || argv.includes('-g');
   const desktopConfigPath = getDesktopConfigPath();
-  const coworkDetected = desktopConfigPath && existsSync(desktopConfigPath);
-  return { claudeCode: true, cowork: coworkDetected };
+  const cowork = !!(desktopConfigPath && existsSync(desktopConfigPath));
+  return { global: isGlobal, cowork };
 }
 
 function getDesktopConfigPath() {
@@ -133,9 +125,23 @@ function writeDesktopConfig(serverName, absoluteServerPath) {
 }
 
 async function writeMcpConfig() {
-  const cwd = process.cwd();
-  const serverDir = join(cwd, '.mcp-servers', 'calendar');
+  const isGlobal = process.argv.includes('--global') || process.argv.includes('-g');
+  const serverDir = isGlobal
+    ? join(homedir(), '.antidrift', 'tools', 'calendar')
+    : join(process.cwd(), '.mcp-servers', 'calendar');
   const pkgDir = join(__dirname, '..');
+
+  mkdirSync(serverDir, { recursive: true });
+  if (isGlobal) {
+    for (const f of readdirSync(join(pkgDir, 'tools'))) {
+      cpSync(join(pkgDir, 'tools', f), join(serverDir, f));
+    }
+    cpSync(join(pkgDir, 'lib', 'client.mjs'), join(serverDir, 'client.mjs'));
+    cpSync(join(pkgDir, 'auth-google.mjs'), join(serverDir, 'auth-google.mjs'));
+    writeFileSync(join(serverDir, 'package.json'), JSON.stringify({"type":"module","dependencies":{"googleapis":"*"}}));
+    console.log('    Installing Google API dependencies...');
+    execSync('npm install --silent', { cwd: serverDir, stdio: 'pipe' });
+  } else {
 
   // Always copy server files to .mcp-servers/ regardless of target
   mkdirSync(join(serverDir, 'connectors'), { recursive: true });
@@ -153,33 +159,42 @@ async function writeMcpConfig() {
   execSync('npm install --silent', { cwd: serverDir, stdio: 'pipe' });
 
   // Determine platform targets
+  }
+
   const targets = parsePlatformFlags();
+  const serverPath = join(serverDir, 'server.mjs');
 
-  // Write .mcp.json (Claude Code) — relative paths
-  if (targets.claudeCode) {
-    const mcpPath = join(cwd, '.mcp.json');
+  if (targets.global) {
+    const zeroConfigPath = join(homedir(), '.antidrift', 'zeromcp.config.json');
+    let zeroConfig = { tools: [], credentials: {} };
+    if (existsSync(zeroConfigPath)) {
+      try { zeroConfig = JSON.parse(readFileSync(zeroConfigPath, 'utf8')); } catch {}
+    }
+    const toolsRoot = join(homedir(), '.antidrift', 'tools');
+    if (!Array.isArray(zeroConfig.tools)) zeroConfig.tools = [];
+    if (!zeroConfig.tools.includes(toolsRoot)) zeroConfig.tools.push(toolsRoot);
+    if (!zeroConfig.credentials) zeroConfig.credentials = {};
+    zeroConfig.credentials['calendar'] = { file: join(homedir(), '.antidrift', 'google.json') };
+    writeFileSync(zeroConfigPath, JSON.stringify(zeroConfig, null, 2));
+    console.log('  ✓ Registered with global zeromcp (~/.antidrift/zeromcp.config.json)');
+  } else {
+    const mcpPath = join(process.cwd(), '.mcp.json');
     let config = {};
-
     if (existsSync(mcpPath)) {
       try { config = JSON.parse(readFileSync(mcpPath, 'utf8')); } catch {}
     }
-
     if (!config.mcpServers) config.mcpServers = {};
-
     config.mcpServers['antidrift-calendar'] = {
       command: 'node',
       args: [join('.mcp-servers', 'calendar', 'server.mjs')]
     };
-
     writeFileSync(mcpPath, JSON.stringify(config, null, 2));
     console.log('  ✓ Wrote .mcp.json (Claude Code)');
   }
 
-  // Write claude_desktop_config.json (Cowork / Claude Desktop) — absolute paths
   if (targets.cowork) {
-    const absoluteServerPath = join(cwd, '.mcp-servers', 'calendar', 'server.mjs');
-    writeDesktopConfig('antidrift-calendar', absoluteServerPath);
-    console.log('  ✓ Wrote claude_desktop_config.json (Claude Desktop / Cowork)');
+    writeDesktopConfig('antidrift-calendar', serverPath);
+    console.log('  ✓ Wrote claude_desktop_config.json (Claude Desktop)');
   }
 }
 

@@ -24,50 +24,24 @@ Usage:
   antidrift connect gmail                 Gmail only
   antidrift connect drive                 Drive, Docs, Sheets
   antidrift connect calendar              Calendar only
-  antidrift connect google --cowork       Connect to Claude Desktop / Cowork
-  antidrift connect google --all          Connect to all detected platforms
   antidrift connect attio                 Connect Attio CRM
-  antidrift connect attio --cowork        Connect to Claude Desktop / Cowork
-  antidrift connect attio --all           Connect to all detected platforms
   antidrift connect stripe                Connect Stripe
-  antidrift connect stripe --cowork       Connect to Claude Desktop / Cowork
-  antidrift connect stripe --all          Connect to all detected platforms
   antidrift connect github                Connect GitHub
-  antidrift connect github --cowork       Connect to Claude Desktop / Cowork
-  antidrift connect github --all          Connect to all detected platforms
   antidrift connect clickup               Connect ClickUp
-  antidrift connect clickup --cowork      Connect to Claude Desktop / Cowork
-  antidrift connect clickup --all         Connect to all detected platforms
   antidrift connect aws                   Connect AWS (S3, Lambda, ECS, Logs, SQS, Cost)
-  antidrift connect aws --cowork          Connect to Claude Desktop / Cowork
-  antidrift connect aws --all             Connect to all detected platforms
   antidrift connect jira                  Connect Jira
-  antidrift connect jira --cowork         Connect to Claude Desktop / Cowork
-  antidrift connect jira --all            Connect to all detected platforms
   antidrift connect notion                Connect Notion (read-only)
-  antidrift connect notion --cowork       Connect to Claude Desktop / Cowork
-  antidrift connect notion --all          Connect to all detected platforms
   antidrift connect hubspot-crm           Connect HubSpot CRM
-  antidrift connect hubspot-crm --cowork  Connect to Claude Desktop / Cowork
-  antidrift connect hubspot-crm --all     Connect to all detected platforms
-  antidrift connect hubspot-marketing           Connect HubSpot Marketing
-  antidrift connect hubspot-marketing --cowork  Connect to Claude Desktop / Cowork
-  antidrift connect hubspot-marketing --all     Connect to all detected platforms
+  antidrift connect hubspot-marketing     Connect HubSpot Marketing
   antidrift connect linear                Connect Linear (issues, projects, cycles)
-  antidrift connect linear --cowork       Connect to Claude Desktop / Cowork
-  antidrift connect linear --all          Connect to all detected platforms
   antidrift connect pipedrive             Connect Pipedrive CRM
-  antidrift connect pipedrive --cowork    Connect to Claude Desktop / Cowork
-  antidrift connect pipedrive --all       Connect to all detected platforms
   antidrift connect vercel                Connect Vercel (projects, deployments, domains, env vars)
-  antidrift connect vercel --cowork       Connect to Claude Desktop / Cowork
-  antidrift connect vercel --all          Connect to all detected platforms
   antidrift connect netlify               Connect Netlify (sites, deploys, env vars, forms)
-  antidrift connect netlify --cowork      Connect to Claude Desktop / Cowork
-  antidrift connect netlify --all         Connect to all detected platforms
   antidrift connect cloudflare            Connect Cloudflare (DNS, Pages, Workers, R2)
-  antidrift connect cloudflare --cowork   Connect to Claude Desktop / Cowork
-  antidrift connect cloudflare --all      Connect to all detected platforms
+
+  Flags:
+  antidrift connect github -g             Install globally (~/.antidrift/servers/ + ~/.claude/settings.json)
+  antidrift connect github --global       Same as -g
 
   antidrift version                       Show version
   antidrift help                          Show this message

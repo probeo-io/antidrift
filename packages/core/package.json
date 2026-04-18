@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/core",
-  "version": "0.12.5",
+  "version": "0.20.0",
   "description": "Company brain for AI agents — shared knowledge, shared skills, no more passing markdown files around",
   "bin": {
     "antidrift": "bin/cli.mjs"

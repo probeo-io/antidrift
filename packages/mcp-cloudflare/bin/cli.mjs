@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync, cpSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, cpSync , readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { createInterface } from 'readline';
 import { fileURLToPath } from 'url';
@@ -15,7 +15,7 @@ const rl = createInterface({ input: process.stdin, output: process.stdout });
 function ask(q) { return new Promise((resolve) => { rl.question(q, resolve); }); }
 
 async function main() {
-  const command = process.argv[2];
+  const command = process.argv[2]?.startsWith('-') ? null : process.argv[2];
   if (command === 'add' || command === 'setup' || !command) { await setup(); }
   else if (command === 'status') { status(); }
   else if (command === 'reset') {
@@ -74,13 +74,24 @@ function status() {
   console.log('    DNS, Pages, Workers, R2\n');
 }
 
+function writeDesktopConfig(serverName, absoluteServerPath) {
+  const configPath = getDesktopConfigPath();
+  mkdirSync(dirname(configPath), { recursive: true });
+  let config = {};
+  if (existsSync(configPath)) {
+    try { config = JSON.parse(readFileSync(configPath, 'utf8')); } catch {}
+  }
+  if (!config.mcpServers) config.mcpServers = {};
+  config.mcpServers[serverName] = { command: 'node', args: [absoluteServerPath] };
+  writeFileSync(configPath, JSON.stringify(config, null, 2));
+}
+
 function parsePlatformFlags() {
   const argv = process.argv;
-  if (argv.includes('--all')) return { claudeCode: true, cowork: true };
-  if (argv.includes('--claude-code') && !argv.includes('--cowork')) return { claudeCode: true, cowork: false };
-  if (argv.includes('--cowork') && !argv.includes('--claude-code')) return { claudeCode: false, cowork: true };
-  const coworkDetected = existsSync(getDesktopConfigPath());
-  return { claudeCode: true, cowork: coworkDetected };
+  const isGlobal = argv.includes('--global') || argv.includes('-g');
+  const desktopConfigPath = getDesktopConfigPath();
+  const cowork = !!(desktopConfigPath && existsSync(desktopConfigPath));
+  return { global: isGlobal, cowork };
 }
 
 function getDesktopConfigPath() {
@@ -89,29 +100,58 @@ function getDesktopConfigPath() {
 }
 
 function writeMcpConfig() {
-  const cwd = process.cwd();
-  const serverDir = join(cwd, '.mcp-servers', 'cloudflare');
+  const isGlobal = process.argv.includes('--global') || process.argv.includes('-g');
+  const serverDir = isGlobal
+    ? join(homedir(), '.antidrift', 'tools', 'cloudflare')
+    : join(process.cwd(), '.mcp-servers', 'cloudflare');
   const pkgDir = join(__dirname, '..');
+
+  mkdirSync(serverDir, { recursive: true });
+  if (isGlobal) {
+    for (const f of readdirSync(join(pkgDir, 'tools'))) {
+      cpSync(join(pkgDir, 'tools', f), join(serverDir, f));
+    }
+    cpSync(join(pkgDir, 'lib', 'client.mjs'), join(serverDir, 'client.mjs'));
+  } else {
   mkdirSync(join(serverDir, 'connectors'), { recursive: true });
   cpSync(join(pkgDir, 'server.mjs'), join(serverDir, 'server.mjs'));
   cpSync(join(pkgDir, 'connectors', 'cloudflare.mjs'), join(serverDir, 'connectors', 'cloudflare.mjs'));
-  const targets = parsePlatformFlags();
-  if (targets.claudeCode) {
-    const mcpPath = join(cwd, '.mcp.json');
-    let config = {}; if (existsSync(mcpPath)) { try { config = JSON.parse(readFileSync(mcpPath, 'utf8')); } catch {} }
-    if (!config.mcpServers) config.mcpServers = {};
-    config.mcpServers['antidrift-cloudflare'] = { command: 'node', args: [join('.mcp-servers', 'cloudflare', 'server.mjs')] };
-    writeFileSync(mcpPath, JSON.stringify(config, null, 2));
-    console.log('  Wrote .mcp.json (Claude Code)');
   }
-  if (targets.cowork) {
-    const configPath = getDesktopConfigPath();
-    mkdirSync(dirname(configPath), { recursive: true });
-    let config = {}; if (existsSync(configPath)) { try { config = JSON.parse(readFileSync(configPath, 'utf8')); } catch {} }
+
+  const targets = parsePlatformFlags();
+  const serverPath = join(serverDir, 'server.mjs');
+
+  if (targets.global) {
+    const zeroConfigPath = join(homedir(), '.antidrift', 'zeromcp.config.json');
+    let zeroConfig = { tools: [], credentials: {} };
+    if (existsSync(zeroConfigPath)) {
+      try { zeroConfig = JSON.parse(readFileSync(zeroConfigPath, 'utf8')); } catch {}
+    }
+    const toolsRoot = join(homedir(), '.antidrift', 'tools');
+    if (!Array.isArray(zeroConfig.tools)) zeroConfig.tools = [];
+    if (!zeroConfig.tools.includes(toolsRoot)) zeroConfig.tools.push(toolsRoot);
+    if (!zeroConfig.credentials) zeroConfig.credentials = {};
+    zeroConfig.credentials['cloudflare'] = { file: join(homedir(), '.antidrift', 'cloudflare.json') };
+    writeFileSync(zeroConfigPath, JSON.stringify(zeroConfig, null, 2));
+    console.log('  ✓ Registered with global zeromcp (~/.antidrift/zeromcp.config.json)');
+  } else {
+    const mcpPath = join(process.cwd(), '.mcp.json');
+    let config = {};
+    if (existsSync(mcpPath)) {
+      try { config = JSON.parse(readFileSync(mcpPath, 'utf8')); } catch {}
+    }
     if (!config.mcpServers) config.mcpServers = {};
-    config.mcpServers['antidrift-cloudflare'] = { command: 'node', args: [join(cwd, '.mcp-servers', 'cloudflare', 'server.mjs')] };
-    writeFileSync(configPath, JSON.stringify(config, null, 2));
-    console.log('  Wrote claude_desktop_config.json (Claude Desktop / Cowork)');
+    config.mcpServers['antidrift-cloudflare'] = {
+      command: 'node',
+      args: [join('.mcp-servers', 'cloudflare', 'server.mjs')]
+    };
+    writeFileSync(mcpPath, JSON.stringify(config, null, 2));
+    console.log('  ✓ Wrote .mcp.json (Claude Code)');
+  }
+
+  if (targets.cowork) {
+    writeDesktopConfig('antidrift-cloudflare', serverPath);
+    console.log('  ✓ Wrote claude_desktop_config.json (Claude Desktop)');
   }
 }
 

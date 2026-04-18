@@ -14,7 +14,7 @@ A browser window opens for Google sign-in. The OAuth token is stored locally at 
 
 Required scopes: Sheets, Docs, Drive, Gmail (send/read), Calendar.
 
-## Tools (26)
+## Tools (30)
 
 ### Drive (7)
 
@@ -39,17 +39,19 @@ Required scopes: Sheets, Docs, Drive, Gmail (send/read), Calendar.
 | `append_to_doc` | Append content to a Doc |
 | `share_doc` | Share a Doc with a user |
 
-### Sheets (5)
+### Sheets (7)
 
 | Tool | Description |
 |---|---|
 | `list_spreadsheets` | List spreadsheets |
+| `create_spreadsheet` | Create a new spreadsheet |
 | `get_sheet_info` | Get spreadsheet metadata and sheet names |
 | `read_sheet` | Read data from a range |
 | `write_sheet` | Write data to a range |
 | `append_sheet` | Append rows |
+| `add_sheet` | Add a new sheet/tab to an existing spreadsheet |
 
-### Gmail (4)
+### Gmail (14)
 
 | Tool | Description |
 |---|---|
@@ -57,6 +59,16 @@ Required scopes: Sheets, Docs, Drive, Gmail (send/read), Calendar.
 | `gmail_read` | Read a message by ID |
 | `gmail_send` | Send an email |
 | `gmail_reply` | Reply to a message |
+| `gmail_create_draft` | Create a draft without sending |
+| `gmail_list_drafts` | List drafts |
+| `gmail_archive` | Archive a message |
+| `gmail_trash` | Move a message to trash |
+| `gmail_mark_read` | Mark a message as read |
+| `gmail_mark_unread` | Mark a message as unread |
+| `gmail_list_labels` | List all labels |
+| `gmail_create_label` | Create a new label |
+| `gmail_add_label` | Add a label to a message |
+| `gmail_remove_label` | Remove a label from a message |
 
 ### Calendar (4)
 
