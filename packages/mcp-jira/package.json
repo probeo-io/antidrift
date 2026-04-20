@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-jira",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "Jira connector for antidrift — projects, issues, sprints, boards",
   "main": "server.mjs",
   "bin": {

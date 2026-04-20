@@ -200,6 +200,29 @@ export const tools = [
     }
   },
   {
+    name: 'attio_search_deals',
+    description: 'Search for deals in Attio by name or stage.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Deal name or stage to search for' }
+      },
+      required: ['query']
+    },
+    handler: async ({ query }) => {
+      const res = await attio('POST', '/objects/deals/records/query', {
+        filter: {
+          or: [
+            { attribute: 'name', condition: 'contains', value: query },
+            { attribute: 'stage', condition: 'contains', value: query }
+          ]
+        }
+      });
+      if (!res.data?.length) return `No deals matching "${query}".`;
+      return res.data.map(formatDeal).join('\n');
+    }
+  },
+  {
     name: 'attio_list_deals',
     description: 'List deals in Attio CRM.',
     inputSchema: {
@@ -246,7 +269,7 @@ export const tools = [
     },
     handler: async ({ name, stage, value, linkedCompanyId }) => {
       const values = { name: [{ value: name }] };
-      if (stage) values.stage = [{ status: { title: stage } }];
+      if (stage) values.stage = [{ status: stage }];
       if (value != null) values.value = [{ currency_value: value }];
       if (linkedCompanyId) values.associated_company = [{ target_object: 'companies', target_record_id: linkedCompanyId }];
 
@@ -282,7 +305,7 @@ export const tools = [
     },
     handler: async ({ recordId, stage }) => {
       const res = await attio('PATCH', `/objects/deals/records/${recordId}`, {
-        data: { values: { stage: [{ status: { title: stage } }] } }
+        data: { values: { stage: [{ status: stage }] } }
       });
       return `✅ Deal moved to "${stage}"`;
     }

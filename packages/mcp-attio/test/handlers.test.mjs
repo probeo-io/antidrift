@@ -344,7 +344,7 @@ describe('attio handler tests', () => {
       assert.ok(lastFetchUrl(mocked).endsWith('/objects/deals/records/d1'));
       assert.equal(lastFetchOpts(mocked).method, 'PATCH');
       const body = lastFetchBody(mocked);
-      assert.deepEqual(body.data.values.stage, [{ status: { title: 'Closed Won' } }]);
+      assert.deepEqual(body.data.values.stage, [{ status: 'Closed Won' }]);
       assert.ok(result.includes('Closed Won'));
     });
   });

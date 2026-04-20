@@ -403,14 +403,14 @@ async function migrateAndUpdateConnectors() {
   const zeroConfigPath = join(antidriftDir, 'zeromcp.config.json');
   const localMcpPath = join(process.cwd(), '.mcp.json');
 
-  // Collect connector names from zeromcp.config.json
+  // Connectors already on zeromcp
   let zeroConfig = { tools: [], credentials: {} };
   if (existsSync(zeroConfigPath)) {
     try { zeroConfig = JSON.parse(readFileSync(zeroConfigPath, 'utf8')); } catch {}
   }
   const zeromcpNames = new Set(Object.keys(zeroConfig.credentials || {}));
 
-  // Collect old-style entries from ~/.claude/settings.json
+  // Old individual entries in ~/.claude/settings.json (always migrate — shouldn't be there)
   let globalSettings = {};
   if (existsSync(settingsPath)) {
     try { globalSettings = JSON.parse(readFileSync(settingsPath, 'utf8')); } catch {}
@@ -419,66 +419,75 @@ async function migrateAndUpdateConnectors() {
     .filter(k => k.startsWith('antidrift-') && k !== 'antidrift-zeromcp-server')
     .map(k => k.replace(/^antidrift-/, ''));
 
-  // Collect old-style entries from .mcp.json (project-local)
+  // Old individual entries in .mcp.json (ask before removing)
   let localConfig = {};
   if (existsSync(localMcpPath)) {
     try { localConfig = JSON.parse(readFileSync(localMcpPath, 'utf8')); } catch {}
   }
   const oldLocal = Object.keys(localConfig.mcpServers || {})
-    .filter(k => k.startsWith('antidrift-'))
+    .filter(k => k.startsWith('antidrift-') && k !== 'antidrift-zeromcp-server')
     .map(k => k.replace(/^antidrift-/, ''));
 
-  // Union all detected connector names
-  const detected = new Set([...zeromcpNames, ...oldGlobal, ...oldLocal]);
-
-  // Filter to connectors that actually have credentials
-  const toUpdate = [...detected].filter(name => {
-    const credFile = CONNECTOR_CRED[name];
-    return credFile && existsSync(join(antidriftDir, credFile));
-  });
-
-  if (toUpdate.length === 0 && detected.size === 0) {
+  // Update zeromcp connectors
+  if (zeromcpNames.size === 0 && oldGlobal.length === 0 && oldLocal.length === 0) {
     console.log('    No connectors installed');
   } else {
-    // Migrate / update each connector
-    for (const name of toUpdate) {
+    for (const name of zeromcpNames) {
+      const credFile = CONNECTOR_CRED[name];
+      if (!credFile || !existsSync(join(antidriftDir, credFile))) continue;
       try {
         execSync(`npx --yes @antidrift/mcp-${name}@latest -g`, { stdio: 'pipe' });
-        const tag = zeromcpNames.has(name) ? 'updated' : 'migrated';
-        console.log(`    ✓ ${name} ${tag}`);
+        console.log(`    ✓ ${name} updated`);
       } catch {
         console.log(`    ⚠ ${name} update failed`);
       }
     }
 
-    // Remove old individual entries from ~/.claude/settings.json
-    let removedGlobal = 0;
-    for (const name of oldGlobal) {
-      if (globalSettings.mcpServers?.[`antidrift-${name}`]) {
+    // Migrate old global individual entries to zeromcp, then remove them
+    if (oldGlobal.length > 0) {
+      for (const name of oldGlobal) {
+        const credFile = CONNECTOR_CRED[name];
+        if (!credFile || !existsSync(join(antidriftDir, credFile))) continue;
+        try {
+          execSync(`npx --yes @antidrift/mcp-${name}@latest -g`, { stdio: 'pipe' });
+          console.log(`    ✓ ${name} migrated to zeromcp`);
+        } catch {
+          console.log(`    ⚠ ${name} migration failed`);
+        }
         delete globalSettings.mcpServers[`antidrift-${name}`];
-        removedGlobal++;
       }
-    }
-    if (removedGlobal > 0) {
       writeFileSync(settingsPath, JSON.stringify(globalSettings, null, 2));
-      console.log(`    Removed ${removedGlobal} old server entry(s) from ~/.claude/settings.json`);
     }
 
-    // Remove old entries from .mcp.json
-    let removedLocal = 0;
-    for (const name of oldLocal) {
-      if (localConfig.mcpServers?.[`antidrift-${name}`]) {
-        delete localConfig.mcpServers[`antidrift-${name}`];
-        removedLocal++;
+    // Handle local .mcp.json connector entries — ask to keep or migrate
+    if (oldLocal.length > 0) {
+      console.log(`\n    Found ${oldLocal.length} local connector(s) in .mcp.json: ${oldLocal.join(', ')}`);
+      console.log('    The global zeromcp server already provides these tools.');
+      const answer = await ask('    Update Antidrift MCP server to use global connectors? (y/n) ');
+      const migrateToGlobal = answer.trim().toLowerCase().startsWith('y');
+
+      if (migrateToGlobal) {
+        for (const name of oldLocal) {
+          delete localConfig.mcpServers[`antidrift-${name}`];
+        }
+        writeFileSync(localMcpPath, JSON.stringify(localConfig, null, 2));
+        console.log(`    Removed ${oldLocal.length} local connector(s) — using global zeromcp`);
+      } else {
+        for (const name of oldLocal) {
+          const credFile = CONNECTOR_CRED[name];
+          if (!credFile || !existsSync(join(antidriftDir, credFile))) continue;
+          try {
+            execSync(`npx --yes @antidrift/mcp-${name}@latest`, { stdio: 'pipe' });
+            console.log(`    ✓ ${name} updated (local)`);
+          } catch {
+            console.log(`    ⚠ ${name} update failed`);
+          }
+        }
       }
-    }
-    if (removedLocal > 0) {
-      writeFileSync(localMcpPath, JSON.stringify(localConfig, null, 2));
-      console.log(`    Removed ${removedLocal} old server entry(s) from .mcp.json`);
     }
   }
 
-  // Print status table for all 20 connectors
+  // Status table
   console.log('');
   console.log('    Connectors:');
   for (const [name, credFile] of Object.entries(CONNECTOR_CRED)) {

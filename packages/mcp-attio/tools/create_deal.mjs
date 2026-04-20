@@ -11,7 +11,7 @@ export default {
   execute: async ({ name, stage, value, linkedCompanyId }, ctx) => {
     const { attio } = createClient(ctx.credentials, ctx.fetch);
     const values = { name: [{ value: name }] };
-    if (stage) values.stage = [{ status: { title: stage } }];
+    if (stage) values.stage = [{ status: stage }];
     if (value != null) values.value = [{ currency_value: value }];
     if (linkedCompanyId) values.associated_company = [{ target_object: 'companies', target_record_id: linkedCompanyId }];
 

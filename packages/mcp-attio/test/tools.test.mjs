@@ -197,7 +197,7 @@ describe('createClient', () => {
   it('sends PATCH with body', async () => {
     const { ctx, getCaptured } = makeCtx({ data: { id: { record_id: 'deal-123' } } });
     const { attio } = createClient(ctx.credentials, ctx.fetch);
-    await attio('PATCH', '/objects/deals/records/deal-123', { data: { values: { stage: [{ status: { title: 'Won' } }] } } });
+    await attio('PATCH', '/objects/deals/records/deal-123', { data: { values: { stage: [{ status: 'Won' }] } } });
     const { opts } = getCaptured();
     assert.equal(opts.method, 'PATCH');
     const body = JSON.parse(opts.body);
@@ -904,7 +904,7 @@ describe('move_deal', () => {
     assert.ok(url.includes('/objects/deals/records/deal-abc'), `URL: ${url}`);
     assert.equal(opts.method, 'PATCH');
     const body = JSON.parse(opts.body);
-    assert.deepEqual(body.data.values.stage, [{ status: { title: 'Closed Won' } }]);
+    assert.deepEqual(body.data.values.stage, [{ status: 'Closed Won' }]);
   });
 
   it('uses correct record ID in URL', async () => {
@@ -959,7 +959,7 @@ describe('update_record', () => {
     await updateRecord.execute({
       objectType: 'deals',
       recordId: 'deal-abc',
-      values: { stage: [{ status: { title: 'Won' } }] }
+      values: { stage: [{ status: 'Won' }] }
     }, ctx);
     const { url } = getCaptured();
     assert.ok(url.includes('/objects/deals/records/deal-abc'), `URL: ${url}`);
@@ -1006,7 +1006,7 @@ describe('create_deal', () => {
     await createDeal.execute({ name: 'Deal', stage: 'Qualified' }, ctx);
     const { opts } = getCaptured();
     const body = JSON.parse(opts.body);
-    assert.deepEqual(body.data.values.stage, [{ status: { title: 'Qualified' } }]);
+    assert.deepEqual(body.data.values.stage, [{ status: 'Qualified' }]);
   });
 
   it('includes value when provided', async () => {

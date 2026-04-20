@@ -14,7 +14,7 @@ Required scopes: `record_permission:read_write`, `task_permission:read_write`, `
 
 Credentials are stored locally at `~/.antidrift/attio.json`.
 
-## Tools (16)
+## Tools (17)
 
 | Tool | Description |
 |---|---|
@@ -26,6 +26,7 @@ Credentials are stored locally at `~/.antidrift/attio.json`.
 | `attio_search_companies` | Search companies by name or domain |
 | `attio_create_company` | Create a new company |
 | `attio_list_deals` | List deals in the pipeline |
+| `attio_search_deals` | Search deals by name or stage |
 | `attio_create_deal` | Create a new deal |
 | `attio_delete_deal` | Delete a deal by record ID |
 | `attio_update_record` | Update fields on a person, company, or deal |

@@ -323,11 +323,11 @@ describe('attio edge cases', () => {
       assert.equal(body.data.parent_record_id, 'c1');
     });
 
-    it('attio_move_deal builds nested stage structure', async () => {
+    it('attio_move_deal sends stage as flat status string', async () => {
       const mocked = mockFetch({ data: {} });
       await findTool('attio_move_deal').handler({ recordId: 'd1', stage: 'Negotiation' });
       const body = lastFetchBody(mocked);
-      assert.deepEqual(body.data.values.stage, [{ status: { title: 'Negotiation' } }]);
+      assert.deepEqual(body.data.values.stage, [{ status: 'Negotiation' }]);
     });
   });
 

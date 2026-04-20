@@ -9,7 +9,7 @@ export default {
   execute: async ({ recordId, stage }, ctx) => {
     const { attio } = createClient(ctx.credentials, ctx.fetch);
     const res = await attio('PATCH', `/objects/deals/records/${recordId}`, {
-      data: { values: { stage: [{ status: { title: stage } }] } }
+      data: { values: { stage: [{ status: stage }] } }
     });
     return `✅ Deal moved to "${stage}"`;
   }
