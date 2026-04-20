@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-drive",
-  "version": "0.21.1",
+  "version": "0.21.2",
   "description": "Google Drive connector for antidrift — Drive, Docs, and Sheets",
   "main": "server.mjs",
   "bin": {

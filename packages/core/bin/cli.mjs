@@ -369,6 +369,10 @@ async function update() {
   console.log('  Step 5: Connectors');
   await migrateAndUpdateConnectors();
 
+  // Step 6: Repair missing tool dependencies
+  console.log('  Step 6: Tool dependencies');
+  repairToolDependencies();
+
   console.log('\n  ✓ Brain updated.');
   console.log('  Browse community skills: antidrift skills list\n');
 }
@@ -669,6 +673,30 @@ function installZeroMcp() {
   writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
   console.log('  ✓ Installed zeromcp to ~/.antidrift/mcp-server/');
   console.log('  ✓ Registered antidrift-zeromcp-server in ~/.claude/settings.json');
+}
+
+function repairToolDependencies() {
+  const toolsRoot = join(homedir(), '.antidrift', 'tools');
+  if (!existsSync(toolsRoot)) {
+    console.log('    No tools directory found');
+    return;
+  }
+  let repaired = 0;
+  for (const dir of readdirSync(toolsRoot)) {
+    const toolDir = join(toolsRoot, dir);
+    const pkgJson = join(toolDir, 'package.json');
+    const nodeModules = join(toolDir, 'node_modules');
+    if (existsSync(pkgJson) && !existsSync(nodeModules)) {
+      try {
+        execSync('npm install --silent', { cwd: toolDir, stdio: 'pipe' });
+        console.log(`    ✓ Installed dependencies for ${dir}`);
+        repaired++;
+      } catch {
+        console.log(`    ⚠ Failed to install dependencies for ${dir}`);
+      }
+    }
+  }
+  if (repaired === 0) console.log('    All tool dependencies present');
 }
 
 function installCoreSkills(targetDir) {
