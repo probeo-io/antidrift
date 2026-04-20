@@ -5,6 +5,7 @@ import { join, dirname } from 'path';
 import { createInterface } from 'readline';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -198,7 +199,6 @@ async function writeMcpConfig() {
 
   // Install stripe dependency
   writeFileSync(join(serverDir, 'package.json'), JSON.stringify({ type: 'module', dependencies: { stripe: '*' } }));
-  const { execSync } = await import('child_process');
   console.log('  Installing Stripe dependencies...');
   execSync('npm install --silent', { cwd: serverDir, stdio: 'pipe' });
 

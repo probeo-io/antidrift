@@ -5,6 +5,7 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { homedir } from 'os';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -155,7 +156,6 @@ async function writeMcpConfig() {
 
   // Install googleapis dependency
   writeFileSync(join(serverDir, 'package.json'), JSON.stringify({ type: 'module', dependencies: { googleapis: '*' } }));
-  const { execSync } = await import('child_process');
   console.log('  Installing Google API dependencies...');
   execSync('npm install --silent', { cwd: serverDir, stdio: 'pipe' });
 

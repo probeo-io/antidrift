@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-hubspot-crm",
-  "version": "0.21.0",
+  "version": "0.21.1",
   "description": "HubSpot CRM connector for antidrift — contacts, companies, deals, notes",
   "main": "server.mjs",
   "bin": {
