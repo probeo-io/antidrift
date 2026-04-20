@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execSync as _execSyncDefault } from 'child_process';
 
 /**
  * Sanitize a string for safe shell usage.
@@ -12,6 +12,7 @@ export function sanitize(str) {
 
 export function createClient(credentials) {
   const region = credentials?.region || 'us-east-1';
+  const execSync = credentials?._execSync || _execSyncDefault;
 
   /**
    * Execute an AWS CLI command and return parsed JSON.

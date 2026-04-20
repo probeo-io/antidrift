@@ -3,6 +3,8 @@ import { EC2Client, DescribeSpotPriceHistoryCommand, DescribeAvailabilityZonesCo
 export { EC2Client, DescribeSpotPriceHistoryCommand, DescribeAvailabilityZonesCommand, DescribeInstanceTypesCommand, GetSpotPlacementScoresCommand };
 
 export function createClient(credentials) {
+  const ClientCtor = credentials?._EC2Client || EC2Client;
+
   function getClient(region) {
     const cfg = { region };
     if (credentials?.accessKeyId) {
@@ -11,7 +13,7 @@ export function createClient(credentials) {
         secretAccessKey: credentials.secretAccessKey
       };
     }
-    return new EC2Client(cfg);
+    return new ClientCtor(cfg);
   }
 
   return { getClient };

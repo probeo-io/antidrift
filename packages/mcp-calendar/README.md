@@ -24,9 +24,9 @@ Required scope: Calendar (read/write).
 ## Platform support
 
 ```bash
-antidrift connect calendar            # Claude Code (default)
-antidrift connect calendar --cowork   # Claude Desktop / Cowork
-antidrift connect calendar --all      # All detected platforms
+antidrift connect calendar            # global install (default)
+antidrift connect calendar --cowork      # also register with Claude Desktop
+antidrift connect calendar --local      # local project only
 ```
 
 ## Privacy

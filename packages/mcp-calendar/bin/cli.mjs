@@ -91,7 +91,7 @@ function reset() {
 
 function parsePlatformFlags() {
   const argv = process.argv;
-  const isGlobal = argv.includes('--global') || argv.includes('-g');
+  const isGlobal = !argv.includes('--local');
   const desktopConfigPath = getDesktopConfigPath();
   const cowork = !!(desktopConfigPath && existsSync(desktopConfigPath));
   return { global: isGlobal, cowork };
@@ -126,7 +126,7 @@ function writeDesktopConfig(serverName, absoluteServerPath) {
 }
 
 async function writeMcpConfig() {
-  const isGlobal = process.argv.includes('--global') || process.argv.includes('-g');
+  const isGlobal = !process.argv.includes('--local');
   const serverDir = isGlobal
     ? join(homedir(), '.antidrift', 'tools', 'calendar')
     : join(process.cwd(), '.mcp-servers', 'calendar');

@@ -37,9 +37,9 @@ Credentials are stored locally at `~/.antidrift/hubspot.json`.
 ## Platform support
 
 ```bash
-antidrift connect hubspot-marketing         # Claude Code (default)
-antidrift connect hubspot-marketing --cowork # Claude Desktop / Cowork
-antidrift connect hubspot-marketing --all   # All detected platforms
+antidrift connect hubspot-marketing         # global install (default)
+antidrift connect hubspot-marketing --cowork      # also register with Claude Desktop
+antidrift connect hubspot-marketing --local   # local project only
 ```
 
 ## Privacy

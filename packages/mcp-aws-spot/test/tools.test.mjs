@@ -5,14 +5,22 @@
  * execute(args, ctx) receives ctx.credentials = { accessKeyId, secretAccessKey }.
  * createClient(credentials) returns { getClient } which returns an EC2Client.
  *
- * Strategy: mock @aws-sdk/client-ec2 before importing tools so all calls
- * go through a controllable send() implementation.
+ * Strategy: inject MockEC2Client via ctx.credentials._EC2Client. No mock.module needed.
  */
-import { describe, it, before, afterEach, mock } from 'node:test';
+import { describe, it, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 
+import prices           from '../tools/prices.mjs';
+import cheapest         from '../tools/cheapest.mjs';
+import compare_azs      from '../tools/compare_azs.mjs';
+import compare_regions  from '../tools/compare_regions.mjs';
+import list_azs         from '../tools/list_azs.mjs';
+import placement_scores from '../tools/placement_scores.mjs';
+
+const toolModules = { prices, cheapest, compare_azs, compare_regions, list_azs, placement_scores };
+
 // ---------------------------------------------------------------------------
-// EC2 mock — installed before any tool imports
+// EC2 mock — injected via ctx.credentials._EC2Client
 // ---------------------------------------------------------------------------
 let sendImpl = async () => ({});
 
@@ -23,30 +31,13 @@ class MockEC2Client {
   send(cmd) { return sendImpl(cmd); }
 }
 
-await mock.module('@aws-sdk/client-ec2', {
-  namedExports: {
-    EC2Client: MockEC2Client,
-    DescribeSpotPriceHistoryCommand: class {
-      constructor(p) { this.params = p; this.name = 'DescribeSpotPriceHistoryCommand'; }
-    },
-    DescribeAvailabilityZonesCommand: class {
-      constructor(p) { this.params = p; this.name = 'DescribeAvailabilityZonesCommand'; }
-    },
-    DescribeInstanceTypesCommand: class {
-      constructor(p) { this.params = p; this.name = 'DescribeInstanceTypesCommand'; }
-    },
-    GetSpotPlacementScoresCommand: class {
-      constructor(p) { this.params = p; this.name = 'GetSpotPlacementScoresCommand'; }
-    },
-  }
-});
-
 // Base ctx
 function ctx(overrides = {}) {
   return {
     credentials: {
       accessKeyId: 'AKIATEST',
       secretAccessKey: 'secret',
+      _EC2Client: MockEC2Client,
       ...overrides
     },
     fetch: globalThis.fetch
@@ -62,22 +53,6 @@ function makeSpotPrice(instanceType, az, price, ts) {
     Timestamp: ts || new Date('2024-01-01T00:00:00Z')
   };
 }
-
-// ---------------------------------------------------------------------------
-// Import all tools after mock installed
-// ---------------------------------------------------------------------------
-let toolModules;
-
-before(async () => {
-  toolModules = {
-    prices:           (await import('../tools/prices.mjs')).default,
-    cheapest:         (await import('../tools/cheapest.mjs')).default,
-    compare_azs:      (await import('../tools/compare_azs.mjs')).default,
-    compare_regions:  (await import('../tools/compare_regions.mjs')).default,
-    list_azs:         (await import('../tools/list_azs.mjs')).default,
-    placement_scores: (await import('../tools/placement_scores.mjs')).default,
-  };
-});
 
 afterEach(() => {
   sendImpl = async () => ({});
@@ -175,35 +150,35 @@ describe('prices', () => {
       { region: 'us-east-1', instance_types: ['m5.xlarge', 'c5.large'] },
       ctx()
     );
-    assert.deepEqual(capturedCmd.params.InstanceTypes, ['m5.xlarge', 'c5.large']);
+    assert.deepEqual(capturedCmd.input.InstanceTypes, ['m5.xlarge', 'c5.large']);
   });
 
   it('does not send InstanceTypes when not provided', async () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { SpotPriceHistory: [] }; };
     await toolModules.prices.execute({ region: 'us-east-1' }, ctx());
-    assert.equal(capturedCmd.params.InstanceTypes, undefined);
+    assert.equal(capturedCmd.input.InstanceTypes, undefined);
   });
 
   it('uses default product Linux/UNIX', async () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { SpotPriceHistory: [] }; };
     await toolModules.prices.execute({ region: 'us-east-1' }, ctx());
-    assert.deepEqual(capturedCmd.params.ProductDescriptions, ['Linux/UNIX']);
+    assert.deepEqual(capturedCmd.input.ProductDescriptions, ['Linux/UNIX']);
   });
 
   it('respects custom product filter', async () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { SpotPriceHistory: [] }; };
     await toolModules.prices.execute({ region: 'us-east-1', product: 'Windows' }, ctx());
-    assert.deepEqual(capturedCmd.params.ProductDescriptions, ['Windows']);
+    assert.deepEqual(capturedCmd.input.ProductDescriptions, ['Windows']);
   });
 
   it('caps MaxResults at 1000', async () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { SpotPriceHistory: [] }; };
     await toolModules.prices.execute({ region: 'us-east-1', limit: 5000 }, ctx());
-    assert.equal(capturedCmd.params.MaxResults, 1000);
+    assert.equal(capturedCmd.input.MaxResults, 1000);
   });
 
   it('formats prices with $ prefix and /hr suffix', async () => {
@@ -228,7 +203,7 @@ describe('cheapest', () => {
   it('finds matching instance types and returns sorted prices', async () => {
     let callCount = 0;
     sendImpl = async (cmd) => {
-      if (cmd.name === 'DescribeInstanceTypesCommand') {
+      if (cmd.constructor.name === 'DescribeInstanceTypesCommand') {
         callCount++;
         return {
           InstanceTypes: [
@@ -238,7 +213,7 @@ describe('cheapest', () => {
           NextToken: undefined
         };
       }
-      if (cmd.name === 'DescribeSpotPriceHistoryCommand') {
+      if (cmd.constructor.name === 'DescribeSpotPriceHistoryCommand') {
         return {
           SpotPriceHistory: [
             makeSpotPrice('m5.2xlarge', 'us-east-1a', '0.3000'),
@@ -263,7 +238,7 @@ describe('cheapest', () => {
 
   it('returns no-match message when no instance types meet requirements', async () => {
     sendImpl = async (cmd) => {
-      if (cmd.name === 'DescribeInstanceTypesCommand') {
+      if (cmd.constructor.name === 'DescribeInstanceTypesCommand') {
         return {
           InstanceTypes: [
             { InstanceType: 't3.micro', VCpuInfo: { DefaultVCpus: 2 }, MemoryInfo: { SizeInMiB: 1024 } }
@@ -281,14 +256,14 @@ describe('cheapest', () => {
 
   it('returns no-prices message when matching types have no spot prices', async () => {
     sendImpl = async (cmd) => {
-      if (cmd.name === 'DescribeInstanceTypesCommand') {
+      if (cmd.constructor.name === 'DescribeInstanceTypesCommand') {
         return {
           InstanceTypes: [
             { InstanceType: 'r5.4xlarge', VCpuInfo: { DefaultVCpus: 16 }, MemoryInfo: { SizeInMiB: 131072 } }
           ]
         };
       }
-      if (cmd.name === 'DescribeSpotPriceHistoryCommand') {
+      if (cmd.constructor.name === 'DescribeSpotPriceHistoryCommand') {
         return { SpotPriceHistory: [] };
       }
       return {};
@@ -303,7 +278,7 @@ describe('cheapest', () => {
   it('filters by max_vcpus and max_memory_gb', async () => {
     let capturedTypes = [];
     sendImpl = async (cmd) => {
-      if (cmd.name === 'DescribeInstanceTypesCommand') {
+      if (cmd.constructor.name === 'DescribeInstanceTypesCommand') {
         return {
           InstanceTypes: [
             { InstanceType: 'm5.xlarge', VCpuInfo: { DefaultVCpus: 4 }, MemoryInfo: { SizeInMiB: 16384 } },
@@ -311,7 +286,7 @@ describe('cheapest', () => {
           ]
         };
       }
-      if (cmd.name === 'DescribeSpotPriceHistoryCommand') {
+      if (cmd.constructor.name === 'DescribeSpotPriceHistoryCommand') {
         capturedTypes = cmd.params.InstanceTypes || [];
         return { SpotPriceHistory: [] };
       }
@@ -328,14 +303,14 @@ describe('cheapest', () => {
 
   it('deduplicates to keep lowest price per instance type', async () => {
     sendImpl = async (cmd) => {
-      if (cmd.name === 'DescribeInstanceTypesCommand') {
+      if (cmd.constructor.name === 'DescribeInstanceTypesCommand') {
         return {
           InstanceTypes: [
             { InstanceType: 'm5.xlarge', VCpuInfo: { DefaultVCpus: 4 }, MemoryInfo: { SizeInMiB: 16384 } }
           ]
         };
       }
-      if (cmd.name === 'DescribeSpotPriceHistoryCommand') {
+      if (cmd.constructor.name === 'DescribeSpotPriceHistoryCommand') {
         return {
           SpotPriceHistory: [
             makeSpotPrice('m5.xlarge', 'us-east-1a', '0.1500'),
@@ -540,7 +515,7 @@ describe('list_azs', () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { AvailabilityZones: [] }; };
     await toolModules.list_azs.execute({ region: 'us-east-1' }, ctx());
-    const filter = capturedCmd.params.Filters?.[0];
+    const filter = capturedCmd.input.Filters?.[0];
     assert.ok(filter, 'should have filters');
     assert.equal(filter.Name, 'zone-type');
     assert.deepEqual(filter.Values, ['availability-zone']);
@@ -595,15 +570,15 @@ describe('placement_scores', () => {
       { instance_types: ['c5.xlarge', 'c5.2xlarge'], target_capacity: 5 },
       ctx()
     );
-    assert.deepEqual(capturedCmd.params.InstanceTypes, ['c5.xlarge', 'c5.2xlarge']);
-    assert.equal(capturedCmd.params.TargetCapacity, 5);
+    assert.deepEqual(capturedCmd.input.InstanceTypes, ['c5.xlarge', 'c5.2xlarge']);
+    assert.equal(capturedCmd.input.TargetCapacity, 5);
   });
 
   it('defaults target_capacity to 1', async () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { SpotPlacementScores: [] }; };
     await toolModules.placement_scores.execute({ instance_types: ['t3.large'] }, ctx());
-    assert.equal(capturedCmd.params.TargetCapacity, 1);
+    assert.equal(capturedCmd.input.TargetCapacity, 1);
   });
 
   it('passes RegionNames when regions provided', async () => {
@@ -613,14 +588,14 @@ describe('placement_scores', () => {
       { instance_types: ['m5.large'], regions: ['us-east-1', 'us-west-2'] },
       ctx()
     );
-    assert.deepEqual(capturedCmd.params.RegionNames, ['us-east-1', 'us-west-2']);
+    assert.deepEqual(capturedCmd.input.RegionNames, ['us-east-1', 'us-west-2']);
   });
 
   it('does not pass RegionNames when regions not provided', async () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { SpotPlacementScores: [] }; };
     await toolModules.placement_scores.execute({ instance_types: ['t3.nano'] }, ctx());
-    assert.equal(capturedCmd.params.RegionNames, undefined);
+    assert.equal(capturedCmd.input.RegionNames, undefined);
   });
 
   it('passes SingleAvailabilityZone=true when single_az=true', async () => {
@@ -630,7 +605,7 @@ describe('placement_scores', () => {
       { instance_types: ['m5.xlarge'], single_az: true },
       ctx()
     );
-    assert.equal(capturedCmd.params.SingleAvailabilityZone, true);
+    assert.equal(capturedCmd.input.SingleAvailabilityZone, true);
   });
 
   it('uses first region for EC2Client when regions provided', async () => {
@@ -710,7 +685,7 @@ describe('credential handling', () => {
 
   it('omits credentials from EC2Client when not provided', async () => {
     sendImpl = async () => ({ SpotPriceHistory: [] });
-    await toolModules.prices.execute({ region: 'us-east-1' }, { credentials: {}, fetch: globalThis.fetch });
+    await toolModules.prices.execute({ region: 'us-east-1' }, { credentials: { _EC2Client: MockEC2Client }, fetch: globalThis.fetch });
     const cfg = ec2ClientInstances[0];
     // accessKeyId is falsy — no credentials object should be set
     assert.equal(cfg.credentials, undefined);

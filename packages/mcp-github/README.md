@@ -41,9 +41,9 @@ Credentials are stored locally at `~/.antidrift/github.json`.
 ## Platform support
 
 ```bash
-antidrift connect github              # Claude Code (default)
-antidrift connect github --cowork     # Claude Desktop / Cowork
-antidrift connect github --all        # All detected platforms
+antidrift connect github               # global install (default)
+antidrift connect github --local        # local project only
+antidrift connect github --cowork      # also register with Claude Desktop
 ```
 
 ## Privacy

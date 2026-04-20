@@ -44,9 +44,9 @@ Required IAM permissions: `s3:ListAllMyBuckets`, `s3:ListBucket`, `s3:GetObject`
 ## Platform support
 
 ```bash
-antidrift connect aws-s3               # Claude Code (default)
-antidrift connect aws-s3 --cowork      # Claude Desktop / Cowork
-antidrift connect aws-s3 --all         # All detected platforms
+antidrift connect aws-s3               # global install (default)
+antidrift connect aws-s3 --cowork      # also register with Claude Desktop
+antidrift connect aws-s3 --local         # local project only
 ```
 
 ## Privacy

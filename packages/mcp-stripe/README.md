@@ -41,9 +41,9 @@ Credentials are stored locally at `~/.antidrift/stripe.json`.
 ## Platform support
 
 ```bash
-antidrift connect stripe              # Claude Code (default)
-antidrift connect stripe --cowork     # Claude Desktop / Cowork
-antidrift connect stripe --all        # All detected platforms
+antidrift connect stripe               # global install (default)
+antidrift connect stripe --local        # local project only
+antidrift connect stripe --cowork      # also register with Claude Desktop
 ```
 
 ## Privacy

@@ -72,9 +72,9 @@ The setup wizard verifies your CLI is installed, checks credentials via `aws sts
 ## Platform support
 
 ```bash
-antidrift connect aws                 # Claude Code (default)
-antidrift connect aws --cowork        # Claude Desktop / Cowork
-antidrift connect aws --all           # All detected platforms
+antidrift connect aws                 # global install (default)
+antidrift connect aws --cowork      # also register with Claude Desktop
+antidrift connect aws --local           # local project only
 ```
 
 ## Privacy

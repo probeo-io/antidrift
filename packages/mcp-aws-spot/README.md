@@ -26,9 +26,9 @@ Required IAM permissions: `ec2:DescribeSpotPriceHistory`, `ec2:DescribeAvailabil
 ## Platform support
 
 ```bash
-antidrift connect aws-spot               # Claude Code (default)
-antidrift connect aws-spot --cowork      # Claude Desktop / Cowork
-antidrift connect aws-spot --all         # All detected platforms
+antidrift connect aws-spot               # global install (default)
+antidrift connect aws-spot --cowork      # also register with Claude Desktop
+antidrift connect aws-spot --local         # local project only
 ```
 
 ## Privacy

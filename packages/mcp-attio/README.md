@@ -39,9 +39,9 @@ Credentials are stored locally at `~/.antidrift/attio.json`.
 ## Platform support
 
 ```bash
-antidrift connect attio               # Claude Code (default)
-antidrift connect attio --cowork      # Claude Desktop / Cowork
-antidrift connect attio --all         # All detected platforms
+antidrift connect attio               # global install (default)
+antidrift connect attio --cowork      # also register with Claude Desktop
+antidrift connect attio --local         # local project only
 ```
 
 ## Privacy

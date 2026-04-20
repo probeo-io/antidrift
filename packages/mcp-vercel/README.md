@@ -46,9 +46,9 @@ Credentials are stored locally at `~/.antidrift/vercel.json`.
 ## Platform support
 
 ```bash
-antidrift connect vercel              # Claude Code (default)
-antidrift connect vercel --cowork     # Claude Desktop / Cowork
-antidrift connect vercel --all        # All detected platforms
+antidrift connect vercel               # global install (default)
+antidrift connect vercel --local        # local project only
+antidrift connect vercel --cowork      # also register with Claude Desktop
 ```
 
 ## Privacy

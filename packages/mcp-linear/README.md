@@ -54,9 +54,9 @@ Credentials are stored locally at `~/.antidrift/linear.json`.
 ## Platform support
 
 ```bash
-antidrift connect linear              # Claude Code (default)
-antidrift connect linear --cowork     # Claude Desktop / Cowork
-antidrift connect linear --all        # All detected platforms
+antidrift connect linear               # global install (default)
+antidrift connect linear --local        # local project only
+antidrift connect linear --cowork      # also register with Claude Desktop
 ```
 
 ## Privacy

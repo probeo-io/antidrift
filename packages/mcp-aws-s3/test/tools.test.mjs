@@ -5,64 +5,36 @@
  * execute(args, ctx) receives ctx.credentials = { accessKeyId, secretAccessKey, region }.
  * createClient(credentials) returns { getClient } which returns an S3Client.
  *
- * Strategy: mock @aws-sdk/client-s3 and @aws-sdk/s3-request-presigner before
- * importing tools. The mock S3Client.send() is a controllable function.
+ * Strategy: inject a mock S3Client constructor via ctx.credentials._S3Client and
+ * a mock getSignedUrl via ctx.credentials._getSignedUrl. No mock.module required.
  */
-import { describe, it, before, afterEach, mock } from 'node:test';
+import { describe, it, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 
 // ---------------------------------------------------------------------------
-// S3 mock — installed before any tool imports
+// S3 mock — injected via ctx.credentials._S3Client
 // ---------------------------------------------------------------------------
 let sendImpl = async () => ({});
 
+const s3ClientInstances = [];
+
 class MockS3Client {
+  constructor(cfg) { s3ClientInstances.push(cfg); }
   send(cmd) { return sendImpl(cmd); }
 }
 
-// Track instantiation args
-const s3ClientInstances = [];
-class TrackingS3Client extends MockS3Client {
-  constructor(cfg) { super(); s3ClientInstances.push(cfg); }
-}
+const mockGetSignedUrl = async (_client, cmd, _opts) =>
+  `https://presigned.example.com/${cmd.constructor?.name || 'url'}`;
 
-await mock.module('@aws-sdk/client-s3', {
-  namedExports: {
-    S3Client: TrackingS3Client,
-    ListBucketsCommand: class { constructor(p) { this.params = p; this.name = 'ListBucketsCommand'; } },
-    ListObjectsV2Command: class { constructor(p) { this.params = p; this.name = 'ListObjectsV2Command'; } },
-    GetObjectCommand: class { constructor(p) { this.params = p; this.name = 'GetObjectCommand'; } },
-    PutObjectCommand: class { constructor(p) { this.params = p; this.name = 'PutObjectCommand'; } },
-    DeleteObjectCommand: class { constructor(p) { this.params = p; this.name = 'DeleteObjectCommand'; } },
-    CopyObjectCommand: class { constructor(p) { this.params = p; this.name = 'CopyObjectCommand'; } },
-    HeadObjectCommand: class { constructor(p) { this.params = p; this.name = 'HeadObjectCommand'; } },
-    HeadBucketCommand: class { constructor(p) { this.params = p; this.name = 'HeadBucketCommand'; } },
-    CreateBucketCommand: class { constructor(p) { this.params = p; this.name = 'CreateBucketCommand'; } },
-    DeleteBucketCommand: class { constructor(p) { this.params = p; this.name = 'DeleteBucketCommand'; } },
-    GetBucketLocationCommand: class { constructor(p) { this.params = p; this.name = 'GetBucketLocationCommand'; } },
-    GetBucketVersioningCommand: class { constructor(p) { this.params = p; this.name = 'GetBucketVersioningCommand'; } },
-    GetBucketTaggingCommand: class { constructor(p) { this.params = p; this.name = 'GetBucketTaggingCommand'; } },
-    PutBucketTaggingCommand: class { constructor(p) { this.params = p; this.name = 'PutBucketTaggingCommand'; } },
-    GetBucketPolicyCommand: class { constructor(p) { this.params = p; this.name = 'GetBucketPolicyCommand'; } },
-    GetBucketCorsCommand: class { constructor(p) { this.params = p; this.name = 'GetBucketCorsCommand'; } },
-    GetBucketLifecycleConfigurationCommand: class { constructor(p) { this.params = p; this.name = 'GetBucketLifecycleConfigurationCommand'; } },
-    GetBucketEncryptionCommand: class { constructor(p) { this.params = p; this.name = 'GetBucketEncryptionCommand'; } },
-  }
-});
-
-await mock.module('@aws-sdk/s3-request-presigner', {
-  namedExports: {
-    getSignedUrl: async (_client, cmd, _opts) => `https://presigned.example.com/${cmd.name || 'url'}`
-  }
-});
-
-// Base ctx
+// Base ctx — injects mock S3Client and getSignedUrl via credentials
 function ctx(overrides = {}) {
   return {
     credentials: {
       accessKeyId: 'AKIATEST',
       secretAccessKey: 'secret',
       region: 'us-east-1',
+      _S3Client: MockS3Client,
+      _getSignedUrl: mockGetSignedUrl,
       ...overrides
     },
     fetch: globalThis.fetch
@@ -70,26 +42,35 @@ function ctx(overrides = {}) {
 }
 
 // ---------------------------------------------------------------------------
-// Import all tools after mocks installed
+// Import all tools (no mock.module needed — DI via ctx.credentials)
 // ---------------------------------------------------------------------------
-let toolModules;
+import list_buckets  from '../tools/list_buckets.mjs';
+import list_objects  from '../tools/list_objects.mjs';
+import get_object    from '../tools/get_object.mjs';
+import put_object    from '../tools/put_object.mjs';
+import delete_object from '../tools/delete_object.mjs';
+import copy_object   from '../tools/copy_object.mjs';
+import head_object   from '../tools/head_object.mjs';
+import presign       from '../tools/presign.mjs';
+import bucket_info   from '../tools/bucket_info.mjs';
+import create_bucket from '../tools/create_bucket.mjs';
+import delete_bucket from '../tools/delete_bucket.mjs';
+import search        from '../tools/search.mjs';
 
-before(async () => {
-  toolModules = {
-    list_buckets:  (await import('../tools/list_buckets.mjs')).default,
-    list_objects:  (await import('../tools/list_objects.mjs')).default,
-    get_object:    (await import('../tools/get_object.mjs')).default,
-    put_object:    (await import('../tools/put_object.mjs')).default,
-    delete_object: (await import('../tools/delete_object.mjs')).default,
-    copy_object:   (await import('../tools/copy_object.mjs')).default,
-    head_object:   (await import('../tools/head_object.mjs')).default,
-    presign:       (await import('../tools/presign.mjs')).default,
-    bucket_info:   (await import('../tools/bucket_info.mjs')).default,
-    create_bucket: (await import('../tools/create_bucket.mjs')).default,
-    delete_bucket: (await import('../tools/delete_bucket.mjs')).default,
-    search:        (await import('../tools/search.mjs')).default,
-  };
-});
+const toolModules = {
+  list_buckets,
+  list_objects,
+  get_object,
+  put_object,
+  delete_object,
+  copy_object,
+  head_object,
+  presign,
+  bucket_info,
+  create_bucket,
+  delete_bucket,
+  search,
+};
 
 afterEach(() => {
   sendImpl = async () => ({});
@@ -211,15 +192,15 @@ describe('list_objects', () => {
       { bucket: 'b', prefix: 'logs/', continuation_token: 'tok' },
       ctx()
     );
-    assert.equal(capturedCmd.params.Prefix, 'logs/');
-    assert.equal(capturedCmd.params.ContinuationToken, 'tok');
+    assert.equal(capturedCmd.input.Prefix, 'logs/');
+    assert.equal(capturedCmd.input.ContinuationToken, 'tok');
   });
 
   it('uses default limit 100', async () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { IsTruncated: false }; };
     await toolModules.list_objects.execute({ bucket: 'b' }, ctx());
-    assert.equal(capturedCmd.params.MaxKeys, 100);
+    assert.equal(capturedCmd.input.MaxKeys, 100);
   });
 });
 
@@ -258,7 +239,7 @@ describe('get_object', () => {
       return { ContentType: 'text/plain', ContentLength: 0, LastModified: new Date(), Body: { transformToString: async () => '' } };
     };
     await toolModules.get_object.execute({ bucket: 'b', key: 'f', max_bytes: 512 }, ctx());
-    assert.equal(capturedCmd.params.Range, 'bytes=0-511');
+    assert.equal(capturedCmd.input.Range, 'bytes=0-511');
   });
 
   it('propagates NoSuchKey error', async () => {
@@ -288,17 +269,17 @@ describe('put_object', () => {
       { bucket: 'my-bucket', key: 'data.json', body: '{}', content_type: 'application/json' },
       ctx()
     );
-    assert.equal(capturedCmd.params.Bucket, 'my-bucket');
-    assert.equal(capturedCmd.params.Key, 'data.json');
-    assert.equal(capturedCmd.params.Body, '{}');
-    assert.equal(capturedCmd.params.ContentType, 'application/json');
+    assert.equal(capturedCmd.input.Bucket, 'my-bucket');
+    assert.equal(capturedCmd.input.Key, 'data.json');
+    assert.equal(capturedCmd.input.Body, '{}');
+    assert.equal(capturedCmd.input.ContentType, 'application/json');
   });
 
   it('defaults content_type to text/plain', async () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return { ETag: 'e' }; };
     await toolModules.put_object.execute({ bucket: 'b', key: 'k', body: 'data' }, ctx());
-    assert.equal(capturedCmd.params.ContentType, 'text/plain');
+    assert.equal(capturedCmd.input.ContentType, 'text/plain');
   });
 
   it('includes byte size in result', async () => {
@@ -323,8 +304,8 @@ describe('delete_object', () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return {}; };
     await toolModules.delete_object.execute({ bucket: 'my-bucket', key: 'to-delete.txt' }, ctx());
-    assert.equal(capturedCmd.params.Bucket, 'my-bucket');
-    assert.equal(capturedCmd.params.Key, 'to-delete.txt');
+    assert.equal(capturedCmd.input.Bucket, 'my-bucket');
+    assert.equal(capturedCmd.input.Key, 'to-delete.txt');
   });
 
   it('propagates error on non-existent key', async () => {
@@ -354,9 +335,9 @@ describe('copy_object', () => {
       { source_bucket: 'src', source_key: 'orig.txt', dest_bucket: 'dst', dest_key: 'copy.txt' },
       ctx()
     );
-    assert.equal(capturedCmd.params.CopySource, 'src/orig.txt');
-    assert.equal(capturedCmd.params.Bucket, 'dst');
-    assert.equal(capturedCmd.params.Key, 'copy.txt');
+    assert.equal(capturedCmd.input.CopySource, 'src/orig.txt');
+    assert.equal(capturedCmd.input.Bucket, 'dst');
+    assert.equal(capturedCmd.input.Key, 'copy.txt');
   });
 
   it('propagates error from SDK', async () => {
@@ -449,16 +430,16 @@ describe('bucket_info', () => {
   it('returns basic bucket info with fallbacks', async () => {
     // All calls succeed with minimal data
     sendImpl = async (cmd) => {
-      if (cmd.name === 'GetBucketLocationCommand') return { LocationConstraint: 'us-west-2' };
-      if (cmd.name === 'GetBucketVersioningCommand') return { Status: 'Enabled' };
-      if (cmd.name === 'GetBucketEncryptionCommand') return {
+      if (cmd.constructor.name === 'GetBucketLocationCommand') return { LocationConstraint: 'us-west-2' };
+      if (cmd.constructor.name === 'GetBucketVersioningCommand') return { Status: 'Enabled' };
+      if (cmd.constructor.name === 'GetBucketEncryptionCommand') return {
         ServerSideEncryptionConfiguration: {
           Rules: [{ ApplyServerSideEncryptionByDefault: { SSEAlgorithm: 'aws:kms' } }]
         }
       };
-      if (cmd.name === 'GetBucketTaggingCommand') return { TagSet: [{ Key: 'env', Value: 'prod' }] };
-      if (cmd.name === 'GetBucketCorsCommand') return { CORSRules: [{}] };
-      if (cmd.name === 'GetBucketLifecycleConfigurationCommand') return {
+      if (cmd.constructor.name === 'GetBucketTaggingCommand') return { TagSet: [{ Key: 'env', Value: 'prod' }] };
+      if (cmd.constructor.name === 'GetBucketCorsCommand') return { CORSRules: [{}] };
+      if (cmd.constructor.name === 'GetBucketLifecycleConfigurationCommand') return {
         Rules: [{ Status: 'Enabled', ID: 'expire-old', Filter: { Prefix: 'logs/' } }]
       };
       return {};
@@ -486,7 +467,7 @@ describe('bucket_info', () => {
 
   it('shows tags when present', async () => {
     sendImpl = async (cmd) => {
-      if (cmd.name === 'GetBucketTaggingCommand') {
+      if (cmd.constructor.name === 'GetBucketTaggingCommand') {
         return { TagSet: [{ Key: 'Project', Value: 'antidrift' }, { Key: 'Stage', Value: 'prod' }] };
       }
       return {};
@@ -514,7 +495,7 @@ describe('create_bucket', () => {
     sendImpl = async (cmd) => { capturedCmd = cmd; return {}; };
     await toolModules.create_bucket.execute({ bucket: 'b', region: 'eu-central-1' }, ctx());
     assert.deepEqual(
-      capturedCmd.params.CreateBucketConfiguration,
+      capturedCmd.input.CreateBucketConfiguration,
       { LocationConstraint: 'eu-central-1' }
     );
   });
@@ -523,7 +504,7 @@ describe('create_bucket', () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return {}; };
     await toolModules.create_bucket.execute({ bucket: 'b', region: 'us-east-1' }, ctx());
-    assert.equal(capturedCmd.params.CreateBucketConfiguration, undefined);
+    assert.equal(capturedCmd.input.CreateBucketConfiguration, undefined);
   });
 
   it('propagates error on duplicate bucket name', async () => {
@@ -549,7 +530,7 @@ describe('delete_bucket', () => {
     let capturedCmd;
     sendImpl = async (cmd) => { capturedCmd = cmd; return {}; };
     await toolModules.delete_bucket.execute({ bucket: 'target' }, ctx());
-    assert.equal(capturedCmd.params.Bucket, 'target');
+    assert.equal(capturedCmd.input.Bucket, 'target');
   });
 
   it('propagates error on non-empty bucket', async () => {

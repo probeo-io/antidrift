@@ -82,9 +82,9 @@ Required scopes: Sheets, Docs, Drive, Gmail (send/read), Calendar.
 ## Platform support
 
 ```bash
-antidrift connect google              # Claude Code (default)
-antidrift connect google --cowork     # Claude Desktop / Cowork
-antidrift connect google --all        # All detected platforms
+antidrift connect google               # global install (default)
+antidrift connect google --local        # local project only
+antidrift connect google --cowork      # also register with Claude Desktop
 ```
 
 ## Privacy

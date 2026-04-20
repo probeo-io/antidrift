@@ -5,22 +5,23 @@
  * execute(args, ctx) receives ctx.credentials which contains { region }.
  * createClient(credentials) uses execSync internally.
  *
- * Strategy: mock child_process.execSync before importing tools so
+ * Strategy: inject a mock execSync via ctx.credentials._execSync so
  * createClient returns awsCli/awsCliRaw functions that call our mock.
+ * No mock.module required.
  */
-import { describe, it, before, afterEach, mock } from 'node:test';
+import { describe, it, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 
 // ---------------------------------------------------------------------------
-// execSync mock — installed before any tool imports
+// execSync mock — injected via ctx.credentials._execSync
 // ---------------------------------------------------------------------------
 let execSyncImpl = () => JSON.stringify({});
+let lastCall = null;
 
-const mockExecSync = mock.fn((...args) => execSyncImpl(...args));
-
-await mock.module('child_process', {
-  namedExports: { execSync: mockExecSync }
-});
+const mockExecSync = (cmd, opts) => {
+  lastCall = cmd;
+  return execSyncImpl(cmd, opts);
+};
 
 // Helpers
 function mockCli(data) {
@@ -33,43 +34,54 @@ function mockCliError(msg) {
   execSyncImpl = () => { throw new Error(msg); };
 }
 function lastCmd() {
-  const calls = mockExecSync.mock.calls;
-  return calls[calls.length - 1].arguments[0];
+  return lastCall;
 }
 
-// Base ctx for zeromcp execute calls
+// Base ctx for zeromcp execute calls — injects mock execSync via credentials
 function ctx(region = 'us-east-1') {
-  return { credentials: { region }, fetch: globalThis.fetch };
+  return { credentials: { region, _execSync: mockExecSync }, fetch: globalThis.fetch };
 }
 
 // ---------------------------------------------------------------------------
-// Import all tools after mock installed
+// Import all tools (no mock.module needed — DI via ctx)
 // ---------------------------------------------------------------------------
-let toolModules;
+import whoami                   from '../tools/whoami.mjs';
+import cost_today               from '../tools/cost_today.mjs';
+import ecs_list_clusters        from '../tools/ecs_list_clusters.mjs';
+import ecs_list_services        from '../tools/ecs_list_services.mjs';
+import ecs_describe_service     from '../tools/ecs_describe_service.mjs';
+import lambda_list_functions    from '../tools/lambda_list_functions.mjs';
+import lambda_get_function      from '../tools/lambda_get_function.mjs';
+import lambda_invoke            from '../tools/lambda_invoke.mjs';
+import logs_list_groups         from '../tools/logs_list_groups.mjs';
+import logs_tail                from '../tools/logs_tail.mjs';
+import s3_list_buckets          from '../tools/s3_list_buckets.mjs';
+import s3_list_objects          from '../tools/s3_list_objects.mjs';
+import s3_get_object            from '../tools/s3_get_object.mjs';
+import sqs_list_queues          from '../tools/sqs_list_queues.mjs';
+import sqs_get_queue_attributes from '../tools/sqs_get_queue_attributes.mjs';
 
-before(async () => {
-  toolModules = {
-    whoami:                   (await import('../tools/whoami.mjs')).default,
-    cost_today:               (await import('../tools/cost_today.mjs')).default,
-    ecs_list_clusters:        (await import('../tools/ecs_list_clusters.mjs')).default,
-    ecs_list_services:        (await import('../tools/ecs_list_services.mjs')).default,
-    ecs_describe_service:     (await import('../tools/ecs_describe_service.mjs')).default,
-    lambda_list_functions:    (await import('../tools/lambda_list_functions.mjs')).default,
-    lambda_get_function:      (await import('../tools/lambda_get_function.mjs')).default,
-    lambda_invoke:            (await import('../tools/lambda_invoke.mjs')).default,
-    logs_list_groups:         (await import('../tools/logs_list_groups.mjs')).default,
-    logs_tail:                (await import('../tools/logs_tail.mjs')).default,
-    s3_list_buckets:          (await import('../tools/s3_list_buckets.mjs')).default,
-    s3_list_objects:          (await import('../tools/s3_list_objects.mjs')).default,
-    s3_get_object:            (await import('../tools/s3_get_object.mjs')).default,
-    sqs_list_queues:          (await import('../tools/sqs_list_queues.mjs')).default,
-    sqs_get_queue_attributes: (await import('../tools/sqs_get_queue_attributes.mjs')).default,
-  };
-});
+const toolModules = {
+  whoami,
+  cost_today,
+  ecs_list_clusters,
+  ecs_list_services,
+  ecs_describe_service,
+  lambda_list_functions,
+  lambda_get_function,
+  lambda_invoke,
+  logs_list_groups,
+  logs_tail,
+  s3_list_buckets,
+  s3_list_objects,
+  s3_get_object,
+  sqs_list_queues,
+  sqs_get_queue_attributes,
+};
 
 afterEach(() => {
   execSyncImpl = () => JSON.stringify({});
-  mockExecSync.mock.resetCalls();
+  lastCall = null;
 });
 
 // ---------------------------------------------------------------------------

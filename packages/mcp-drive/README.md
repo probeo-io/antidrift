@@ -54,9 +54,9 @@ Required scopes: Drive (read/write), Docs, Sheets.
 ## Platform support
 
 ```bash
-antidrift connect drive               # Claude Code (default)
-antidrift connect drive --cowork      # Claude Desktop / Cowork
-antidrift connect drive --all         # All detected platforms
+antidrift connect drive               # global install (default)
+antidrift connect drive --cowork      # also register with Claude Desktop
+antidrift connect drive --local         # local project only
 ```
 
 ## Privacy

@@ -49,9 +49,9 @@ Credentials are stored locally at `~/.antidrift/cloudflare.json`.
 ## Platform support
 
 ```bash
-antidrift connect cloudflare          # Claude Code (default)
-antidrift connect cloudflare --cowork # Claude Desktop / Cowork
-antidrift connect cloudflare --all    # All detected platforms
+antidrift connect cloudflare          # global install (default)
+antidrift connect cloudflare --cowork      # also register with Claude Desktop
+antidrift connect cloudflare --local    # local project only
 ```
 
 ## Privacy

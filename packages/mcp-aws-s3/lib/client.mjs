@@ -45,6 +45,9 @@ export {
 };
 
 export function createClient(credentials) {
+  const ClientCtor = credentials?._S3Client || S3Client;
+  const signedUrl = credentials?._getSignedUrl || getSignedUrl;
+
   function getClient(region) {
     const cfg = {
       credentials: {
@@ -53,10 +56,10 @@ export function createClient(credentials) {
       }
     };
     if (region || credentials.region) cfg.region = region || credentials.region;
-    return new S3Client(cfg);
+    return new ClientCtor(cfg);
   }
 
-  return { getClient };
+  return { getClient, getSignedUrl: signedUrl };
 }
 
 export function fmtSize(bytes) {

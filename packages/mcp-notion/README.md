@@ -37,9 +37,9 @@ Credentials are stored locally at `~/.antidrift/notion.json`.
 ## Platform support
 
 ```bash
-antidrift connect notion              # Claude Code (default)
-antidrift connect notion --cowork     # Claude Desktop / Cowork
-antidrift connect notion --all        # All detected platforms
+antidrift connect notion               # global install (default)
+antidrift connect notion --local        # local project only
+antidrift connect notion --cowork      # also register with Claude Desktop
 ```
 
 ## Privacy

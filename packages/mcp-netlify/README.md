@@ -47,9 +47,9 @@ Credentials are stored locally at `~/.antidrift/netlify.json`.
 ## Platform support
 
 ```bash
-antidrift connect netlify             # Claude Code (default)
-antidrift connect netlify --cowork    # Claude Desktop / Cowork
-antidrift connect netlify --all       # All detected platforms
+antidrift connect netlify             # global install (default)
+antidrift connect netlify --cowork      # also register with Claude Desktop
+antidrift connect netlify --local       # local project only
 ```
 
 ## Privacy

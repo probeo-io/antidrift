@@ -34,9 +34,9 @@ Required scope: `gmail.modify` (read, send, label, archive — no permanent dele
 ## Platform support
 
 ```bash
-antidrift connect gmail               # Claude Code (default)
-antidrift connect gmail --cowork      # Claude Desktop / Cowork
-antidrift connect gmail --all         # All detected platforms
+antidrift connect gmail               # global install (default)
+antidrift connect gmail --cowork      # also register with Claude Desktop
+antidrift connect gmail --local         # local project only
 ```
 
 ## Privacy

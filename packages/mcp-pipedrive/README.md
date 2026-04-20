@@ -57,9 +57,9 @@ Credentials are stored locally at `~/.antidrift/pipedrive.json`.
 ## Platform support
 
 ```bash
-antidrift connect pipedrive           # Claude Code (default)
-antidrift connect pipedrive --cowork  # Claude Desktop / Cowork
-antidrift connect pipedrive --all     # All detected platforms
+antidrift connect pipedrive           # global install (default)
+antidrift connect pipedrive --cowork      # also register with Claude Desktop
+antidrift connect pipedrive --local     # local project only
 ```
 
 ## Privacy

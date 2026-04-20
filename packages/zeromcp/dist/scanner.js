@@ -44,6 +44,8 @@ export class ToolScanner {
         for (const entry of entries) {
             const fullPath = join(dir, entry.name);
             if (entry.isDirectory()) {
+                if (entry.name === 'node_modules')
+                    continue;
                 await this._scanDir(fullPath, rootDir, sourcePrefix);
                 continue;
             }

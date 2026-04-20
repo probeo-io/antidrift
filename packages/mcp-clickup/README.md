@@ -32,9 +32,9 @@ Credentials are stored locally at `~/.antidrift/clickup.json`.
 ## Platform support
 
 ```bash
-antidrift connect clickup             # Claude Code (default)
-antidrift connect clickup --cowork    # Claude Desktop / Cowork
-antidrift connect clickup --all       # All detected platforms
+antidrift connect clickup             # global install (default)
+antidrift connect clickup --cowork      # also register with Claude Desktop
+antidrift connect clickup --local       # local project only
 ```
 
 ## Privacy

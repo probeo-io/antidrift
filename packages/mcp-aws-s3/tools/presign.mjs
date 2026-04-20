@@ -1,4 +1,4 @@
-import { createClient, GetObjectCommand, PutObjectCommand, getSignedUrl } from './client.mjs';
+import { createClient, GetObjectCommand, PutObjectCommand } from './client.mjs';
 
 export default {
   description: 'Generate a presigned URL for an S3 object (GET or PUT). Useful for sharing files or uploading binary content.',
@@ -10,7 +10,7 @@ export default {
     region: { type: 'string', description: 'AWS region (optional)', optional: true }
   },
   execute: async ({ bucket, key, operation = 'get', expires_in = 3600, region }, ctx) => {
-    const { getClient } = createClient(ctx.credentials);
+    const { getClient, getSignedUrl } = createClient(ctx.credentials);
     const client = getClient(region);
     const cmd = operation === 'put'
       ? new PutObjectCommand({ Bucket: bucket, Key: key })

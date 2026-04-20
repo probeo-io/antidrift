@@ -39,9 +39,9 @@ Credentials are stored locally at `~/.antidrift/jira.json`.
 ## Platform support
 
 ```bash
-antidrift connect jira                # Claude Code (default)
-antidrift connect jira --cowork       # Claude Desktop / Cowork
-antidrift connect jira --all          # All detected platforms
+antidrift connect jira                # global install (default)
+antidrift connect jira --cowork      # also register with Claude Desktop
+antidrift connect jira --local          # local project only
 ```
 
 ## Privacy
