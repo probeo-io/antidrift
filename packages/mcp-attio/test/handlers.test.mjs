@@ -158,17 +158,14 @@ describe('attio handler tests', () => {
 
   // 2. attio_search_people
   describe('attio_search_people', () => {
-    it('sends filter with or conditions for name and email', async () => {
+    it('sends v2 filter with $or/$contains for name and email', async () => {
       const mocked = mockFetch({ data: [PERSON_RECORD] });
       const result = await findTool('attio_search_people').handler({ query: 'John' });
 
       const body = lastFetchBody(mocked);
-      assert.ok(body.filter);
-      assert.ok(body.filter.or);
-      assert.equal(body.filter.or.length, 2);
-      assert.equal(body.filter.or[0].attribute, 'name');
-      assert.equal(body.filter.or[0].value, 'John');
-      assert.equal(body.filter.or[1].attribute, 'email_addresses');
+      assert.ok(body.filter['$or'], 'must use $or');
+      assert.equal(body.filter['$or'][0].name['$contains'], 'John');
+      assert.equal(body.filter['$or'][1].email_addresses.email_address['$contains'], 'John');
       assert.ok(result.includes('John Doe'));
     });
 
@@ -239,15 +236,14 @@ describe('attio handler tests', () => {
 
   // 5. attio_search_companies
   describe('attio_search_companies', () => {
-    it('sends filter with name and domains conditions', async () => {
+    it('sends v2 filter with $or/$contains for name and domains', async () => {
       const mocked = mockFetch({ data: [COMPANY_RECORD] });
       const result = await findTool('attio_search_companies').handler({ query: 'Acme' });
 
       const body = lastFetchBody(mocked);
-      assert.ok(body.filter.or);
-      assert.equal(body.filter.or[0].attribute, 'name');
-      assert.equal(body.filter.or[0].value, 'Acme');
-      assert.equal(body.filter.or[1].attribute, 'domains');
+      assert.ok(body.filter['$or'], 'must use $or');
+      assert.equal(body.filter['$or'][0].name['$contains'], 'Acme');
+      assert.equal(body.filter['$or'][1].domains.domain['$contains'], 'Acme');
       assert.ok(result.includes('Acme Corp'));
     });
 
@@ -361,18 +357,21 @@ describe('attio handler tests', () => {
       const body = lastFetchBody(mocked);
       assert.ok(lastFetchUrl(mocked).endsWith('/tasks'));
       assert.equal(lastFetchOpts(mocked).method, 'POST');
-      assert.deepEqual(body.data.content, [{ type: 'paragraph', children: [{ text: 'Call client' }] }]);
+      assert.equal(body.data.content, 'Call client');
+      assert.equal(body.data.format, 'plaintext');
       assert.equal(body.data.deadline_at, '2026-05-01');
       assert.equal(body.data.is_completed, false);
+      assert.deepEqual(body.data.linked_records, []);
+      assert.deepEqual(body.data.assignees, []);
       assert.ok(result.includes('Call client'));
       assert.ok(result.includes('2026-05-01'));
     });
 
-    it('omits deadline when not provided', async () => {
+    it('sets deadline_at to null when not provided', async () => {
       const mocked = mockFetch({ data: { id: { task_id: 'new-t2' } } });
       await findTool('attio_create_task').handler({ content: 'Quick task' });
       const body = lastFetchBody(mocked);
-      assert.equal(body.data.deadline_at, undefined);
+      assert.equal(body.data.deadline_at, null);
     });
 
     it('includes linked record when provided', async () => {
@@ -448,7 +447,8 @@ describe('attio handler tests', () => {
       assert.equal(lastFetchOpts(mocked).method, 'POST');
       const body = lastFetchBody(mocked);
       assert.equal(body.data.title, 'Meeting Notes');
-      assert.deepEqual(body.data.content, [{ type: 'paragraph', children: [{ text: 'Discussed roadmap' }] }]);
+      assert.equal(body.data.content, 'Discussed roadmap');
+      assert.equal(body.data.format, 'plaintext');
       assert.equal(body.data.parent_object, 'people');
       assert.equal(body.data.parent_record_id, 'r1');
       assert.ok(result.includes('Meeting Notes'));

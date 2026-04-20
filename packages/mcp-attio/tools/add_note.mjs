@@ -13,7 +13,8 @@ export default {
     const res = await attio('POST', '/notes', {
       data: {
         title,
-        content: [{ type: 'paragraph', children: [{ text: content }] }],
+        content,
+        format: 'plaintext',
         parent_object: objectType === 'people' ? 'people' : 'companies',
         parent_record_id: recordId
       }

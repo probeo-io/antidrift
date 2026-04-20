@@ -5,13 +5,15 @@ export default {
   input: {
     name: { type: 'string', description: 'Deal name' },
     stage: { type: 'string', description: 'Pipeline stage (e.g. "Qualified", "Proposal", "Closed Won")', optional: true },
+    owner: { type: 'string', description: 'Workspace member email to assign as owner (optional)', optional: true },
     value: { type: 'number', description: 'Deal value in currency units (optional)', optional: true },
     linkedCompanyId: { type: 'string', description: 'Company record ID to associate with the deal (optional)', optional: true }
   },
-  execute: async ({ name, stage, value, linkedCompanyId }, ctx) => {
+  execute: async ({ name, stage, owner, value, linkedCompanyId }, ctx) => {
     const { attio } = createClient(ctx.credentials, ctx.fetch);
     const values = { name: [{ value: name }] };
     if (stage) values.stage = [{ status: stage }];
+    if (owner) values.owner = [{ workspace_member_email_address: owner }];
     if (value != null) values.value = [{ currency_value: value }];
     if (linkedCompanyId) values.associated_company = [{ target_object: 'companies', target_record_id: linkedCompanyId }];
 

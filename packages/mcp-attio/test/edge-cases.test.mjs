@@ -209,12 +209,13 @@ describe('attio edge cases', () => {
       assert.equal(body.data.values.domains, undefined);
     });
 
-    it('attio_create_task omits deadline and linked_records when not provided', async () => {
+    it('attio_create_task sends required fields with null/empty defaults', async () => {
       const mocked = mockFetch({ data: { id: { task_id: 't-new' } } });
       await findTool('attio_create_task').handler({ content: 'simple task' });
       const body = lastFetchBody(mocked);
-      assert.equal(body.data.deadline_at, undefined);
-      assert.equal(body.data.linked_records, undefined);
+      assert.equal(body.data.deadline_at, null);
+      assert.deepEqual(body.data.linked_records, []);
+      assert.deepEqual(body.data.assignees, []);
     });
   });
 
@@ -225,7 +226,7 @@ describe('attio edge cases', () => {
       const mocked = mockFetch({ data: [] });
       await findTool('attio_search_people').handler({ query: 'O\'Brien & Co <script>' });
       const body = lastFetchBody(mocked);
-      assert.equal(body.filter.or[0].value, 'O\'Brien & Co <script>');
+      assert.equal(body.filter['$or'][0].name['$contains'], 'O\'Brien & Co <script>');
     });
 
     it('attio_create_company handles special characters in name', async () => {
@@ -257,7 +258,8 @@ describe('attio edge cases', () => {
         content
       });
       const body = lastFetchBody(mocked);
-      assert.equal(body.data.content[0].children[0].text, content);
+      assert.equal(body.data.content, content);
+      assert.equal(body.data.format, 'plaintext');
     });
 
     it('attio_get_person handles recordId with special chars in URL', async () => {
@@ -307,7 +309,7 @@ describe('attio edge cases', () => {
       assert.equal(body.data.is_completed, false);
     });
 
-    it('attio_add_note builds paragraph structure correctly', async () => {
+    it('attio_add_note sends content as plain string with format', async () => {
       const mocked = mockFetch({ data: {} });
       await findTool('attio_add_note').handler({
         objectType: 'companies',
@@ -316,9 +318,8 @@ describe('attio edge cases', () => {
         content: 'Paragraph text here'
       });
       const body = lastFetchBody(mocked);
-      assert.deepEqual(body.data.content, [
-        { type: 'paragraph', children: [{ text: 'Paragraph text here' }] }
-      ]);
+      assert.equal(body.data.content, 'Paragraph text here');
+      assert.equal(body.data.format, 'plaintext');
       assert.equal(body.data.parent_object, 'companies');
       assert.equal(body.data.parent_record_id, 'c1');
     });

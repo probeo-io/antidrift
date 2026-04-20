@@ -9,9 +9,9 @@ export default {
     const { attio } = createClient(ctx.credentials, ctx.fetch);
     const res = await attio('POST', '/objects/deals/records/query', {
       filter: {
-        or: [
-          { attribute: 'name', condition: 'contains', value: query },
-          { attribute: 'stage', condition: 'contains', value: query }
+        '$or': [
+          { name: { '$contains': query } },
+          { stage: { status: { '$contains': query } } }
         ]
       }
     });

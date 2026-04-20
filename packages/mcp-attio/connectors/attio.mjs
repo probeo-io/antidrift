@@ -82,9 +82,9 @@ export const tools = [
     handler: async ({ query }) => {
       const res = await attio('POST', '/objects/people/records/query', {
         filter: {
-          or: [
-            { attribute: 'name', condition: 'contains', value: query },
-            { attribute: 'email_addresses', condition: 'contains', value: query }
+          '$or': [
+            { name: { '$contains': query } },
+            { email_addresses: { email_address: { '$contains': query } } }
           ]
         }
       });
@@ -170,9 +170,9 @@ export const tools = [
     handler: async ({ query }) => {
       const res = await attio('POST', '/objects/companies/records/query', {
         filter: {
-          or: [
-            { attribute: 'name', condition: 'contains', value: query },
-            { attribute: 'domains', condition: 'contains', value: query }
+          '$or': [
+            { name: { '$contains': query } },
+            { domains: { domain: { '$contains': query } } }
           ]
         }
       });
@@ -212,9 +212,9 @@ export const tools = [
     handler: async ({ query }) => {
       const res = await attio('POST', '/objects/deals/records/query', {
         filter: {
-          or: [
-            { attribute: 'name', condition: 'contains', value: query },
-            { attribute: 'stage', condition: 'contains', value: query }
+          '$or': [
+            { name: { '$contains': query } },
+            { stage: { status: { '$contains': query } } }
           ]
         }
       });
@@ -262,14 +262,16 @@ export const tools = [
       properties: {
         name: { type: 'string', description: 'Deal name' },
         stage: { type: 'string', description: 'Pipeline stage (e.g. "Qualified", "Proposal", "Closed Won")' },
+        owner: { type: 'string', description: 'Workspace member email to assign as owner (optional)' },
         value: { type: 'number', description: 'Deal value in currency units (optional)' },
         linkedCompanyId: { type: 'string', description: 'Company record ID to associate with the deal (optional)' }
       },
       required: ['name']
     },
-    handler: async ({ name, stage, value, linkedCompanyId }) => {
+    handler: async ({ name, stage, owner, value, linkedCompanyId }) => {
       const values = { name: [{ value: name }] };
       if (stage) values.stage = [{ status: stage }];
+      if (owner) values.owner = [{ workspace_member_email_address: owner }];
       if (value != null) values.value = [{ currency_value: value }];
       if (linkedCompanyId) values.associated_company = [{ target_object: 'companies', target_record_id: linkedCompanyId }];
 
@@ -318,24 +320,23 @@ export const tools = [
       properties: {
         content: { type: 'string', description: 'Task description' },
         deadlineAt: { type: 'string', description: 'Deadline as ISO date string (optional)' },
+        assignees: { type: 'string', description: 'Comma-separated workspace member IDs to assign (optional)' },
         linkedRecordId: { type: 'string', description: 'Record ID to link the task to (optional)' },
         linkedObjectType: { type: 'string', description: 'Object type of linked record: "people", "companies", or "deals" (optional)' }
       },
       required: ['content']
     },
-    handler: async ({ content, deadlineAt, linkedRecordId, linkedObjectType }) => {
-      const body = {
+    handler: async ({ content, deadlineAt, assignees, linkedRecordId, linkedObjectType }) => {
+      const res = await attio('POST', '/tasks', {
         data: {
-          content: [{ type: 'paragraph', children: [{ text: content }] }],
+          content,
           format: 'plaintext',
-          is_completed: false
+          is_completed: false,
+          deadline_at: deadlineAt || null,
+          linked_records: (linkedRecordId && linkedObjectType) ? [{ target_object: linkedObjectType, target_record_id: linkedRecordId }] : [],
+          assignees: assignees ? assignees.split(',').map(id => ({ referenced_actor_type: 'workspace-member', referenced_actor_id: id.trim() })) : []
         }
-      };
-      if (deadlineAt) body.data.deadline_at = deadlineAt;
-      if (linkedRecordId && linkedObjectType) {
-        body.data.linked_records = [{ target_object: linkedObjectType, target_record_id: linkedRecordId }];
-      }
-      const res = await attio('POST', '/tasks', body);
+      });
       return `✅ Task created: "${content}"${deadlineAt ? ` (due: ${deadlineAt})` : ''}`;
     }
   },
@@ -391,7 +392,8 @@ export const tools = [
       const res = await attio('POST', '/notes', {
         data: {
           title,
-          content: [{ type: 'paragraph', children: [{ text: content }] }],
+          content,
+          format: 'plaintext',
           parent_object: objectType === 'people' ? 'people' : 'companies',
           parent_record_id: recordId
         }
