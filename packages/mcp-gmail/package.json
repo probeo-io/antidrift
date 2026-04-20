@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-gmail",
-  "version": "0.21.2",
+  "version": "0.21.3",
   "description": "Gmail connector for antidrift — search, read, send, and manage email",
   "main": "server.mjs",
   "bin": {

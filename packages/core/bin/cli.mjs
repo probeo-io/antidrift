@@ -638,14 +638,16 @@ function installZeroMcp() {
   const antidriftDir = join(homedir(), '.antidrift');
   const serverDir = join(antidriftDir, 'mcp-server');
   const zeroConfigPath = join(antidriftDir, 'zeromcp.config.json');
-  const settingsPath = join(homedir(), '.claude', 'settings.json');
+  const claudeJsonPath = join(homedir(), '.claude.json');
 
-  // Check if already registered globally
-  let settings = {};
-  if (existsSync(settingsPath)) {
-    try { settings = JSON.parse(readFileSync(settingsPath, 'utf8')); } catch {}
+  const serverBinPath = join(serverDir, 'node_modules', '@antidrift', 'zeromcp', 'bin', 'mcp.js');
+
+  // Check if already registered in ~/.claude.json
+  let claudeJson = {};
+  if (existsSync(claudeJsonPath)) {
+    try { claudeJson = JSON.parse(readFileSync(claudeJsonPath, 'utf8')); } catch {}
   }
-  if (settings.mcpServers?.['antidrift-zeromcp-server']) {
+  if (claudeJson.mcpServers?.['antidrift-zeromcp-server'] && existsSync(serverBinPath)) {
     console.log('    zeromcp already installed globally');
     return;
   }
@@ -662,17 +664,17 @@ function installZeroMcp() {
     writeFileSync(zeroConfigPath, JSON.stringify({ tools: [toolsRoot], credentials: {} }, null, 2));
   }
 
-  // Register in ~/.claude/settings.json with --config pointing to zeromcp.config.json
-  const serverBin = join(serverDir, 'node_modules', '@antidrift', 'zeromcp', 'bin', 'mcp.js');
-  mkdirSync(dirname(settingsPath), { recursive: true });
-  if (!settings.mcpServers) settings.mcpServers = {};
-  settings.mcpServers['antidrift-zeromcp-server'] = {
-    command: 'node',
-    args: [serverBin, 'serve', '--config', zeroConfigPath]
+  // Register in ~/.claude.json (user scope — works across all projects)
+  if (!claudeJson.mcpServers) claudeJson.mcpServers = {};
+  claudeJson.mcpServers['antidrift-zeromcp-server'] = {
+    type: 'stdio',
+    command: process.execPath,
+    args: [serverBinPath, 'serve', '--config', zeroConfigPath],
+    env: {}
   };
-  writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+  writeFileSync(claudeJsonPath, JSON.stringify(claudeJson, null, 2));
   console.log('  ✓ Installed zeromcp to ~/.antidrift/mcp-server/');
-  console.log('  ✓ Registered antidrift-zeromcp-server in ~/.claude/settings.json');
+  console.log('  ✓ Registered antidrift-zeromcp-server in ~/.claude.json');
 }
 
 function repairToolDependencies() {

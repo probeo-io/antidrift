@@ -18,9 +18,9 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - name: Set version 0.20.${{ github.run_number }}
+      - name: Set version from version.json
         run: |
-          BUILD=${{ github.run_number }}
+          VERSION=$(node -e "console.log(require('./version.json').version)")
           for dir in packages/cli packages/core packages/skills \
             packages/mcp-google packages/mcp-gmail packages/mcp-drive packages/mcp-calendar \
             packages/mcp-attio packages/mcp-stripe packages/mcp-github packages/mcp-clickup \
@@ -29,7 +29,7 @@ jobs:
             packages/mcp-hubspot-crm packages/mcp-hubspot-marketing \
             packages/mcp-cloudflare packages/mcp-linear packages/mcp-netlify \
             packages/mcp-pipedrive packages/mcp-vercel; do
-            npm version "0.20.${BUILD}" --no-git-tag-version --prefix "$dir" || true
+            npm version "${VERSION}" --no-git-tag-version --prefix "$dir" || true
           done
 
       - name: Publish antidrift (CLI)
@@ -185,9 +185,11 @@ jobs:
       - name: Install build tools
         run: pip install build
 
-      - name: Set version 0.20.${{ github.run_number }}
+      - name: Set version from version.json
         working-directory: packages/core-py
-        run: sed -i "s/^version = .*/version = \"0.20.${{ github.run_number }}\"/" pyproject.toml
+        run: |
+          VERSION=$(node -e "console.log(require('../../version.json').version)")
+          sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
 
       - name: Build
         working-directory: packages/core-py
