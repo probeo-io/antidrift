@@ -1,7 +1,7 @@
-import { readdir, watch } from 'fs/promises';
-import { join, basename, extname, relative, resolve } from 'path';
-import { pathToFileURL } from 'url';
-import type { InputSchema } from './schema.js';
+import { readdir, watch } from 'node:fs/promises';
+import { join, basename, extname, relative, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { type InputSchema, toJsonSchema, type JsonSchema } from './schema.js';
 import type { Config, NamespaceOverride, CredentialSource, ToolSource } from './config.js';
 import { resolveCredentials, resolveToolSources } from './config.js';
 import { validatePermissions, createSandbox, type ToolPermissions, type SandboxContext, type SandboxOptions } from './sandbox.js';
@@ -14,7 +14,9 @@ export interface ToolContext {
 export interface ToolDefinition {
   description: string;
   input: InputSchema;
+  cachedSchema: JsonSchema;
   execute: (args: Record<string, unknown>, ctx?: ToolContext) => Promise<unknown>;
+  execute_timeout?: number; // ms, per-tool override
 }
 
 export class ToolScanner {
@@ -25,6 +27,7 @@ export class ToolScanner {
   private namespacing: Record<string, NamespaceOverride>;
   private credentialSources: Record<string, CredentialSource>;
   private credentialCache: Map<string, unknown>;
+  private cacheCredentials: boolean;
   private logging: boolean;
   private bypass: boolean;
 
@@ -36,6 +39,7 @@ export class ToolScanner {
     this.namespacing = config?.namespacing || {};
     this.credentialSources = config?.credentials || {};
     this.credentialCache = new Map();
+    this.cacheCredentials = config?.cache_credentials ?? true;
     this.logging = config?.logging ?? false;
     this.bypass = config?.bypass_permissions ?? false;
   }
@@ -100,20 +104,24 @@ export class ToolScanner {
     return innerName;
   }
 
-  private _getCredentials(filePath: string, rootDir: string): unknown {
+  private _getCredentialSource(filePath: string, rootDir: string): CredentialSource | undefined {
     const rel = relative(rootDir, filePath);
     const parts = rel.split('/');
     if (parts.length < 2) return undefined;
+    return this.credentialSources[parts[0]];
+  }
 
-    const dir = parts[0];
-    if (this.credentialCache.has(dir)) return this.credentialCache.get(dir);
-
-    const source = this.credentialSources[dir];
+  private _resolveCredentials(filePath: string, rootDir: string): unknown {
+    const source = this._getCredentialSource(filePath, rootDir);
     if (!source) return undefined;
-
-    const creds = resolveCredentials(source);
-    this.credentialCache.set(dir, creds);
-    return creds;
+    if (this.cacheCredentials) {
+      const dir = relative(rootDir, filePath).split('/')[0];
+      if (this.credentialCache.has(dir)) return this.credentialCache.get(dir);
+      const creds = resolveCredentials(source);
+      this.credentialCache.set(dir, creds);
+      return creds;
+    }
+    return resolveCredentials(source);
   }
 
   private async _loadTool(filePath: string, rootDir: string, sourcePrefix?: string): Promise<void> {
@@ -135,19 +143,24 @@ export class ToolScanner {
       const name = this._buildName(filePath, rootDir, sourcePrefix);
       validatePermissions(name, tool.permissions);
 
-      const credentials = this._getCredentials(filePath, rootDir);
       const sandboxOpts: SandboxOptions = {
         logging: this.logging,
         bypass: this.bypass,
       };
       const sandbox = createSandbox(name, tool.permissions, sandboxOpts);
-      const ctx: ToolContext = { credentials, fetch: sandbox.fetch };
       const rawExecute = tool.execute;
 
+      const input = tool.input || {};
       this.tools.set(name, {
         description: tool.description || '',
-        input: tool.input || {},
-        execute: (args: Record<string, unknown>) => rawExecute(args, ctx),
+        input,
+        cachedSchema: toJsonSchema(input),
+        execute: (args: Record<string, unknown>) => {
+          const credentials = this._resolveCredentials(filePath, rootDir);
+          const ctx: ToolContext = { credentials, fetch: sandbox.fetch };
+          return rawExecute(args, ctx);
+        },
+        execute_timeout: tool.permissions?.execute_timeout,
       });
 
       console.error(`[zeromcp] Loaded: ${name}`);

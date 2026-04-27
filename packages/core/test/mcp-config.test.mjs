@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, cpSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, cpSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 
 const TMP = join(import.meta.dirname, '..', '.test-tmp-mcp');
@@ -283,5 +283,104 @@ describe('server file copying', () => {
 
     const config = JSON.parse(readFileSync(join(cwd, '.mcp.json'), 'utf8'));
     assert.ok(config.mcpServers['antidrift-attio']);
+  });
+});
+
+function applyMcpJsonCleanup(localConfig, localMcpPath, antidriftNames) {
+  for (const name of antidriftNames) {
+    delete localConfig.mcpServers[`antidrift-${name}`];
+  }
+  const remainingKeys = Object.keys(localConfig.mcpServers || {});
+  const otherKeys = Object.keys(localConfig).filter(k => k !== 'mcpServers');
+  if (remainingKeys.length === 0 && otherKeys.length === 0) {
+    unlinkSync(localMcpPath);
+  } else {
+    writeFileSync(localMcpPath, JSON.stringify(localConfig, null, 2));
+  }
+}
+
+describe('.mcp.json cleanup after migration', () => {
+  beforeEach(setup);
+  afterEach(cleanup);
+
+  it('deletes .mcp.json when all antidrift entries are migrated out and nothing else remains', () => {
+    const cwd = join(TMP, 'project');
+    mkdirSync(cwd, { recursive: true });
+    const mcpPath = join(cwd, '.mcp.json');
+
+    const localConfig = {
+      mcpServers: {
+        'antidrift-google': { command: 'node', args: ['.mcp-servers/google/server.mjs'] },
+        'antidrift-attio': { command: 'node', args: ['.mcp-servers/attio/server.mjs'] },
+      }
+    };
+    writeFileSync(mcpPath, JSON.stringify(localConfig, null, 2));
+
+    applyMcpJsonCleanup(localConfig, mcpPath, ['google', 'attio']);
+
+    assert.ok(!existsSync(mcpPath));
+  });
+
+  it('keeps .mcp.json when other non-antidrift servers still exist after migration', () => {
+    const cwd = join(TMP, 'project');
+    mkdirSync(cwd, { recursive: true });
+    const mcpPath = join(cwd, '.mcp.json');
+
+    const localConfig = {
+      mcpServers: {
+        'antidrift-google': { command: 'node', args: ['.mcp-servers/google/server.mjs'] },
+        'my-custom-server': { command: 'python', args: ['serve.py'] },
+      }
+    };
+    writeFileSync(mcpPath, JSON.stringify(localConfig, null, 2));
+
+    applyMcpJsonCleanup(localConfig, mcpPath, ['google']);
+
+    assert.ok(existsSync(mcpPath));
+    const written = JSON.parse(readFileSync(mcpPath, 'utf8'));
+    assert.ok(!written.mcpServers['antidrift-google']);
+    assert.ok(written.mcpServers['my-custom-server']);
+  });
+
+  it('keeps .mcp.json when other top-level keys exist', () => {
+    const cwd = join(TMP, 'project');
+    mkdirSync(cwd, { recursive: true });
+    const mcpPath = join(cwd, '.mcp.json');
+
+    const localConfig = {
+      version: 1,
+      mcpServers: {
+        'antidrift-attio': { command: 'node', args: ['.mcp-servers/attio/server.mjs'] },
+      }
+    };
+    writeFileSync(mcpPath, JSON.stringify(localConfig, null, 2));
+
+    applyMcpJsonCleanup(localConfig, mcpPath, ['attio']);
+
+    assert.ok(existsSync(mcpPath));
+    const written = JSON.parse(readFileSync(mcpPath, 'utf8'));
+    assert.equal(written.version, 1);
+    assert.deepEqual(written.mcpServers, {});
+  });
+});
+
+describe('installZeroMcp zeromcp.config.json', () => {
+  beforeEach(setup);
+  afterEach(cleanup);
+
+  it('writes cache_credentials: false when creating new zeromcp.config.json', () => {
+    const antidriftDir = join(TMP, '.antidrift');
+    const toolsRoot = join(antidriftDir, 'tools');
+    const zeroConfigPath = join(antidriftDir, 'zeromcp.config.json');
+    mkdirSync(antidriftDir, { recursive: true });
+
+    writeFileSync(zeroConfigPath, JSON.stringify(
+      { tools: [toolsRoot], credentials: {}, cache_credentials: false },
+      null,
+      2
+    ));
+
+    const written = JSON.parse(readFileSync(zeroConfigPath, 'utf8'));
+    assert.equal(written.cache_credentials, false);
   });
 });

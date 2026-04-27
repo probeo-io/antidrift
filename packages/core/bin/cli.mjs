@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, cpSync, readdirSync, writeFileSync, readFileSync, statSync } from 'fs';
+import { existsSync, mkdirSync, cpSync, readdirSync, writeFileSync, readFileSync, statSync, unlinkSync } from 'fs';
 import { join, basename, dirname } from 'path';
 import { createInterface } from 'readline';
 import { execSync } from 'child_process';
@@ -474,8 +474,15 @@ async function migrateAndUpdateConnectors() {
         for (const name of oldLocal) {
           delete localConfig.mcpServers[`antidrift-${name}`];
         }
-        writeFileSync(localMcpPath, JSON.stringify(localConfig, null, 2));
-        console.log(`    Removed ${oldLocal.length} local connector(s) — using global zeromcp`);
+        const remainingKeys = Object.keys(localConfig.mcpServers || {});
+        const otherKeys = Object.keys(localConfig).filter(k => k !== 'mcpServers');
+        if (remainingKeys.length === 0 && otherKeys.length === 0) {
+          unlinkSync(localMcpPath);
+          console.log(`    Removed ${oldLocal.length} local connector(s) and deleted .mcp.json — using global zeromcp`);
+        } else {
+          writeFileSync(localMcpPath, JSON.stringify(localConfig, null, 2));
+          console.log(`    Removed ${oldLocal.length} local connector(s) — using global zeromcp`);
+        }
       } else {
         for (const name of oldLocal) {
           const credFile = CONNECTOR_CRED[name];
@@ -661,7 +668,7 @@ function installZeroMcp() {
   // Create ~/.antidrift/zeromcp.config.json if it doesn't exist
   if (!existsSync(zeroConfigPath)) {
     const toolsRoot = join(antidriftDir, 'tools');
-    writeFileSync(zeroConfigPath, JSON.stringify({ tools: [toolsRoot], credentials: {} }, null, 2));
+    writeFileSync(zeroConfigPath, JSON.stringify({ tools: [toolsRoot], credentials: {}, cache_credentials: false }, null, 2));
   }
 
   // Register in ~/.claude.json (user scope — works across all projects)

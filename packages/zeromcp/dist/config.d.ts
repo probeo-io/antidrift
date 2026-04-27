@@ -28,8 +28,19 @@ export interface Config {
     separator?: string;
     namespacing?: Record<string, NamespaceOverride>;
     credentials?: Record<string, CredentialSource>;
+    cache_credentials?: boolean;
     remote?: RemoteServer[];
+    execute_timeout?: number;
+    page_size?: number;
+    resources?: string | (string | ToolSource)[];
+    prompts?: string | (string | ToolSource)[];
+    icon?: string;
 }
+/**
+ * Resolve an icon config value to a data URI.
+ * Accepts: data URI (passthrough), URL (fetched), file path (read).
+ */
+export declare function resolveIcon(icon: string | undefined): Promise<string | undefined>;
 export declare function resolveToolSources(tools?: string | (string | ToolSource)[]): ToolSource[];
 export declare function resolveTransports(config: Config): TransportConfig[];
 export declare function resolveCredentials(source: CredentialSource): unknown;

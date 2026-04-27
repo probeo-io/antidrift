@@ -1,6 +1,7 @@
-import { readdir, watch } from 'fs/promises';
-import { join, basename, extname, relative, resolve } from 'path';
-import { pathToFileURL } from 'url';
+import { readdir, watch } from 'node:fs/promises';
+import { join, basename, extname, relative, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { toJsonSchema } from './schema.js';
 import { resolveCredentials, resolveToolSources } from './config.js';
 import { validatePermissions, createSandbox } from './sandbox.js';
 export class ToolScanner {
@@ -11,6 +12,7 @@ export class ToolScanner {
     namespacing;
     credentialSources;
     credentialCache;
+    cacheCredentials;
     logging;
     bypass;
     constructor(config) {
@@ -21,6 +23,7 @@ export class ToolScanner {
         this.namespacing = config?.namespacing || {};
         this.credentialSources = config?.credentials || {};
         this.credentialCache = new Map();
+        this.cacheCredentials = config?.cache_credentials ?? true;
         this.logging = config?.logging ?? false;
         this.bypass = config?.bypass_permissions ?? false;
     }
@@ -78,20 +81,26 @@ export class ToolScanner {
         }
         return innerName;
     }
-    _getCredentials(filePath, rootDir) {
+    _getCredentialSource(filePath, rootDir) {
         const rel = relative(rootDir, filePath);
         const parts = rel.split('/');
         if (parts.length < 2)
             return undefined;
-        const dir = parts[0];
-        if (this.credentialCache.has(dir))
-            return this.credentialCache.get(dir);
-        const source = this.credentialSources[dir];
+        return this.credentialSources[parts[0]];
+    }
+    _resolveCredentials(filePath, rootDir) {
+        const source = this._getCredentialSource(filePath, rootDir);
         if (!source)
             return undefined;
-        const creds = resolveCredentials(source);
-        this.credentialCache.set(dir, creds);
-        return creds;
+        if (this.cacheCredentials) {
+            const dir = relative(rootDir, filePath).split('/')[0];
+            if (this.credentialCache.has(dir))
+                return this.credentialCache.get(dir);
+            const creds = resolveCredentials(source);
+            this.credentialCache.set(dir, creds);
+            return creds;
+        }
+        return resolveCredentials(source);
     }
     async _loadTool(filePath, rootDir, sourcePrefix) {
         const fileUrl = pathToFileURL(filePath).href;
@@ -103,18 +112,23 @@ export class ToolScanner {
             }
             const name = this._buildName(filePath, rootDir, sourcePrefix);
             validatePermissions(name, tool.permissions);
-            const credentials = this._getCredentials(filePath, rootDir);
             const sandboxOpts = {
                 logging: this.logging,
                 bypass: this.bypass,
             };
             const sandbox = createSandbox(name, tool.permissions, sandboxOpts);
-            const ctx = { credentials, fetch: sandbox.fetch };
             const rawExecute = tool.execute;
+            const input = tool.input || {};
             this.tools.set(name, {
                 description: tool.description || '',
-                input: tool.input || {},
-                execute: (args) => rawExecute(args, ctx),
+                input,
+                cachedSchema: toJsonSchema(input),
+                execute: (args) => {
+                    const credentials = this._resolveCredentials(filePath, rootDir);
+                    const ctx = { credentials, fetch: sandbox.fetch };
+                    return rawExecute(args, ctx);
+                },
+                execute_timeout: tool.permissions?.execute_timeout,
             });
             console.error(`[zeromcp] Loaded: ${name}`);
         }

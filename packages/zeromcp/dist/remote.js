@@ -1,4 +1,5 @@
 import { resolveAuth } from './config.js';
+import { toJsonSchema } from './schema.js';
 export class RemoteManager {
     connections = new Map();
     async connect(servers) {
@@ -38,9 +39,11 @@ export class RemoteManager {
         }, auth);
         const remoteTools = listRes?.result?.tools || [];
         for (const rt of remoteTools) {
+            const input = this.schemaToInput(rt.inputSchema);
             tools.set(rt.name, {
                 description: rt.description,
-                input: this.schemaToInput(rt.inputSchema),
+                input,
+                cachedSchema: toJsonSchema(input),
                 execute: async (args) => {
                     const callRes = await this.httpRpc(server.url, {
                         jsonrpc: '2.0', id: Date.now(),

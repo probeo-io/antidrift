@@ -2,6 +2,7 @@ export interface ToolPermissions {
   network?: string[] | boolean;
   fs?: 'read' | 'write' | boolean;
   exec?: boolean;
+  execute_timeout?: number; // ms, overrides config default
 }
 
 interface SandboxedFetch {

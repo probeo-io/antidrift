@@ -1,6 +1,6 @@
-import { readFileSync } from 'fs';
-import { readdir } from 'fs/promises';
-import { join, extname, relative, resolve } from 'path';
+import { readFileSync } from 'node:fs';
+import { readdir } from 'node:fs/promises';
+import { join, extname, relative, resolve } from 'node:path';
 import { resolveToolSources } from './config.js';
 const FORBIDDEN_PATTERNS = [
     { regex: /(?<!\bctx\.)fetch\s*\(/, pattern: 'fetch(', message: 'Use ctx.fetch instead of global fetch' },
