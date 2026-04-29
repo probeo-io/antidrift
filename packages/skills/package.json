@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/skills",
-  "version": "0.21.6",
+  "version": "0.21.7",
   "description": "Skill registry for AI agent brains — list, add, and manage skills",
   "bin": {
     "antidrift-skills": "bin/cli.mjs"

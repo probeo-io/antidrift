@@ -16,6 +16,8 @@ Or via Python:
 pip install antidrift
 ```
 
+Works on macOS, Linux, and Windows (CMD, PowerShell, Git Bash).
+
 ## Quick start
 
 ```bash

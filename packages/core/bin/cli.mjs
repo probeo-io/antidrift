@@ -16,10 +16,13 @@ const rl = createInterface({ input: process.stdin, output: process.stdout });
 
 function ask(q) {
   return new Promise((resolve) => {
-    rl.question(q, (answer) => {
-      resolve(answer);
-    });
+    rl.question(q, resolve);
   });
+}
+
+function commandExists(cmd) {
+  const check = process.platform === 'win32' ? `where ${cmd}` : `which ${cmd}`;
+  try { execSync(check, { stdio: 'ignore' }); return true; } catch { return false; }
 }
 
 const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
@@ -27,7 +30,7 @@ const ver = pkg.version;
 
 // Detect if CLI is globally installed
 let hasCli = false;
-try { execSync('which antidrift', { stdio: 'ignore' }); hasCli = true; } catch {}
+try { hasCli = commandExists('antidrift'); } catch {}
 const CMD = hasCli ? 'antidrift' : 'npx @antidrift/core';
 const cliTip = hasCli ? '' : '\n  Tip: npm install -g @antidrift/cli for easier commands\n';
 const banner = `
@@ -94,8 +97,7 @@ function checkPrereqs() {
     missing.push({ name: 'git', install });
   }
 
-  try { execSync('which claude', { stdio: 'ignore' }); }
-  catch {
+  if (!commandExists('claude')) {
     const install = p === 'darwin'
       ? 'Run: brew install claude-code\n             Or: npm install -g @anthropic-ai/claude-code'
       : 'Run: npm install -g @anthropic-ai/claude-code';
@@ -517,8 +519,8 @@ async function compileInstalledSkills(skillsDir) {
 
   // Detect all installed platforms
   const platforms = [];
-  try { execSync('which claude', { stdio: 'ignore' }); platforms.push('claude'); } catch {}
-  try { execSync('which codex', { stdio: 'ignore' }); platforms.push('codex'); } catch {}
+  if (commandExists('claude')) platforms.push('claude');
+  if (commandExists('codex')) platforms.push('codex');
   if (platforms.length === 0) platforms.push('claude'); // default
 
   let compiled = 0;
