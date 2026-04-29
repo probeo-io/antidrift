@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-github",
-  "version": "0.21.8",
+  "version": "0.21.9",
   "description": "GitHub connector for antidrift — repos, issues, PRs, actions, releases",
   "main": "server.mjs",
   "bin": {

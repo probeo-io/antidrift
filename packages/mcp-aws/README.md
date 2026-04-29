@@ -2,7 +2,7 @@
 
 AWS MCP server for [antidrift](https://antidrift.io) — S3, Lambda, ECS, CloudWatch, SQS, and cost tracking from Claude Code, Codex, and other AI agents.
 
-> **No API key needed** — uses your existing AWS CLI credentials. Zero dependencies.
+> **No API key needed** — uses your existing AWS CLI credentials. Zero dependencies. Works on macOS, Linux, and Windows.
 
 ## Setup
 

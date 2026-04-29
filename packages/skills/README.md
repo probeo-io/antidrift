@@ -1,6 +1,6 @@
 # @antidrift/skills
 
-Community skill registry for [antidrift](https://antidrift.io) brains. Works with Claude Code, Codex, Cursor, and Antigravity.
+Community skill registry for [antidrift](https://antidrift.io) brains. Works with Claude Code, Codex, Cursor, and Antigravity on macOS, Linux, and Windows.
 
 ## Browse
 
