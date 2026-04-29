@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-hubspot-marketing",
-  "version": "0.21.7",
+  "version": "0.21.8",
   "description": "HubSpot Marketing connector for antidrift — emails, campaigns, forms, pages, blog",
   "main": "server.mjs",
   "bin": {

@@ -68,8 +68,9 @@ async function setup() {
   console.log('');
 
   // Check if aws CLI is installed
+  const awsCheck = process.platform === 'win32' ? 'where aws' : 'which aws';
   try {
-    execSync('which aws', { encoding: 'utf8', stdio: 'pipe' });
+    execSync(awsCheck, { encoding: 'utf8', stdio: 'pipe' });
   } catch {
     console.log('  \u2717 AWS CLI is not installed.\n');
     console.log('  Install AWS CLI: https://aws.amazon.com/cli/\n');

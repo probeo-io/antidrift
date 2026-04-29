@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-aws",
-  "version": "0.21.7",
+  "version": "0.21.8",
   "description": "AWS connector for antidrift — S3, Lambda, ECS, CloudWatch, SQS, Cost Explorer via AWS CLI",
   "type": "module",
   "bin": {

@@ -1,25 +1,26 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, cpSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, mkdtempSync, cpSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
+import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+
+function commandExists(cmd) {
+  const check = process.platform === 'win32' ? `where ${cmd}` : `which ${cmd}`;
+  try { execSync(check, { stdio: 'ignore' }); return true; } catch { return false; }
+}
 
 const REPO = 'probeo-io/antidrift-skills';
 
 // Detect if the CLI is globally installed
 let CMD_PREFIX;
-try {
-  execSync('which antidrift', { stdio: 'ignore' });
-  CMD_PREFIX = 'antidrift skills';
-} catch {
-  CMD_PREFIX = 'npx @antidrift/skills';
-}
+CMD_PREFIX = commandExists('antidrift') ? 'antidrift skills' : 'npx @antidrift/skills';
 
 function detectPlatforms() {
   const platforms = [];
-  try { execSync('which claude', { stdio: 'ignore' }); platforms.push('claude'); } catch {}
-  try { execSync('which codex', { stdio: 'ignore' }); platforms.push('codex'); } catch {}
+  if (commandExists('claude')) platforms.push('claude');
+  if (commandExists('codex')) platforms.push('codex');
   if (platforms.length === 0) platforms.push('claude'); // default
   return platforms;
 }
@@ -133,7 +134,7 @@ function list() {
 }
 
 function cloneRegistry() {
-  const tmpDir = execSync('mktemp -d', { encoding: 'utf8' }).trim();
+  const tmpDir = mkdtempSync(join(tmpdir(), 'antidrift-'));
   execSync(`git clone --depth=1 https://github.com/${REPO}.git "${tmpDir}/registry"`, {
     stdio: ['pipe', 'pipe', 'pipe']
   });
