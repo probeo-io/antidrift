@@ -45,9 +45,21 @@ function formatDeal(record) {
   const vals = record.values || {};
   const name = vals.name?.[0]?.value || 'Unknown';
   const stage = vals.stage?.[0]?.status?.title || '';
+  const stageDate = vals.stage?.[0]?.created_at || '';
   const value = vals.value?.[0]?.currency_value || '';
+  const createdAt = record.created_at || '';
   let line = `💰 ${name}`;
-  if (stage) line += `  •  ${stage}`;
+  if (stage) {
+    line += `  •  ${stage}`;
+    if (stageDate) {
+      line += ` (since ${stageDate.slice(0, 10)}`;
+      if (createdAt) {
+        const days = Math.round((new Date(stageDate) - new Date(createdAt)) / 86400000);
+        line += `, ${days}d from lead`;
+      }
+      line += `)`;
+    }
+  }
   if (value) line += `  •  $${value}`;
   line += `  [id: ${record.id.record_id}]`;
   return line;
@@ -220,6 +232,49 @@ export const tools = [
       });
       if (!res.data?.length) return `No deals matching "${query}".`;
       return res.data.map(formatDeal).join('\n');
+    }
+  },
+  {
+    name: 'attio_get_deal',
+    description: 'Get full details for a deal including complete stage history and time spent in each stage.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        recordId: { type: 'string', description: 'The deal record ID' }
+      },
+      required: ['recordId']
+    },
+    handler: async ({ recordId }) => {
+      const res = await attio('GET', `/objects/deals/records/${recordId}`);
+      const vals = res.data.values || {};
+      const lines = [];
+
+      const name = vals.name?.[0]?.value || 'Unknown';
+      const value = vals.value?.[0]?.currency_value;
+      lines.push(`💰 ${name}${value != null ? `  •  $${value}` : ''}  [id: ${recordId}]`);
+
+      const stages = (vals.stage || []).slice().sort((a, b) => new Date(a.active_from || a.created_at) - new Date(b.active_from || b.created_at));
+      if (stages.length) {
+        lines.push('');
+        lines.push('Stage history:');
+        for (const s of stages) {
+          const title = s.status?.title || 'Unknown';
+          const from = (s.active_from || s.created_at || '').slice(0, 10);
+          const until = s.active_until ? s.active_until.slice(0, 10) : null;
+          const days = (s.active_from || s.created_at) ? Math.round((until ? new Date(s.active_until) : new Date()) - new Date(s.active_from || s.created_at)) / 86400000 : null;
+          const range = until ? `${from} → ${until}` : `${from} → now`;
+          lines.push(`  ${title.padEnd(20)} ${range}${days != null ? `  (${Math.round(days)}d)` : ''}`);
+        }
+        const first = stages[0];
+        const last = stages[stages.length - 1];
+        if (first && (first.active_from || first.created_at)) {
+          const total = Math.round(((last.active_until ? new Date(last.active_until) : new Date()) - new Date(first.active_from || first.created_at)) / 86400000);
+          lines.push('');
+          lines.push(`Total: ${total}d`);
+        }
+      }
+
+      return lines.join('\n');
     }
   },
   {

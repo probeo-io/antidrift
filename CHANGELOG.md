@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.0] - 2026-05-01
+
+### Added
+
+- **`attio_get_deal`** — new tool that returns full stage history for a deal: each stage with entry date, exit date, and days spent. Includes total cycle time from lead to current stage. Use this to answer "how long did this deal take from lead to close?"
+- **Deal stage dates in `attio_list_deals`** — one-liner now shows when the deal entered its current stage and days elapsed since lead creation (e.g. `Closed Won (since 2026-04-15, 45d from lead)`)
+
 ## [0.12.0] - 2026-03-31
 
 ### Added

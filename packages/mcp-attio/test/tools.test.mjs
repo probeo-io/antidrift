@@ -10,6 +10,7 @@ import search_companies  from '../tools/search_companies.mjs';
 import create_company    from '../tools/create_company.mjs';
 import list_deals        from '../tools/list_deals.mjs';
 import search_deals      from '../tools/search_deals.mjs';
+import get_deal          from '../tools/get_deal.mjs';
 import create_deal       from '../tools/create_deal.mjs';
 import delete_deal       from '../tools/delete_deal.mjs';
 import move_deal         from '../tools/move_deal.mjs';
@@ -54,7 +55,15 @@ function makeCompany(id = 'c-1') {
   return { id: { record_id: id }, values: { name: [{ value: 'Acme Corp' }], domains: [{ domain: 'acme.com' }] } };
 }
 function makeDeal(id = 'd-1') {
-  return { id: { record_id: id }, values: { name: [{ value: 'Big Deal' }], stage: [{ status: { title: 'Qualified' } }], value: [{ currency_value: 5000 }] } };
+  return {
+    id: { record_id: id },
+    created_at: '2026-01-01T00:00:00.000Z',
+    values: {
+      name: [{ value: 'Big Deal' }],
+      stage: [{ status: { title: 'Qualified' }, created_at: '2026-02-15T00:00:00.000Z' }],
+      value: [{ currency_value: 5000 }]
+    }
+  };
 }
 
 afterEach(() => {});
@@ -63,7 +72,7 @@ afterEach(() => {});
 // Tool structure
 // ---------------------------------------------------------------------------
 describe('tool structure', () => {
-  const tools = { list_people, search_people, get_person, create_person, list_companies, search_companies, create_company, list_deals, search_deals, create_deal, delete_deal, move_deal, update_record, create_task, list_tasks, complete_task, add_note };
+  const tools = { list_people, search_people, get_person, create_person, list_companies, search_companies, create_company, list_deals, search_deals, get_deal, create_deal, delete_deal, move_deal, update_record, create_task, list_tasks, complete_task, add_note };
   it('every tool has description, input, execute', () => {
     for (const [name, tool] of Object.entries(tools)) {
       assert.equal(typeof tool.description, 'string', `${name}: description`);
@@ -72,7 +81,7 @@ describe('tool structure', () => {
       assert.equal(typeof tool.execute, 'function', `${name}: execute`);
     }
   });
-  it('has 17 tools', () => assert.equal(Object.keys(tools).length, 17));
+  it('has 18 tools', () => assert.equal(Object.keys(tools).length, 18));
 });
 
 // ---------------------------------------------------------------------------
@@ -249,13 +258,25 @@ describe('list_deals', () => {
     assert.ok(fetch.last().url.includes('/objects/deals/records/query'));
     assert.equal(fetch.last().body.limit, 5);
   });
-  it('formats deal with name, stage, value, and id', async () => {
+  it('formats deal with name, stage, stage date, cycle days, value, and id', async () => {
     const fetch = makeFetch({ data: [makeDeal('d-123')] });
     const result = await list_deals.execute({}, ctx(fetch));
     assert.ok(result.includes('Big Deal'));
     assert.ok(result.includes('Qualified'));
+    assert.ok(result.includes('2026-02-15'));
+    assert.ok(result.includes('45d from lead'));
     assert.ok(result.includes('5000'));
     assert.ok(result.includes('d-123'));
+  });
+  it('omits cycle days when no record.created_at', async () => {
+    const fetch = makeFetch({ data: [{
+      id: { record_id: 'd-nodate' },
+      values: { name: [{ value: 'No Date Deal' }], stage: [{ status: { title: 'Qualified' }, created_at: '2026-03-01T00:00:00.000Z' }] }
+    }] });
+    const result = await list_deals.execute({}, ctx(fetch));
+    assert.ok(result.includes('No Date Deal'));
+    assert.ok(result.includes('since 2026-03-01'));
+    assert.ok(!result.includes('from lead'));
   });
 });
 
@@ -275,6 +296,72 @@ describe('search_deals', () => {
     const fetch = makeFetch({ data: [] });
     const result = await search_deals.execute({ query: 'none' }, ctx(fetch));
     assert.ok(result.includes('No deals matching'));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// get_deal
+// ---------------------------------------------------------------------------
+describe('get_deal', () => {
+  it('GETs /objects/deals/records/:id', async () => {
+    const fetch = makeFetch({ data: { id: { record_id: 'd-abc' }, values: { name: [{ value: 'Big Deal' }] } } });
+    await get_deal.execute({ recordId: 'd-abc' }, ctx(fetch));
+    assert.ok(fetch.last().url.endsWith('/objects/deals/records/d-abc'));
+    assert.equal(fetch.last().opts.method, 'GET');
+  });
+
+  it('shows full stage history with date ranges and durations', async () => {
+    const fetch = makeFetch({
+      data: {
+        id: { record_id: 'd-1' },
+        values: {
+          name: [{ value: 'Pipeline Deal' }],
+          value: [{ currency_value: 20000 }],
+          stage: [
+            { status: { title: 'Lead' },     active_from: '2026-01-01T00:00:00.000Z', active_until: '2026-01-15T00:00:00.000Z' },
+            { status: { title: 'Qualified' }, active_from: '2026-01-15T00:00:00.000Z', active_until: '2026-02-01T00:00:00.000Z' },
+            { status: { title: 'Closed Won' }, active_from: '2026-02-01T00:00:00.000Z', active_until: '2026-02-10T00:00:00.000Z' }
+          ]
+        }
+      }
+    });
+    const result = await get_deal.execute({ recordId: 'd-1' }, ctx(fetch));
+    assert.ok(result.includes('Pipeline Deal'));
+    assert.ok(result.includes('$20000'));
+    assert.ok(result.includes('Stage history'));
+    assert.ok(result.includes('Lead'));
+    assert.ok(result.includes('2026-01-01'));
+    assert.ok(result.includes('2026-01-15'));
+    assert.ok(result.includes('14d'));
+    assert.ok(result.includes('Qualified'));
+    assert.ok(result.includes('Closed Won'));
+    assert.ok(result.includes('Total:'));
+  });
+
+  it('shows current stage as "→ now" when active_until is null', async () => {
+    const fetch = makeFetch({
+      data: {
+        id: { record_id: 'd-2' },
+        values: {
+          name: [{ value: 'Open Deal' }],
+          stage: [
+            { status: { title: 'Proposal' }, active_from: '2026-03-01T00:00:00.000Z', active_until: null }
+          ]
+        }
+      }
+    });
+    const result = await get_deal.execute({ recordId: 'd-2' }, ctx(fetch));
+    assert.ok(result.includes('Proposal'));
+    assert.ok(result.includes('→ now'));
+  });
+
+  it('handles deal with no stage history', async () => {
+    const fetch = makeFetch({
+      data: { id: { record_id: 'd-3' }, values: { name: [{ value: 'No Stage Deal' }] } }
+    });
+    const result = await get_deal.execute({ recordId: 'd-3' }, ctx(fetch));
+    assert.ok(result.includes('No Stage Deal'));
+    assert.ok(!result.includes('Stage history'));
   });
 });
 

@@ -39,9 +39,10 @@ const COMPANY_RECORD = {
 
 const DEAL_RECORD = {
   id: { record_id: 'd1' },
+  created_at: '2026-01-01T00:00:00.000Z',
   values: {
     name: [{ value: 'Big Deal' }],
-    stage: [{ status: { title: 'Proposal' } }],
+    stage: [{ status: { title: 'Proposal' }, created_at: '2026-03-01T00:00:00.000Z' }],
     value: [{ currency_value: 50000 }]
   }
 };
@@ -281,14 +282,24 @@ describe('attio handler tests', () => {
 
   // 7. attio_list_deals
   describe('attio_list_deals', () => {
-    it('returns formatted deal list with name, stage, and value', async () => {
+    it('returns formatted deal list with stage date and cycle days', async () => {
       mockFetch({ data: [DEAL_RECORD] });
       const result = await findTool('attio_list_deals').handler({});
 
       assert.ok(result.includes('Big Deal'));
       assert.ok(result.includes('Proposal'));
+      assert.ok(result.includes('2026-03-01'));
+      assert.ok(result.includes('59d from lead'));
       assert.ok(result.includes('50000'));
       assert.ok(result.includes('[id: d1]'));
+    });
+
+    it('omits cycle days when no record.created_at', async () => {
+      mockFetch({ data: [{ id: { record_id: 'd-nodate' }, values: { name: [{ value: 'Bare Deal' }], stage: [{ status: { title: 'Qualified' }, created_at: '2026-03-01T00:00:00.000Z' }] } }] });
+      const result = await findTool('attio_list_deals').handler({});
+      assert.ok(result.includes('Bare Deal'));
+      assert.ok(result.includes('since 2026-03-01'));
+      assert.ok(!result.includes('from lead'));
     });
 
     it('returns empty message when no deals found', async () => {
@@ -298,7 +309,53 @@ describe('attio handler tests', () => {
     });
   });
 
-  // 8. attio_update_record
+  // 8. attio_get_deal
+  describe('attio_get_deal', () => {
+    it('GETs deal and returns stage history with durations', async () => {
+      mockFetch({
+        data: {
+          id: { record_id: 'd1' },
+          values: {
+            name: [{ value: 'Big Deal' }],
+            value: [{ currency_value: 50000 }],
+            stage: [
+              { status: { title: 'Lead' },     active_from: '2026-01-01T00:00:00.000Z', active_until: '2026-01-20T00:00:00.000Z' },
+              { status: { title: 'Closed Won' }, active_from: '2026-01-20T00:00:00.000Z', active_until: '2026-02-05T00:00:00.000Z' }
+            ]
+          }
+        }
+      });
+      const result = await findTool('attio_get_deal').handler({ recordId: 'd1' });
+
+      assert.ok(result.includes('Big Deal'));
+      assert.ok(result.includes('$50000'));
+      assert.ok(result.includes('Stage history'));
+      assert.ok(result.includes('Lead'));
+      assert.ok(result.includes('2026-01-01'));
+      assert.ok(result.includes('19d'));
+      assert.ok(result.includes('Closed Won'));
+      assert.ok(result.includes('Total:'));
+    });
+
+    it('shows "→ now" for current open stage', async () => {
+      mockFetch({
+        data: {
+          id: { record_id: 'd2' },
+          values: {
+            name: [{ value: 'Open Deal' }],
+            stage: [
+              { status: { title: 'Qualified' }, active_from: '2026-03-01T00:00:00.000Z', active_until: null }
+            ]
+          }
+        }
+      });
+      const result = await findTool('attio_get_deal').handler({ recordId: 'd2' });
+      assert.ok(result.includes('Qualified'));
+      assert.ok(result.includes('→ now'));
+    });
+  });
+
+  // 9. attio_update_record
   describe('attio_update_record', () => {
     it('sends PATCH to correct endpoint with values', async () => {
       const mocked = mockFetch({ data: { id: { record_id: 'r1' } } });

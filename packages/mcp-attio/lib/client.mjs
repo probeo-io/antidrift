@@ -43,9 +43,21 @@ export function formatDeal(record) {
   const vals = record.values || {};
   const name = vals.name?.[0]?.value || 'Unknown';
   const stage = vals.stage?.[0]?.status?.title || '';
+  const stageDate = vals.stage?.[0]?.created_at || '';
   const value = vals.value?.[0]?.currency_value || '';
+  const createdAt = record.created_at || '';
   let line = `💰 ${name}`;
-  if (stage) line += `  •  ${stage}`;
+  if (stage) {
+    line += `  •  ${stage}`;
+    if (stageDate) {
+      line += ` (since ${stageDate.slice(0, 10)}`;
+      if (createdAt) {
+        const days = Math.round((new Date(stageDate) - new Date(createdAt)) / 86400000);
+        line += `, ${days}d from lead`;
+      }
+      line += `)`;
+    }
+  }
   if (value) line += `  •  $${value}`;
   line += `  [id: ${record.id.record_id}]`;
   return line;
