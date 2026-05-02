@@ -1,6 +1,10 @@
 # @antidrift/mcp-aws
 
-AWS MCP server for [antidrift](https://antidrift.io) — S3, Lambda, ECS, CloudWatch, SQS, and cost tracking from Claude Code, Codex, and other AI agents.
+Claude can't see your AWS infrastructure. Connect it and you can check service health, inspect logs, query costs, and audit resources without opening the console.
+
+- "What's our AWS spend today?"
+- "Show me the last 20 log lines from the payment service"
+- "List the ECS services in production and their running task counts"
 
 > **No API key needed** — uses your existing AWS CLI credentials. Zero dependencies. Works on macOS, Linux, and Windows.
 

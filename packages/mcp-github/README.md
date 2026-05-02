@@ -1,6 +1,10 @@
 # @antidrift/mcp-github
 
-GitHub MCP server for [antidrift](https://antidrift.io) — repos, issues, pull requests, Actions, releases, and traffic from Claude Code, Codex, and other AI agents.
+Claude can't see your GitHub activity. Connect it and you can search issues, review PRs, check CI status, and create tickets — all from a conversation.
+
+- "What issues are open and unassigned in this repo?"
+- "Show me the diff for PR #42"
+- "Create an issue for the bug I just found — auth fails on mobile"
 
 ## Setup
 

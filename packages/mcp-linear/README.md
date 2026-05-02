@@ -1,6 +1,10 @@
 # @antidrift/mcp-linear
 
-Linear MCP server for [antidrift](https://antidrift.io) — issues, projects, cycles, teams, and comments from Claude Code, Codex, and other AI agents.
+Claude can't see your Linear board. Connect it and you can search issues, check the current cycle, create tickets from a conversation, and move work forward.
+
+- "What's in the current sprint for the backend team?"
+- "Create an issue for the rate limiting bug, assign it to me"
+- "What issues are overdue across all teams?"
 
 ## Setup
 

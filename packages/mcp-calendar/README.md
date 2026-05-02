@@ -1,6 +1,10 @@
 # @antidrift/mcp-calendar
 
-Google Calendar MCP server for [antidrift](https://antidrift.io) — view, search, and create calendar events from Claude Code, Codex, and other AI agents.
+Claude doesn't know what's on your schedule. Connect Google Calendar and it can plan around your day, find availability, and create events from a conversation.
+
+- "What's on my schedule today?"
+- "Do I have anything on Friday afternoon?"
+- "Create a 30-minute call with the team next Tuesday at 2pm"
 
 ## Setup
 

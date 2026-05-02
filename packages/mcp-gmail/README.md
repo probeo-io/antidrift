@@ -1,6 +1,10 @@
 # @antidrift/mcp-gmail
 
-Gmail MCP server for [antidrift](https://antidrift.io) — search, read, send, label, and archive emails from Claude Code, Codex, and other AI agents.
+Claude can't read your email. Connect Gmail and it can search your inbox, draft replies, summarize threads, and help you reach inbox zero — without switching tabs.
+
+- "Find emails from Acme Corp from the last two weeks"
+- "Draft a reply to the latest message from Sarah thanking her for the intro"
+- "Archive everything from no-reply@notifications.github.com"
 
 ## Setup
 

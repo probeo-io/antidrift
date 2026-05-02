@@ -1,6 +1,10 @@
 # @antidrift/mcp-netlify
 
-Netlify MCP server for [antidrift](https://antidrift.io) — sites, deploys, environment variables, and forms from Claude Code, Codex, and other AI agents.
+Claude can't see your Netlify sites. Connect it and you can check deploy status, trigger builds, review form submissions, and manage env vars from the terminal.
+
+- "What's the deploy status for my marketing site?"
+- "Roll back the last deploy on the docs site"
+- "Show me the contact form submissions from this week"
 
 ## Setup
 

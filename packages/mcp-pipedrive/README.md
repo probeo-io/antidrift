@@ -1,6 +1,10 @@
 # @antidrift/mcp-pipedrive
 
-Pipedrive CRM MCP server for [antidrift](https://antidrift.io) — deals, contacts, organizations, activities, and notes from Claude Code, Codex, and other AI agents.
+Claude can't see your Pipedrive pipeline. Connect it and you can track deals, research contacts before calls, and log activity without switching tabs.
+
+- "What deals are closing this month?"
+- "Look up the contact at TechCorp and show me their recent activity"
+- "Add a note to the Acme deal — they want a revised proposal by Friday"
 
 ## Setup
 

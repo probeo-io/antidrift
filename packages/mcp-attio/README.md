@@ -1,6 +1,10 @@
 # @antidrift/mcp-attio
 
-Attio CRM MCP server for [antidrift](https://antidrift.io) — manage people, companies, deals, tasks, and notes from Claude Code, Codex, and other AI agents.
+Claude can't see your CRM. Connect Attio and it can research contacts before calls, pull your pipeline, and log meeting notes — without you switching tabs.
+
+- "What deals are stuck in proposal stage?"
+- "Pull everything we know about Acme Corp before my 3pm call"
+- "Log a note on the Smith deal and create a follow-up task for Friday"
 
 ## Setup
 

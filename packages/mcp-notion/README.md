@@ -1,6 +1,10 @@
 # @antidrift/mcp-notion
 
-Notion MCP server for [antidrift](https://antidrift.io) — search pages, query databases, and read content from Claude Code, Codex, and other AI agents.
+Claude can't read your Notion docs. Connect it and you can ask questions about your knowledge base, pull database records, and search across your workspace.
+
+- "What does our runbook say about deploying to production?"
+- "Find the Q2 goals page and summarize the priorities"
+- "Search for anything related to the onboarding flow"
 
 > **Read-only** — this connector cannot create, update, or delete anything in Notion.
 

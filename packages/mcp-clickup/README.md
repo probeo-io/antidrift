@@ -1,6 +1,10 @@
 # @antidrift/mcp-clickup
 
-ClickUp MCP server for [antidrift](https://antidrift.io) — workspaces, spaces, tasks, and comments from Claude Code, Codex, and other AI agents.
+Claude can't see your tasks. Connect ClickUp and it can search your backlog, create tasks from a conversation, and check what's in progress — without leaving the terminal.
+
+- "What tasks are assigned to me this week?"
+- "Create a task for the login bug we just found, high priority"
+- "What's in the Done column for the current sprint?"
 
 ## Setup
 

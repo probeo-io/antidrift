@@ -1,6 +1,10 @@
 # @antidrift/mcp-jira
 
-Jira MCP server for [antidrift](https://antidrift.io) — projects, issues, sprints, and boards from Claude Code, Codex, and other AI agents.
+Claude can't see your backlog. Connect Jira and it can search issues, create tickets from a conversation, and check sprint status — without leaving the terminal.
+
+- "What tickets are in the current sprint?"
+- "Create a bug ticket for the payment flow crash, high priority"
+- "What's assigned to me that's still in progress?"
 
 ## Setup
 

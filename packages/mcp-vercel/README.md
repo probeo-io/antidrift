@@ -1,6 +1,10 @@
 # @antidrift/mcp-vercel
 
-Vercel MCP server for [antidrift](https://antidrift.io) — projects, deployments, domains, and environment variables from Claude Code, Codex, and other AI agents.
+Claude can't see your Vercel deployments. Connect it and you can check deploy status, read build logs, and manage env vars without opening the dashboard.
+
+- "What's the status of the last deployment for my-app?"
+- "Show me the build logs for the failed deploy"
+- "Add a NEXT_PUBLIC_API_URL env var to production"
 
 ## Setup
 

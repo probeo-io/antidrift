@@ -1,6 +1,6 @@
 {
   "name": "@antidrift/mcp-calendar",
-  "version": "0.21.9",
+  "version": "0.22.2",
   "description": "Google Calendar connector for antidrift — view, search, and create events",
   "main": "server.mjs",
   "bin": {

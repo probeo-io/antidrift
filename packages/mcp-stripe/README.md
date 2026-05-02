@@ -1,6 +1,10 @@
 # @antidrift/mcp-stripe
 
-Stripe MCP server for [antidrift](https://antidrift.io) — customers, invoices, subscriptions, charges, products, and payment links from Claude Code, Codex, and other AI agents.
+Claude can't see your Stripe account. Connect it and you can look up customers, check revenue, create invoices, and manage subscriptions from a conversation.
+
+- "What's my account balance right now?"
+- "Look up chris@example.com and show me their subscriptions"
+- "Create an invoice for Acme Corp for $2,400 and send it"
 
 > **Heads up:** This connector can create invoices, modify customers, and cancel subscriptions. Use a restricted key with only the permissions you need. Never use this in a PCI-sensitive context or to process raw card numbers.
 

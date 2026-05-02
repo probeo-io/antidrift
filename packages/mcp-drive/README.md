@@ -1,6 +1,10 @@
 # @antidrift/mcp-drive
 
-Google Drive, Docs, and Sheets MCP server for [antidrift](https://antidrift.io) — read, write, and organize files, documents, and spreadsheets from Claude Code, Codex, and other AI agents.
+Claude can't see your Google Drive. Connect it and you can find files, read docs, update spreadsheets, and organize your workspace without opening a browser.
+
+- "Find the Q2 budget spreadsheet and show me the summary row"
+- "What docs did I create in the last week?"
+- "Create a new doc called 'Launch Checklist' and start it with a header"
 
 > Prefer this package if you need Drive + Docs + Sheets without Gmail/Calendar. For the full Google Workspace bundle, use [`@antidrift/mcp-google`](https://www.npmjs.com/package/@antidrift/mcp-google).
 
@@ -39,7 +43,7 @@ Required scopes: Drive (read/write), Docs, Sheets.
 | `append_to_doc` | Append content to a Doc |
 | `share_doc` | Share a Doc with a user |
 
-### Sheets (6)
+### Sheets (7)
 
 | Tool | Description |
 |---|---|

@@ -1,6 +1,10 @@
 # @antidrift/mcp-cloudflare
 
-Cloudflare MCP server for [antidrift](https://antidrift.io) — read-only access to DNS, Pages, Workers, and R2 from Claude Code, Codex, and other AI agents.
+Claude can't see your Cloudflare setup. Connect it and you can inspect DNS, check Pages deployments, and audit Workers without leaving the terminal.
+
+- "What DNS records does example.com have?"
+- "What was the last deploy for my marketing site?"
+- "List all my Workers and when they were last modified"
 
 ## Setup
 

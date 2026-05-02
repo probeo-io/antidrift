@@ -1,6 +1,10 @@
 # @antidrift/mcp-google
 
-All-in-one Google Workspace MCP server for [antidrift](https://antidrift.io) — Sheets, Docs, Drive, Gmail, and Calendar in a single connector for Claude Code, Codex, and other AI agents.
+Claude can't access your Google Workspace. Connect it and you can search files, read docs, update sheets, manage email, and check your calendar — all from one conversation.
+
+- "Summarize the meeting notes doc from last Thursday"
+- "Add these 5 rows to the leads spreadsheet"
+- "Search my inbox for anything from the Acme account and draft a follow-up"
 
 > This is the bundle. If you only need a subset, install the standalone packages: [`mcp-gmail`](https://www.npmjs.com/package/@antidrift/mcp-gmail), [`mcp-drive`](https://www.npmjs.com/package/@antidrift/mcp-drive), [`mcp-calendar`](https://www.npmjs.com/package/@antidrift/mcp-calendar).
 
@@ -14,7 +18,7 @@ A browser window opens for Google sign-in. The OAuth token is stored locally at 
 
 Required scopes: Sheets, Docs, Drive, Gmail (send/read), Calendar.
 
-## Tools (30)
+## Tools (38)
 
 ### Drive (7)
 

@@ -1,6 +1,10 @@
 # @antidrift/mcp-hubspot-crm
 
-HubSpot CRM MCP server for [antidrift](https://antidrift.io) — contacts, companies, deals, leads, and notes from Claude Code, Codex, and other AI agents.
+Claude can't see your HubSpot pipeline. Connect it and you can research contacts, track deals, and update your CRM without opening a browser.
+
+- "What deals closed this month?"
+- "Look up Sarah Chen at Acme — when did we last talk?"
+- "Add a note to the Enterprise deal that we pushed the close date"
 
 > For marketing tools (emails, campaigns, forms, landing pages), see [`@antidrift/mcp-hubspot-marketing`](https://www.npmjs.com/package/@antidrift/mcp-hubspot-marketing). Both share the same credentials.
 

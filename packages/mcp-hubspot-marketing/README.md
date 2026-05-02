@@ -1,6 +1,10 @@
 # @antidrift/mcp-hubspot-marketing
 
-HubSpot Marketing MCP server for [antidrift](https://antidrift.io) — emails, campaigns, forms, landing pages, and blog posts from Claude Code, Codex, and other AI agents.
+Claude can't see how your campaigns are performing. Connect HubSpot Marketing and it can pull email stats, check form submissions, and surface what's working.
+
+- "How did last week's campaign perform?"
+- "How many submissions did the demo request form get this month?"
+- "What landing pages do we have live right now?"
 
 > For CRM tools (contacts, companies, deals), see [`@antidrift/mcp-hubspot-crm`](https://www.npmjs.com/package/@antidrift/mcp-hubspot-crm). Both share the same credentials.
 
