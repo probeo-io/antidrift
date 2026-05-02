@@ -8,10 +8,6 @@ import assert from 'node:assert/strict';
 import { createClient } from '../lib/client.mjs';
 
 // ─── Tool imports ────────────────────────────────────────────────────────────
-import createDnsRecord from '../tools/create_dns_record.mjs';
-import createR2Bucket from '../tools/create_r2_bucket.mjs';
-import deleteDnsRecord from '../tools/delete_dns_record.mjs';
-import deleteR2Bucket from '../tools/delete_r2_bucket.mjs';
 import getPagesProject from '../tools/get_pages_project.mjs';
 import getWorker from '../tools/get_worker.mjs';
 import listDnsRecords from '../tools/list_dns_records.mjs';
@@ -168,10 +164,6 @@ describe('createClient (cloudflare)', () => {
 
 // ─── Tool structure ───────────────────────────────────────────────────────────
 const allTools = [
-  { name: 'create_dns_record', tool: createDnsRecord },
-  { name: 'create_r2_bucket', tool: createR2Bucket },
-  { name: 'delete_dns_record', tool: deleteDnsRecord },
-  { name: 'delete_r2_bucket', tool: deleteR2Bucket },
   { name: 'get_pages_project', tool: getPagesProject },
   { name: 'get_worker', tool: getWorker },
   { name: 'list_dns_records', tool: listDnsRecords },
@@ -196,148 +188,6 @@ describe('tool structure', () => {
       assert.equal(typeof tool.execute, 'function');
     });
   }
-});
-
-// ─── create_dns_record ────────────────────────────────────────────────────────
-describe('create_dns_record', () => {
-  it('POSTs to /zones/{zoneId}/dns_records with correct body', async () => {
-    const data = { success: true, result: { id: 'rec1', type: 'A', name: 'www.example.com', content: '1.2.3.4' } };
-    const { ctx, getCaptured } = makeCtx(data);
-    await createDnsRecord.execute({ zoneId: 'z1', type: 'A', name: 'www', content: '1.2.3.4' }, ctx);
-    const { url, opts } = getCaptured();
-    assert.ok(url.includes('/zones/z1/dns_records'));
-    assert.equal(opts.method, 'POST');
-    const body = JSON.parse(opts.body);
-    assert.equal(body.type, 'A');
-    assert.equal(body.name, 'www');
-    assert.equal(body.content, '1.2.3.4');
-  });
-
-  it('defaults proxied to false and ttl to 1', async () => {
-    const data = { success: true, result: { id: 'rec2', type: 'CNAME', name: 'api', content: 'target.example.com' } };
-    const { ctx, getCaptured } = makeCtx(data);
-    await createDnsRecord.execute({ zoneId: 'z1', type: 'CNAME', name: 'api', content: 'target.example.com' }, ctx);
-    const { opts } = getCaptured();
-    const body = JSON.parse(opts.body);
-    assert.equal(body.proxied, false);
-    assert.equal(body.ttl, 1);
-  });
-
-  it('accepts custom proxied and ttl values', async () => {
-    const data = { success: true, result: { id: 'rec3', type: 'A', name: 'www', content: '5.6.7.8' } };
-    const { ctx, getCaptured } = makeCtx(data);
-    await createDnsRecord.execute({ zoneId: 'z1', type: 'A', name: 'www', content: '5.6.7.8', proxied: true, ttl: 300 }, ctx);
-    const { opts } = getCaptured();
-    const body = JSON.parse(opts.body);
-    assert.equal(body.proxied, true);
-    assert.equal(body.ttl, 300);
-  });
-
-  it('returns formatted output with type, name, content, id', async () => {
-    const data = { success: true, result: { id: 'rec4', type: 'TXT', name: 'example.com', content: 'v=spf1' } };
-    const { ctx } = makeCtx(data);
-    const result = await createDnsRecord.execute({ zoneId: 'z1', type: 'TXT', name: '@', content: 'v=spf1' }, ctx);
-    assert.ok(result.includes('TXT'));
-    assert.ok(result.includes('example.com'));
-    assert.ok(result.includes('v=spf1'));
-    assert.ok(result.includes('[id: rec4]'));
-  });
-
-  it('throws on non-ok response', async () => {
-    const { ctx } = makeErrCtx(400);
-    await assert.rejects(() => createDnsRecord.execute({ zoneId: 'z1', type: 'A', name: 'x', content: '1.2.3.4' }, ctx));
-  });
-});
-
-// ─── create_r2_bucket ─────────────────────────────────────────────────────────
-describe('create_r2_bucket', () => {
-  it('POSTs to /accounts/{accountId}/r2/buckets', async () => {
-    const { ctx, getCaptured } = makeCtx({ success: true, result: {} });
-    await createR2Bucket.execute({ accountId: 'acc1', name: 'my-bucket' }, ctx);
-    const { url, opts } = getCaptured();
-    assert.ok(url.includes('/accounts/acc1/r2/buckets'));
-    assert.equal(opts.method, 'POST');
-    const body = JSON.parse(opts.body);
-    assert.equal(body.name, 'my-bucket');
-  });
-
-  it('includes locationHint when location provided', async () => {
-    const { ctx, getCaptured } = makeCtx({ success: true, result: {} });
-    await createR2Bucket.execute({ accountId: 'acc1', name: 'eu-bucket', location: 'weur' }, ctx);
-    const { opts } = getCaptured();
-    const body = JSON.parse(opts.body);
-    assert.equal(body.locationHint, 'weur');
-  });
-
-  it('omits locationHint when not provided', async () => {
-    const { ctx, getCaptured } = makeCtx({ success: true, result: {} });
-    await createR2Bucket.execute({ accountId: 'acc1', name: 'no-loc' }, ctx);
-    const { opts } = getCaptured();
-    const body = JSON.parse(opts.body);
-    assert.equal(body.locationHint, undefined);
-  });
-
-  it('returns success message with bucket name', async () => {
-    const { ctx } = makeCtx({ success: true, result: {} });
-    const result = await createR2Bucket.execute({ accountId: 'acc1', name: 'my-assets' }, ctx);
-    assert.ok(result.includes('my-assets'));
-  });
-
-  it('throws on non-ok response', async () => {
-    const { ctx } = makeErrCtx(409);
-    await assert.rejects(() => createR2Bucket.execute({ accountId: 'acc1', name: 'dupe' }, ctx));
-  });
-});
-
-// ─── delete_dns_record ────────────────────────────────────────────────────────
-describe('delete_dns_record', () => {
-  it('DELETEs /zones/{zoneId}/dns_records/{recordId}', async () => {
-    const { ctx, getCaptured } = makeCtx({ success: true, result: { id: 'rec1' } });
-    await deleteDnsRecord.execute({ zoneId: 'z1', recordId: 'rec1' }, ctx);
-    const { url, opts } = getCaptured();
-    assert.ok(url.includes('/zones/z1/dns_records/rec1'));
-    assert.equal(opts.method, 'DELETE');
-  });
-
-  it('returns success message with record ID', async () => {
-    const { ctx } = makeCtx({ success: true, result: {} });
-    const result = await deleteDnsRecord.execute({ zoneId: 'z1', recordId: 'abc123' }, ctx);
-    assert.ok(result.includes('abc123'));
-  });
-
-  it('does not include body', async () => {
-    const { ctx, getCaptured } = makeCtx({ success: true, result: {} });
-    await deleteDnsRecord.execute({ zoneId: 'z1', recordId: 'r1' }, ctx);
-    const { opts } = getCaptured();
-    assert.equal(opts.body, undefined);
-  });
-
-  it('throws on non-ok response', async () => {
-    const { ctx } = makeErrCtx(404);
-    await assert.rejects(() => deleteDnsRecord.execute({ zoneId: 'z1', recordId: 'no-rec' }, ctx));
-  });
-});
-
-// ─── delete_r2_bucket ─────────────────────────────────────────────────────────
-describe('delete_r2_bucket', () => {
-  it('DELETEs /accounts/{accountId}/r2/buckets/{name}', async () => {
-    const { ctx, getCaptured } = makeCtx({ success: true, result: {} });
-    await deleteR2Bucket.execute({ accountId: 'acc1', name: 'old-bucket' }, ctx);
-    const { url, opts } = getCaptured();
-    assert.ok(url.includes('/accounts/acc1/r2/buckets/old-bucket'));
-    assert.equal(opts.method, 'DELETE');
-  });
-
-  it('returns success message with bucket name', async () => {
-    const { ctx } = makeCtx({ success: true, result: {} });
-    const result = await deleteR2Bucket.execute({ accountId: 'acc1', name: 'bye-bucket' }, ctx);
-    assert.ok(result.includes('bye-bucket'));
-  });
-
-  it('throws on non-ok response', async () => {
-    const { ctx } = makeErrCtx(409);
-    await assert.rejects(() => deleteR2Bucket.execute({ accountId: 'acc1', name: 'non-empty' }, ctx));
-  });
 });
 
 // ─── get_pages_project ────────────────────────────────────────────────────────

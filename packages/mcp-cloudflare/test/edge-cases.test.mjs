@@ -110,35 +110,6 @@ describe('cloudflare optional params omitted', () => {
     assert.ok(!url.includes('type='));
   });
 
-  it('cf_create_dns_record uses default proxied=false and ttl=1', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: { type: 'A', name: 'test.example.com', content: '1.2.3.4', id: 'r1' } }),
-        text: async () => '{}',
-      };
-    });
-    await getTool('cf_create_dns_record').handler({ zoneId: 'z1', type: 'A', name: 'test', content: '1.2.3.4' });
-    assert.equal(capturedBody.proxied, false);
-    assert.equal(capturedBody.ttl, 1);
-  });
-
-  it('cf_create_r2_bucket omits locationHint when location not provided', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: {} }),
-        text: async () => '{}',
-      };
-    });
-    await getTool('cf_create_r2_bucket').handler({ accountId: 'a1', name: 'bucket' });
-    assert.equal(capturedBody.name, 'bucket');
-    assert.equal(capturedBody.locationHint, undefined);
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -253,44 +224,6 @@ describe('cloudflare empty results', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Special characters in input strings
-// ---------------------------------------------------------------------------
-describe('cloudflare special characters in inputs', () => {
-  it('cf_create_dns_record handles special chars in content', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: { type: 'TXT', name: '_dmarc.example.com', content: 'v=DMARC1; p=none; rua=mailto:d@example.com', id: 'r1' } }),
-        text: async () => '{}',
-      };
-    });
-    const result = await getTool('cf_create_dns_record').handler({
-      zoneId: 'z1', type: 'TXT', name: '_dmarc', content: 'v=DMARC1; p=none; rua=mailto:d@example.com'
-    });
-    assert.equal(capturedBody.content, 'v=DMARC1; p=none; rua=mailto:d@example.com');
-    assert.ok(result.includes('Created'));
-  });
-
-  it('cf_create_dns_record handles ampersands and angle brackets in TXT record', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: { type: 'TXT', name: 'test.example.com', content: 'key=a&b <c> "d"', id: 'r2' } }),
-        text: async () => '{}',
-      };
-    });
-    await getTool('cf_create_dns_record').handler({
-      zoneId: 'z1', type: 'TXT', name: 'test', content: 'key=a&b <c> "d"'
-    });
-    assert.equal(capturedBody.content, 'key=a&b <c> "d"');
-  });
-});
-
-// ---------------------------------------------------------------------------
 // URL encoding of path parameters
 // ---------------------------------------------------------------------------
 describe('cloudflare URL encoding', () => {
@@ -299,13 +232,6 @@ describe('cloudflare URL encoding', () => {
     await getTool('cf_list_dns_records').handler({ zoneId: 'abc-123-def' });
     const [url] = globalThis.fetch.mock.calls[0].arguments;
     assert.ok(url.includes('/zones/abc-123-def/dns_records'));
-  });
-
-  it('cf_delete_dns_record includes both zoneId and recordId in path', async () => {
-    mockCfFetch(200, { id: 'r1' });
-    await getTool('cf_delete_dns_record').handler({ zoneId: 'z-1', recordId: 'r-1' });
-    const [url] = globalThis.fetch.mock.calls[0].arguments;
-    assert.ok(url.includes('/zones/z-1/dns_records/r-1'));
   });
 
   it('cf_get_worker includes scriptName in URL path', async () => {
@@ -324,83 +250,4 @@ describe('cloudflare URL encoding', () => {
     assert.ok(url.includes('/pages/projects/my-project'));
   });
 
-  it('cf_delete_r2_bucket includes bucket name in URL path', async () => {
-    mockCfFetch(200, {});
-    await getTool('cf_delete_r2_bucket').handler({ accountId: 'a1', name: 'my-bucket' });
-    const [url] = globalThis.fetch.mock.calls[0].arguments;
-    assert.ok(url.includes('/r2/buckets/my-bucket'));
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Complex input schemas
-// ---------------------------------------------------------------------------
-describe('cloudflare complex inputs', () => {
-  it('cf_create_dns_record sends full body with all optional params', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: { type: 'A', name: 'sub.example.com', content: '10.0.0.1', id: 'r5' } }),
-        text: async () => '{}',
-      };
-    });
-    await getTool('cf_create_dns_record').handler({
-      zoneId: 'z1', type: 'A', name: 'sub', content: '10.0.0.1', proxied: true, ttl: 300,
-    });
-    assert.equal(capturedBody.type, 'A');
-    assert.equal(capturedBody.name, 'sub');
-    assert.equal(capturedBody.content, '10.0.0.1');
-    assert.equal(capturedBody.proxied, true);
-    assert.equal(capturedBody.ttl, 300);
-  });
-
-  it('cf_create_r2_bucket sends locationHint when location provided', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: {} }),
-        text: async () => '{}',
-      };
-    });
-    await getTool('cf_create_r2_bucket').handler({ accountId: 'a1', name: 'eu-bucket', location: 'weur' });
-    assert.equal(capturedBody.name, 'eu-bucket');
-    assert.equal(capturedBody.locationHint, 'weur');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Default values
-// ---------------------------------------------------------------------------
-describe('cloudflare default values', () => {
-  it('cf_create_dns_record defaults proxied to false', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: { type: 'A', name: 'x.example.com', content: '1.1.1.1', id: 'r9' } }),
-        text: async () => '{}',
-      };
-    });
-    await getTool('cf_create_dns_record').handler({ zoneId: 'z1', type: 'A', name: 'x', content: '1.1.1.1' });
-    assert.equal(capturedBody.proxied, false);
-  });
-
-  it('cf_create_dns_record defaults ttl to 1 (auto)', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: { type: 'A', name: 'y.example.com', content: '2.2.2.2', id: 'r10' } }),
-        text: async () => '{}',
-      };
-    });
-    await getTool('cf_create_dns_record').handler({ zoneId: 'z1', type: 'A', name: 'y', content: '2.2.2.2' });
-    assert.equal(capturedBody.ttl, 1);
-  });
 });

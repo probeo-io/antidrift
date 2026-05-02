@@ -65,42 +65,6 @@ export const tools = [
       }).join('\n');
     }
   },
-  {
-    name: 'cf_create_dns_record',
-    description: 'Create a DNS record.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        zoneId: { type: 'string', description: 'Zone ID' },
-        type: { type: 'string', description: 'Record type (A, AAAA, CNAME, MX, TXT)' },
-        name: { type: 'string', description: 'Record name (e.g. "www" or "@")' },
-        content: { type: 'string', description: 'Record value (IP, hostname, or text)' },
-        proxied: { type: 'boolean', description: 'Enable Cloudflare proxy (default: false)' },
-        ttl: { type: 'number', description: 'TTL in seconds (1 = auto)' }
-      },
-      required: ['zoneId', 'type', 'name', 'content']
-    },
-    handler: async ({ zoneId, type, name, content, proxied = false, ttl = 1 }) => {
-      const res = await cf('POST', `/zones/${zoneId}/dns_records`, { type, name, content, proxied, ttl });
-      return `Created ${res.result.type} record: ${res.result.name} → ${res.result.content}  [id: ${res.result.id}]`;
-    }
-  },
-  {
-    name: 'cf_delete_dns_record',
-    description: 'Delete a DNS record.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        zoneId: { type: 'string', description: 'Zone ID' },
-        recordId: { type: 'string', description: 'DNS record ID' }
-      },
-      required: ['zoneId', 'recordId']
-    },
-    handler: async ({ zoneId, recordId }) => {
-      await cf('DELETE', `/zones/${zoneId}/dns_records/${recordId}`);
-      return `Deleted DNS record ${recordId}`;
-    }
-  },
   // --- Pages ---
   {
     name: 'cf_list_pages_projects',
@@ -235,39 +199,4 @@ export const tools = [
       }).join('\n');
     }
   },
-  {
-    name: 'cf_create_r2_bucket',
-    description: 'Create an R2 storage bucket.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        accountId: { type: 'string', description: 'Account ID' },
-        name: { type: 'string', description: 'Bucket name' },
-        location: { type: 'string', description: 'Location hint (e.g. "wnam", "enam", "weur", "eeur", "apac")' }
-      },
-      required: ['accountId', 'name']
-    },
-    handler: async ({ accountId, name, location }) => {
-      const body = { name };
-      if (location) body.locationHint = location;
-      await cf('POST', `/accounts/${accountId}/r2/buckets`, body);
-      return `Created R2 bucket: ${name}`;
-    }
-  },
-  {
-    name: 'cf_delete_r2_bucket',
-    description: 'Delete an R2 storage bucket (must be empty).',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        accountId: { type: 'string', description: 'Account ID' },
-        name: { type: 'string', description: 'Bucket name' }
-      },
-      required: ['accountId', 'name']
-    },
-    handler: async ({ accountId, name }) => {
-      await cf('DELETE', `/accounts/${accountId}/r2/buckets/${name}`);
-      return `Deleted R2 bucket: ${name}`;
-    }
-  }
 ];

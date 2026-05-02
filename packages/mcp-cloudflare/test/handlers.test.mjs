@@ -115,51 +115,6 @@ describe('cf_list_dns_records handler', () => {
 });
 
 // ---------------------------------------------------------------------------
-// cf_create_dns_record
-// ---------------------------------------------------------------------------
-describe('cf_create_dns_record handler', () => {
-  it('creates record and returns confirmation', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: { type: 'A', name: 'test.example.com', content: '5.6.7.8', id: 'r3' } }),
-        text: async () => '{}',
-      };
-    });
-    const result = await getTool('cf_create_dns_record').handler({
-      zoneId: 'z1', type: 'A', name: 'test', content: '5.6.7.8'
-    });
-    assert.ok(result.includes('Created'));
-    assert.ok(result.includes('test.example.com'));
-    assert.ok(result.includes('5.6.7.8'));
-    assert.equal(capturedBody.type, 'A');
-    assert.equal(capturedBody.content, '5.6.7.8');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// cf_delete_dns_record
-// ---------------------------------------------------------------------------
-describe('cf_delete_dns_record handler', () => {
-  it('deletes record and returns confirmation', async () => {
-    mockCfFetch(200, { id: 'r1' });
-    const result = await getTool('cf_delete_dns_record').handler({ zoneId: 'z1', recordId: 'r1' });
-    assert.ok(result.includes('Deleted'));
-    assert.ok(result.includes('r1'));
-  });
-
-  it('calls correct API path', async () => {
-    mockCfFetch(200, { id: 'r1' });
-    await getTool('cf_delete_dns_record').handler({ zoneId: 'z1', recordId: 'r1' });
-    const [url, opts] = globalThis.fetch.mock.calls[0].arguments;
-    assert.ok(url.includes('/zones/z1/dns_records/r1'));
-    assert.equal(opts.method, 'DELETE');
-  });
-});
-
-// ---------------------------------------------------------------------------
 // cf_list_pages_projects
 // ---------------------------------------------------------------------------
 describe('cf_list_pages_projects handler', () => {
@@ -223,39 +178,6 @@ describe('cf_list_r2_buckets handler', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// cf_create_r2_bucket
-// ---------------------------------------------------------------------------
-describe('cf_create_r2_bucket handler', () => {
-  it('creates bucket and returns confirmation', async () => {
-    let capturedBody;
-    mock.method(globalThis, 'fetch', async (url, opts) => {
-      capturedBody = JSON.parse(opts.body);
-      return {
-        ok: true, status: 200,
-        json: async () => ({ success: true, result: {} }),
-        text: async () => '{}',
-      };
-    });
-    const result = await getTool('cf_create_r2_bucket').handler({ accountId: 'a1', name: 'new-bucket', location: 'enam' });
-    assert.ok(result.includes('Created'));
-    assert.ok(result.includes('new-bucket'));
-    assert.equal(capturedBody.name, 'new-bucket');
-    assert.equal(capturedBody.locationHint, 'enam');
-  });
-});
-
-// ---------------------------------------------------------------------------
-// cf_delete_r2_bucket
-// ---------------------------------------------------------------------------
-describe('cf_delete_r2_bucket handler', () => {
-  it('deletes bucket and returns confirmation', async () => {
-    mockCfFetch(200, {});
-    const result = await getTool('cf_delete_r2_bucket').handler({ accountId: 'a1', name: 'old-bucket' });
-    assert.ok(result.includes('Deleted'));
-    assert.ok(result.includes('old-bucket'));
-  });
-});
 
 // ---------------------------------------------------------------------------
 // Error handling
